@@ -82,30 +82,31 @@ class TestScan < Test::Unit::TestCase
     # a line break just before end tag is ignored.
     # http://www.w3.org/TR/REC-html40/appendix/notes.html#notes-line-breaks
     #
-    # HTree.scan handles such ignored line breaks as part of a tag.
+    # But usual browser including mozilla doesn't.
+    # So HTree doesn't ignore them and treat as usual text.
     s = "a\n<e>\nb\n<f>\nc\n</f>\nd\n</e>\ne"
     assert_equal([
       [:text_pcdata, "a\n"],
-      [:stag, "<e>\n"],
-      [:text_pcdata, "b\n"],
-      [:stag, "<f>\n"],
-      [:text_pcdata, "c"],
-      [:etag, "\n</f>"],
-      [:text_pcdata, "\nd"],
-      [:etag, "\n</e>"],
+      [:stag, "<e>"],
+      [:text_pcdata, "\nb\n"],
+      [:stag, "<f>"],
+      [:text_pcdata, "\nc\n"],
+      [:etag, "</f>"],
+      [:text_pcdata, "\nd\n"],
+      [:etag, "</e>"],
       [:text_pcdata, "\ne"],
     ], scan(s))
 
     s = "a\n<e>\nb\n<script>\nc\n</script>\nd\n</e>\ne"
     assert_equal([
       [:text_pcdata, "a\n"],
-      [:stag, "<e>\n"],
-      [:text_pcdata, "b\n"],
-      [:stag, "<script>\n"],
-      [:text_cdata_content, "c"],
-      [:etag, "\n</script>"],
-      [:text_pcdata, "\nd"],
-      [:etag, "\n</e>"],
+      [:stag, "<e>"],
+      [:text_pcdata, "\nb\n"],
+      [:stag, "<script>"],
+      [:text_cdata_content, "\nc\n"],
+      [:etag, "</script>"],
+      [:text_pcdata, "\nd\n"],
+      [:etag, "</e>"],
       [:text_pcdata, "\ne"],
     ], scan(s))
 

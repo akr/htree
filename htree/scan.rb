@@ -7,8 +7,6 @@ module HTree
     Name = /[A-Za-z_:]#{NameChar}*/
     Nmtoken = /#{NameChar}+/
 
-    EOL = /\n|\r\n?/
-
     Comment_C = /<!--(.*?)-->/m
     Comment = Comment_C.disable_capture
     CDATA_C = /<!\[CDATA\[(.*?)\]\]>/m
@@ -66,8 +64,8 @@ module HTree
     input.scan(/(#{Pat::XmlDecl})
                |(#{Pat::DocType})
                |(#{Pat::XmlProcIns})
-               |(#{Pat::StartTag}#{Pat::EOL}?)
-               |(#{Pat::EOL}?#{Pat::EndTag})
+               |(#{Pat::StartTag})
+               |(#{Pat::EndTag})
                |(#{Pat::EmptyTag})
                |(#{Pat::Comment})
                |(#{Pat::CDATA})/ox) {
@@ -75,12 +73,7 @@ module HTree
       if cdata_content
         str = $&
         if $5 && str[Pat::Name] == cdata_content
-          if is_xml && /\A#{Pat::EOL}/o =~ str
-            str = $'
-            text_end = match.begin(0) + $&.length
-          else
-            text_end = match.begin(0)
-          end
+          text_end = match.begin(0)
           if text_start < text_end
             yield [:text_cdata_content, input[text_start...text_end]]
             text_start = match.end(0)
@@ -90,12 +83,7 @@ module HTree
         end
       else
         str = match[0]
-        if $5 && is_xml && /\A#{Pat::EOL}/o =~ str
-          str = $'
-          text_end = match.begin(0) + $&.length
-        else
-          text_end = match.begin(0)
-        end
+        text_end = match.begin(0)
         if text_start < text_end
           yield [:text_pcdata, input[text_start...text_end]]
         end
@@ -108,10 +96,6 @@ module HTree
         elsif match.begin(3)
           yield [:procins, str]
         elsif match.begin(4)
-          if is_xml && /#{Pat::EOL}\z/o =~ str
-            str = $`
-            text_start = match.end(0) - $&.length
-          end
           yield stag = [:stag, str]
           if !is_xml && ElementContent[tagname = str[Pat::Name]] == :CDATA
             cdata_content = tagname
