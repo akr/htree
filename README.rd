@@ -19,18 +19,22 @@ htree provides a tree data structre which represent HTML and XML data.
 * XHTML/XML generator
 * template engine
 * recursive template expansion
-#* converter to REXML document
+* converter to REXML document
 
 == Reference Manual
 
 ((<URL:doc/index.html>))
 
-== Usage
+== Usage Example
 
-#Following two-line script convert HTML to XHTML.
-#
-#  require 'htree'
-#  puts HTree.parse(STDIN).to_xhtml
+Following two-line script convert HTML to XHTML.
+
+  require 'htree'
+  HTree.parse(STDIN).display_xml
+
+The conversion method to REXML is provides as to_rexml.
+
+  HTree.parse(...).to_rexml
 
 == License
 
