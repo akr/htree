@@ -14,6 +14,14 @@ class TestSubnode < Test::Unit::TestCase
     assert_equal("a", e2.name)
     assert_equal("xxx", e2.fetch_attr("href"))
     assert_equal([HTree::Text.new("def")], e2.children)
+    assert_equal([], e1.subst_subnode(0=>nil).children)
+  end
+
+  def test_elem_subst_empty
+    e1 = HTree.parse("<img />").root
+    assert_equal(true, e1.empty_element?)
+    assert_equal(true, e1.subst_subnode("src"=>"xxx").empty_element?)
+    assert_equal(false, e1.subst_subnode(0=>"xxx").empty_element?)
   end
 
   def test_doc_get

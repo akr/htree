@@ -163,13 +163,20 @@ module HTree
         end
       }
 
-      Elem.new(
-        @stag.element_name,
-        attrs,
-        children_left,
-        children,
-        children_right,
-        @stag.context)
+      children = [children_left, children, children_right].flatten.compact
+
+      if children.empty? && @empty
+        Elem.new(
+          @stag.element_name,
+          attrs,
+          @stag.context)
+      else 
+        Elem.new(
+          @stag.element_name,
+          attrs,
+          children,
+          @stag.context)
+      end
     end
   end 
 end
