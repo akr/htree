@@ -11,8 +11,10 @@ module HTree
     def Text.new(arg)
       if Text === arg
         new! arg.rcdata
-      else
+      elsif String === arg
         new! arg.gsub(/&/, '&amp;')
+      else
+        raise TypeError, "cannot initialize Text with #{arg.inspect}"
       end
     end
 
