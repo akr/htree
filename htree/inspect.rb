@@ -65,6 +65,7 @@ module HTree
     end
   end
 
+  # :stopdoc:
   class STag
     def pretty_print(q)
       q.group(1, '<', '>') {
@@ -85,6 +86,7 @@ module HTree
       }
     end
   end
+  # :startdoc:
 
   class BogusETag
     def pretty_print(q)

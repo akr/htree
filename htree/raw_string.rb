@@ -52,6 +52,7 @@ module HTree
     end
   end
 
+  # :stopdoc:
   class STag
     def eliminate_raw_string
       STag.new(@qualified_name, @attributes, @inherited_context)
@@ -63,6 +64,7 @@ module HTree
       self.class.new(@qualified_name)
     end
   end
+  # :startdoc:
 
   class XMLDecl
     def eliminate_raw_string

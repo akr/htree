@@ -115,6 +115,7 @@ module HTree
     alias make_usual_equal_object make_exact_equal_object
   end
 
+  # :stopdoc:
   class STag
     def make_exact_equal_object
       [@raw_string,
@@ -147,6 +148,7 @@ module HTree
 
     alias usual_equal_object qualified_name
   end
+  # :startdoc:
 
   class Text
     def make_exact_equal_object

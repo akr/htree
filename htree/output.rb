@@ -79,6 +79,7 @@ module HTree
     end
   end
 
+  # :stopdoc:
   class STag
     def output_attributes(out, context)
       @attributes.each {|aname, text|
@@ -111,6 +112,7 @@ module HTree
       out.output_string '>'
     end
   end
+  # :startdoc:
 
   class Context
     def output_namespaces(out, outer_context)

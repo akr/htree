@@ -7,8 +7,10 @@ module HTree
   module Leaf; include HTree end
     class Text; include Leaf, Node end
     module Markup; include Leaf end
+      # :stopdoc:
       class STag; include Markup end
       class ETag; include Markup end
+      # :startdoc:
         class BogusETag < ETag; include Node end
       class XMLDecl; include Markup, Node end
       class DocType; include Markup, Node end

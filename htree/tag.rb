@@ -5,6 +5,8 @@ require 'htree/context'
 require 'htree/name'
 
 module HTree
+  # :stopdoc:
+
   class STag
     def initialize(name, attributes=[], inherited_context=DefaultContext)
       init_raw_string
@@ -157,4 +159,6 @@ module HTree
     end
     attr_reader :qualified_name
   end
+
+  # :startdoc:
 end

@@ -2,11 +2,13 @@ require 'htree/text'
 require 'htree/container'
 
 module HTree
+  # :stopdoc:
   module Container
     def extract_text
       Text.concat(*@children.map {|n| n.extract_text })
     end
   end
+  # :startdoc:
 
   class Text
     def extract_text
@@ -14,9 +16,11 @@ module HTree
     end
   end
   
+  # :stopdoc:
   module Markup
     def extract_text
       Text.new('')
     end
   end
+  # :startdoc:
 end

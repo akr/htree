@@ -39,6 +39,8 @@ module HTree
     parse_as(input, DefaultContext, true)
   end
 
+  # :stopdoc:
+
   def HTree.parse_as(input, context, is_xml) # :nodoc:
     input_charset = nil
     if input.respond_to? :read # IO, StringIO
@@ -392,4 +394,6 @@ module HTree
       result
     end
   end
+
+  # :startdoc:
 end

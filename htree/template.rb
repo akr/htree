@@ -145,12 +145,12 @@
 #
 # == Method Summary
 #
-# - HTree.expand_template(<i>template_pathname</i>) -> STDOUT
-# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>) -> STDOUT
+# - HTree.expand_template(<i>template_pathname</i>) -> $stdout
+# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>) -> $stdout
 # - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>, <i>out</i>) -> <i>out</i>
 # - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>, <i>out</i>, <i>encoding</i>) -> <i>out</i>
 #
-# - HTree.expand_template{<i>template_string</i>} -> STDOUT
+# - HTree.expand_template{<i>template_string</i>} -> $stdout
 # - HTree.expand_template(<i>out</i>) {<i>template_string</i>} -> <i>out</i>
 # - HTree.expand_template(<i>out</i>, <i>encoding</i>) {<i>template_string</i>} -> <i>out</i>
 #
@@ -195,12 +195,12 @@ require 'htree/equality'
 #
 # <i>out</i> specifies output target.
 # It should have <tt><<</tt> method: IO and String for example.
-# If it is not specified, STDOUT is used.
+# If it is not specified, $stdout is used.
 # 
 # <i>encoding</i> specifies output character encoding.
 # If it is not specified, internal encoding is used.
 #
-# HTree.expand_template returns <i>out</i> or STDOUT if <i>out</i> is not
+# HTree.expand_template returns <i>out</i> or $stdout if <i>out</i> is not
 # specified.
 #
 def HTree.expand_template(*args, &block)
@@ -221,7 +221,7 @@ def HTree.expand_template(*args, &block)
     binding = eval("lambda {|context_object| context_object.instance_eval 'binding'}", TOPLEVEL_BINDING).call(obj)
   end
 
-  out = args.shift || STDOUT
+  out = args.shift || $stdout
   encoding = args.shift || HTree::Encoder.internal_charset
   if !args.empty?
     raise ArgumentError, "wrong number of arguments" 
