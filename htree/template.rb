@@ -58,7 +58,9 @@ def HTree.compile_template(template_string)
   eval(code)
 end
 
-class HTree::TemplateCompiler # :nodoc:
+# :enddoc:
+
+class HTree::TemplateCompiler
   IGNORABLE_ELEMENTS = {
     'span' => true,
     #'div' => true,
@@ -463,7 +465,7 @@ End
     end
   end
 
-  class HTree::GenCode # :nodoc:
+  class HTree::GenCode
     def output_dynamic_text(expr)
       flush_buffer
       @code << "#{@outvar}.output_dynamic_text((#{expr}))\n"
