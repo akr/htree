@@ -193,7 +193,7 @@ end
 #    ><span _text=subj
 #          />'s birthday is <span _text="t.strftime('%B %dth %Y')"/>.</p>
 #  End
-#  puts M.birthday('Ruby', Time.utc(1993, 2, 24)).to_xml
+#  M.birthday('Ruby', Time.utc(1993, 2, 24)).display_xml
 #  # <p xmlns="http://www.w3.org/1999/xhtml">Ruby's birthday is February 24th 1993.</p>
 #
 # The module function takes arguments specifies by a <code>_template</code>

@@ -17,9 +17,8 @@ n=                              nil     ''      n
 =end
     def Name.parse_element_name(name, context)
       if /\{(.*)\}/ =~ name
-        # In to_xml, 
         # "{u}n" means "use default namespace",
-        # "p{u}n" means "use the specified prefix p" and
+        # "p{u}n" means "use the specified prefix p"
         $` == '' ? Name.new(nil, $1, $') : Name.new($`, $1, $')
       elsif /:/ =~ name && !context.namespace_uri($`).empty?
         Name.new($`, context.namespace_uri($`), $')

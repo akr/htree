@@ -26,7 +26,7 @@ module HTree
     end
 
     def raw_string
-      @raw_string || self.to_xml
+      @raw_string || self.display_xml(Encoder.internal_charset, '')
     end
   end
 

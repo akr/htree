@@ -42,11 +42,13 @@
 #   - HTree.parse_xml(<i>input</i>) -> HTree::Doc
 #
 # - Genrating Methods
-#   - HTree::Node#to_xml([<i>encoding</i>]) -> String
+#   - HTree::Node#display_xml -> STDOUT
+#   - HTree::Node#display_xml(<i>encoding</i>) -> STDOUT
+#   - HTree::Node#display_xml(<i>encoding</i>, <i>out</i>) -> <i>out</i>
 #
 # - Template Methods
-#   - HTree.expand_template{<i>template_string</i>}
-#   - HTree.expand_template(<i>encoding</i>){<i>template_string</i>}
+#   - HTree.expand_template{<i>template_string</i>} -> STDOUT
+#   - HTree.expand_template(<i>encoding</i>){<i>template_string</i>} -> STDOUT
 #   - HTree.expand_template(<i>encoding</i>, <i>out</i>){<i>template_string</i>} -> <i>out</i>
 #   - HTree.compile_template(<i>template_string</i>) -> Module
 #   - HTree{<i>template_string</i>} -> HTree::Doc
@@ -56,6 +58,6 @@ require 'htree/parse'
 require 'htree/extract_text'
 require 'htree/equality'
 require 'htree/inspect'
-require 'htree/to_xml'
+require 'htree/display'
 require 'htree/traverse'
 require 'htree/template'

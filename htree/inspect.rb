@@ -40,9 +40,9 @@ module HTree
             q.breakable
             q.pp line
           }
-        elsif self.respond_to? :to_xml
+        elsif self.respond_to? :display_xml
           q.breakable
-          q.text to_xml
+          q.text self.display_xml(HTree::Encoder.internal_charset, '')
         end
       }
     end
