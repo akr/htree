@@ -19,7 +19,7 @@
 # * HTree
 #   * HTree::Name
 #   * HTree::Context
-#   * HTree::Loc
+#   * HTree::Location
 #   * HTree::Node
 #     * HTree::Doc
 #     * HTree::Elem
