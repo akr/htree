@@ -79,4 +79,9 @@ End
     assert_xhtml("<x\n>&#32;</x\n>", '<x>&#32;</x>')
     assert_xhtml("<pre\n> </pre\n>", '<pre> </pre>')
   end
+
+  def test_div
+    assert_xhtml("<div\n>a</div\n>", '<div>a</div>')
+  end
+
 end
