@@ -3,6 +3,7 @@ require 'htree/doc'
 require 'htree/elem'
 require 'htree/leaf'
 require 'htree/tag'
+require 'htree/output'
 require 'htree/raw_string'
 
 module HTree

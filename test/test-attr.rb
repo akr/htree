@@ -54,4 +54,14 @@ class TestAttr < Test::Unit::TestCase
     assert_equal(nil, t.get_attr('x'))
   end
 
+  def test_loc_get_attr
+    t = HTree::Elem.new('e', {'k'=>'v'})
+    v = t.make_loc.get_attr('k')
+    assert_instance_of(String, v)
+    assert_equal('v', v)
+    v = t.make_loc.fetch_attr('k')
+    assert_instance_of(String, v)
+    assert_equal('v', v)
+  end
+
 end

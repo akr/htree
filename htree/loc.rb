@@ -361,3 +361,9 @@ class HTree::Elem::Loc
     }
   end
 end
+
+class HTree::Text::Loc
+  def to_s() @node.to_s end
+  def strip() @node.strip end
+  def empty?() @node.empty? end
+end
