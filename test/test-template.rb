@@ -6,8 +6,10 @@ class TestText < Test::Unit::TestCase
 
   def assert_xhtml(expected, template, message=nil)
     assert_equal(
-      "<?xml version=\"1.0\" encoding=\"US-ASCII\"?>"+
-      "<html xmlns=\"http://www.w3.org/1999/xhtml\">#{expected}</html>",
+      '<?xml version="1.0" encoding="US-ASCII"?>' +
+      '<html xmlns="http://www.w3.org/1999/xhtml">' +
+      expected +
+      '</html>',
       HTree.expand_template('US-ASCII', ''){"<html>#{template}</html>"},
       message)
   end
@@ -49,6 +51,4 @@ class TestText < Test::Unit::TestCase
     assert_xhtml('<f>1</f>',
       '<e _call=m(1) /><f _template=m(v) _text=v></f>')
   end
-
-
 end
