@@ -13,19 +13,20 @@ module HTree
   #
   # <i>input</i> should be a String or
   # an object which respond to read or open method.
-  # For example, IO, StringIO, Pathname, URI::HTTP and URI::FTP is acceptable.
-  # Note that last URIs need open-uri to open.
+  # For example, IO, StringIO, Pathname, URI::HTTP and URI::FTP are acceptable.
+  # Note that the URIs need open-uri.
   #
   # If opened file or read content has charset method,
   # HTree.parse decode it according to $KCODE before parsing.
   # Otherwise HTree.parse assumes the character encoding of the content is
-  # same as $KCODE.
-  # Note that the charste method is provided by URI::HTTP with open-uri.
+  # compatible to $KCODE.
+  # Note that the charset method is provided by URI::HTTP with open-uri.
   def HTree.parse(input)
     parse_as(input, HTMLContext, false)
   end
 
-  # HTree.parse_xml returns parses <i>input</i> and return a tree.
+  # HTree.parse_xml returns parses <i>input</i> as XML and
+  # return a document tree represented by HTree::Doc.
   #
   # It behaves almost same as HTree.parse but it assumes <i>input</> is XML
   # even if no XML declaration.
