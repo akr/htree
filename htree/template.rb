@@ -552,7 +552,7 @@ End
       ht_vals =  ht_attrs.map {|htname, text| text.to_s }
       case ht_names
       when []
-        compile_literal_elem(node, local_templates)
+        generate_logic_node([:tag, [:content]], node, local_templates)
       when ['_text'] # <n _text="expr" />
         generate_logic_node(compile_dynamic_text(ignore_tag, ht_vals[0]), node, local_templates)
       when ['_if'] # <n _if="expr" >...</n>
@@ -571,14 +571,6 @@ End
     else
       return node
     end
-  end
-
-  def compile_literal_elem(node, local_templates)
-    subst = {}
-    node.children.each_with_index {|n, i|
-      subst[i] = compile_node(n, local_templates)
-    }
-    node.subst_subnode(subst)
   end
 
   def valid_syntax?(code)

@@ -87,4 +87,7 @@ End
     assert_xhtml("<span\n>a</span\n>", '<span>a</span>')
   end
 
+  def test_template_in_attr
+    assert_xhtml("<a x=\"1\"\n></a\n>", '<a _attr_x=1><b _template=m></b></a>')
+  end
 end
