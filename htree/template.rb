@@ -5,11 +5,6 @@ def HTree.expand_template(encoding=HTree::Encoder.internal_charset, out=STDOUT, 
   HTree::TemplateCompiler.new.expand_template(template, encoding, out, block)
 end
 
-def HTree.compile_template(template)
-  code = HTree::TemplateCompiler.new.compile_template(template)
-  eval(code)
-end
-
 def HTree(arg=nil, &block)
   if block_given?
     template = block.call
@@ -19,12 +14,17 @@ def HTree(arg=nil, &block)
   end
 end
 
+def HTree.compile_template(template)
+  code = HTree::TemplateCompiler.new.compile_template(template)
+  eval(code)
+end
+
 class HTree::TemplateCompiler
   IGNORABLE_ELEMENTS = {
     'span' => true,
-    'div' => true,
+    #'div' => true,
     '{http://www.w3.org/1999/xhtml}span' => true,
-    '{http://www.w3.org/1999/xhtml}div' => true,
+    #'{http://www.w3.org/1999/xhtml}div' => true,
   }
 
   def initialize
@@ -136,14 +136,14 @@ End
     args2 = [outvar, contextvar, *fargs]
 
     <<"End"
-def #{name}_xml(#{fargs.join(',')})
+def #{name}(#{fargs.join(',')})
+HTree.parse(_xml_#{name}(#{fargs.join(',')}))
+end
+def _xml_#{name}(#{fargs.join(',')})
 #{outvar} = HTree::Encoder.new(HTree::Encoder.internal_charset)
 #{contextvar} = HTree::DefaultContext
 _ht_#{name}(#{args2.join(',')})
 #{outvar}.finish
-end
-def #{name}(#{fargs.join(',')})
-HTree.parse(#{name}_xml(#{fargs.join(',')}))
 end
 def _ht_#{name}(#{args2.join(',')})
 #{compile_template_body(outvar, contextvar, node, false)}\
