@@ -20,22 +20,25 @@ module HTree
       tokens << token
       xmldecl_seen = true if token[0] == :xmldecl
     }
-    structure_list = parse_pairs(tokens)
+    structure_list = parse_pairs(tokens, xmldecl_seen)
     structure_list = fix_structure_list(structure_list, xmldecl_seen)
     nodes = structure_list.map {|s| build_node(s, xmldecl_seen) }
     Doc.new(nodes)
   end
 
-  def HTree.parse_pairs(tokens)
+  def HTree.parse_pairs(tokens, xmldecl_seen)
     stack = [[nil, nil, []]]
     tokens.each {|token|
       case token[0]
       when :stag
         stag_raw_string = token[1]
-        stack << [stag_raw_string[Pat::Name], stag_raw_string, []]
+        stagname = stag_raw_string[Pat::Name]
+        stagname = stagname.downcase if !xmldecl_seen
+        stack << [stagname, stag_raw_string, []]
       when :etag
         etag_raw_string = token[1]
         etagname = etag_raw_string[Pat::Name]
+        etagname = etagname.downcase if !xmldecl_seen
         matched_elem = nil
         stack.reverse_each {|elem|
           stagname, _, _ = elem
@@ -116,6 +119,7 @@ module HTree
           if rest[0][0] == :elem
             elem = rest.shift
             elem_tagname = elem[1][Pat::Name]
+            elem_tagname = elem_tagname.downcase if !xmldecl_seen
             if uncontainable_tags.include? elem_tagname
               rest.unshift elem
               break

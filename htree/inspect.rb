@@ -36,7 +36,7 @@ module HTree
       pp.group(1, '{', '}') {
         pp.text self.class.name.sub(/.*::/,'').downcase
         if rs = self.raw_string
-          rs.scan(/[^\r\n]*(?:\r\n?|\n|\z)/) {|line|
+          rs.scan(/[^\r\n]*(?:\r\n?|\n|[^\r\n]\z)/) {|line|
             pp.breakable
             pp.pp line
           }
@@ -82,6 +82,20 @@ module HTree
     def pretty_print(pp)
       pp.group(1, '</', '>') {
         pp.text @qualified_name
+      }
+    end
+  end
+
+  class BogusETag
+    def pretty_print(pp)
+      pp.group(1, '{', '}') {
+        pp.text self.class.name.sub(/.*::/,'').downcase
+        if rs = self.raw_string
+          pp.breakable
+          pp.text rs
+        else
+          pp.text "</#{@qualified_name}>"
+        end
       }
     end
   end
