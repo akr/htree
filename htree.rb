@@ -54,7 +54,7 @@
 #
 # - Traverse Methods
 #   - HTree::Elem#attributes -> Hash[HTree::Name -> HTree::Text]
-#   - HTree::Elem::Loc#attributes -> Hash[HTree::Name -> HTree::Location]
+#   - HTree::Elem::Location#attributes -> Hash[HTree::Name -> HTree::Location]
 #
 # - Predicate Methods
 #   - HTree::Traverse#doc? -> true or false
