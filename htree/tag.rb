@@ -142,7 +142,15 @@ n=                              nil     nil     n
       }
       @attributes.freeze
     end
-    attr_reader :name, :attributes, :inherited_namespaces, :namespaces
+    attr_reader :attributes, :inherited_namespaces, :namespaces
+
+    def element_name
+      @name
+    end
+
+    def name
+      @name.universal_name
+    end
 
     def namespace_prefix() @name.namespace_prefix end
     def namespace_uri() @name.namespace_uri end
@@ -168,6 +176,7 @@ n=                              nil     nil     n
       @xmlns_decls.each {|name, uri|
         yield name, uri
       }
+      nil
     end
 
     def each_attribute
@@ -175,6 +184,7 @@ n=                              nil     nil     n
         next if name.xmlns?
         yield name, text
       }
+      nil
     end
 
     def each_attr
@@ -182,6 +192,7 @@ n=                              nil     nil     n
         next if name.xmlns?
         yield name.universal_name, text.to_s
       }
+      nil
     end
 
     def fetch_attribute(universal_name, *rest)
@@ -195,6 +206,11 @@ n=                              nil     nil     n
       else
         raise IndexError, "attribute not found: #{universal_name.inspect}"
       end
+    end
+
+    def fetch_attr(universal_name, *rest)
+      text = fetch_attribute(universal_name, *rest) { return yield }
+      text.to_s
     end
 
     def get_attribute(universal_name)

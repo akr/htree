@@ -100,6 +100,13 @@ module HTree
     def name; @stag.universal_name end
     def qualified_name; @stag.qualified_name end
 
+    def each_attribute(&block); @stag.each_attribute(&block) end
+    def each_attr(&block); @stag.each_attr(&block) end
+    def fetch_attribute(uname, *rest, &block); @stag.fetch_attribute(uname, *rest, &block) end
+    def fetch_attr(uname, *rest, &block); @stag.fetch_attr(uname, *rest, &block) end
+    def get_attribute(uname, *rest, &block); @stag.get_attribute(uname, *rest, &block) end
+    def get_attr(uname, *rest, &block); @stag.get_attr(uname, *rest, &block) end
+
     def empty_element?
       @empty
     end
