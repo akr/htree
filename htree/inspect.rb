@@ -6,24 +6,24 @@ require 'htree/raw_string'
 
 module HTree
   class Doc
-    def pretty_print(pp)
-      pp.object_group(self) { @children.each {|elt| pp.breakable; pp.pp elt } }
+    def pretty_print(q)
+      q.object_group(self) { @children.each {|elt| q.breakable; q.pp elt } }
     end
     alias inspect pretty_print_inspect
   end
 
   class Elem
-    def pretty_print(pp)
+    def pretty_print(q)
       if @empty
-        pp.group(1, '{emptyelem', '}') {
-          pp.breakable; pp.pp @stag
+        q.group(1, '{emptyelem', '}') {
+          q.breakable; q.pp @stag
         }
       else
-        pp.group(1, "{elem", "}") {
-          pp.breakable; pp.pp @stag
-          @children.each {|elt| pp.breakable; pp.pp elt }
+        q.group(1, "{elem", "}") {
+          q.breakable; q.pp @stag
+          @children.each {|elt| q.breakable; q.pp elt }
           if @etag
-            pp.breakable; pp.pp @etag
+            q.breakable; q.pp @etag
           end
         }
       end
@@ -32,17 +32,17 @@ module HTree
   end
 
   module Leaf
-    def pretty_print(pp)
-      pp.group(1, '{', '}') {
-        pp.text self.class.name.sub(/.*::/,'').downcase
+    def pretty_print(q)
+      q.group(1, '{', '}') {
+        q.text self.class.name.sub(/.*::/,'').downcase
         if rs = self.raw_string
           rs.scan(/[^\r\n]*(?:\r\n?|\n|[^\r\n]\z)/) {|line|
-            pp.breakable
-            pp.pp line
+            q.breakable
+            q.pp line
           }
         elsif self.respond_to? :generate_xml
-          pp.breakable
-          pp.text generate_xml
+          q.breakable
+          q.text generate_xml
         end
       }
     end
@@ -66,35 +66,35 @@ module HTree
   end
 
   class STag
-    def pretty_print(pp)
-      pp.group(1, '<', '>') {
-        pp.text @name.inspect
+    def pretty_print(q)
+      q.group(1, '<', '>') {
+        q.text @name.inspect
 
         @attributes.each {|n, t|
-          pp.breakable
-          pp.text "#{n.inspect}=#{t.generate_xml_attvalue}"
+          q.breakable
+          q.text "#{n.inspect}=#{t.generate_xml_attvalue}"
         }
       }
     end
   end
 
   class ETag
-    def pretty_print(pp)
-      pp.group(1, '</', '>') {
-        pp.text @qualified_name
+    def pretty_print(q)
+      q.group(1, '</', '>') {
+        q.text @qualified_name
       }
     end
   end
 
   class BogusETag
-    def pretty_print(pp)
-      pp.group(1, '{', '}') {
-        pp.text self.class.name.sub(/.*::/,'').downcase
+    def pretty_print(q)
+      q.group(1, '{', '}') {
+        q.text self.class.name.sub(/.*::/,'').downcase
         if rs = self.raw_string
-          pp.breakable
-          pp.text rs
+          q.breakable
+          q.text rs
         else
-          pp.text "</#{@qualified_name}>"
+          q.text "</#{@qualified_name}>"
         end
       }
     end
