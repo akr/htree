@@ -28,8 +28,8 @@ module HTree
     def root
       es = []
       @children.each {|c| es << c if Elem === c }
-      raise Doc::Error, "no element" if es.empty?
-      raise Doc::Error, "multiple elements" if 1 < es.length
+      raise HTree::Error, "no element" if es.empty?
+      raise HTree::Error, "multiple elements" if 1 < es.length
       es[0]
     end
   end 
@@ -71,7 +71,7 @@ module HTree
           when String
             children << Text.new(arg)
           else
-            raise Elem::Error, "unexpected argument: #{arg.inspect}"
+            raise HTree::Error, "unexpected argument: #{arg.inspect}"
           end
         }
         # Since name's prefix may not determined,
@@ -82,13 +82,13 @@ module HTree
 
     def initialize(stag, children=nil, etag=nil)
       unless stag.class == STag
-        raise Elem::Error, "HTree::STag expected: #{stag.inspect}"
+        raise HTree::Error, "HTree::STag expected: #{stag.inspect}"
       end
       unless !children || children.all? {|c| AcceptableChild.include? c.class }
-        raise Elem::Error, "array of HTree expected: #{children.find_all {|c| !AcceptableChild.include?(c.class) }.inspect}"
+        raise HTree::Error, "array of HTree expected: #{children.find_all {|c| !AcceptableChild.include?(c.class) }.inspect}"
       end
       unless !etag || etag.class == ETag
-        raise Elem::Error, "HTree::ETag expected: #{etag.inspect}"
+        raise HTree::Error, "HTree::ETag expected: #{etag.inspect}"
       end
       @stag = stag
       @children = (children ? children.dup : []).freeze

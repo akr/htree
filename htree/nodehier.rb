@@ -16,14 +16,5 @@ module HTree
     class Elem; include Container; end
 
   class Error < StandardError; end
-    class Name::Error < Error; end
-    class STag::Error < Error; end
-    class ETag::Error < Error; end
-    class XMLDecl::Error < Error; end
-    class DocType::Error < Error; end
-    class ProcIns::Error < Error; end
-    class Comment::Error < Error; end
-    class Doc::Error < Error; end
-    class Elem::Error < Error; end
 end
 

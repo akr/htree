@@ -18,7 +18,7 @@ module HTree
         if n.namespace_uri
           if used.include?(n.namespace_prefix)
             if used[n.namespace_prefix] != n.namespace_uri
-              raise STag::Error, "inconsistent namespace: #{n.namespace_prefix.inspect}"
+              raise HTree::Error, "inconsistent namespace: #{n.namespace_prefix.inspect}"
             end
           else
             used[n.namespace_prefix] = n.namespace_uri

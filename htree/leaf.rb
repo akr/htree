@@ -6,13 +6,13 @@ module HTree
     def initialize(version, encoding=nil, standalone=nil)
       init_raw_string
       if /\A[a-zA-Z0-9_.:-]+\z/ !~ version
-        raise XMLDecl::Error, "invalid version in XML declaration: #{version.inspect}"
+        raise HTree::Error, "invalid version in XML declaration: #{version.inspect}"
       end
       if encoding && /\A[A-Za-z][A-Za-z0-9._-]*\z/ !~ encoding
-        raise XMLDecl::Error, "invalid encoding in XML declaration: #{encoding.inspect}"
+        raise HTree::Error, "invalid encoding in XML declaration: #{encoding.inspect}"
       end
       unless standalone == nil || standalone == true || standalone == false
-        raise XMLDecl::Error, "invalid standalone document declaration in XML declaration: #{standalone.inspect}"
+        raise HTree::Error, "invalid standalone document declaration in XML declaration: #{standalone.inspect}"
       end
       @version = version
       @encoding = encoding
@@ -41,10 +41,10 @@ module HTree
     def initialize(root_element_name, public_identifier=nil, system_identifier=nil)
       init_raw_string
       if public_identifier && /\A[ \x0d\x0aa-zA-Z0-9\-'()+,.\/:=?;!*\#@$_%]*\z/ !~ public_identifier
-        raise DocType::Error, "invalid public identifier in document type declaration: #{public_identifier.inspect}"
+        raise HTree::Error, "invalid public identifier in document type declaration: #{public_identifier.inspect}"
       end
       if system_identifier && /"/ =~ system_identifier && /'/ =~ system_identifier
-        raise DocType::Error, "invalid system identifier in document type declaration: #{system_identifier.inspect}"
+        raise HTree::Error, "invalid system identifier in document type declaration: #{system_identifier.inspect}"
       end
 
       @root_element_name = root_element_name
@@ -91,7 +91,7 @@ module HTree
     def initialize(target, content)
       init_raw_string
       if /\?>/ =~ content
-        raise ProcIns::Error, "invalid processing instruction content: #{content.inspect}"
+        raise HTree::Error, "invalid processing instruction content: #{content.inspect}"
       end
       @target = target
       @content = content
@@ -117,7 +117,7 @@ module HTree
     def initialize(content)
       init_raw_string
       if /--/ =~ content || /-\z/ =~ content
-        raise Comment::Error, "invalid comment content: #{content.inspect}"
+        raise HTree::Error, "invalid comment content: #{content.inspect}"
       end
       @content = content
     end

@@ -53,10 +53,10 @@ n=                              nil     nil     n
       @namespace_uri = namespace_uri && namespace_uri.dup.freeze
       @local_name = local_name && local_name.dup.freeze
       if @namespace_prefix && /\A#{Pat::Name}\z/ !~ @namespace_prefix
-        raise STag::Error, "invalid namespace prefix: #{@namespace_prefix.inspect}"
+        raise HTree::Error, "invalid namespace prefix: #{@namespace_prefix.inspect}"
       end
       if @local_name && /\A#{Pat::Name}\z/ !~ @local_name
-        raise STag::Error, "invalid local name: #{@local_name.inspect}"
+        raise HTree::Error, "invalid local name: #{@local_name.inspect}"
       end
     end
     attr_reader :namespace_prefix, :namespace_uri, :local_name
@@ -107,7 +107,7 @@ n=                              nil     nil     n
       # normalize xml declaration name and attribute value.
       attributes = attributes.map {|aname, val|
         if !(Name === aname) && /\A#{Pat::Name}?(?:\{.*\})?#{Pat::Name}\z/ !~ aname
-          raise STag::Error, "invalid attribute name: #{aname.inspect}"
+          raise HTree::Error, "invalid attribute name: #{aname.inspect}"
         end
         if !(Name === aname) && /\Axmlns(?:\z|:)/ =~ aname
           aname = Name.parse_attribute_name(aname, nil)
