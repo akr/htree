@@ -154,7 +154,7 @@ module HTree
     when :xmldecl
       XMLDecl.parse(structure[1])
     when :doctype
-      DocType.parse(structure[1])
+      DocType.parse(structure[1], xmldecl_seen)
     when :procins
       ProcIns.parse(structure[1])
     when :comment
@@ -302,7 +302,7 @@ module HTree
   end
 
   class DocType
-    def DocType.parse(raw_string)
+    def DocType.parse(raw_string, xmldecl_seen)
       unless /\A#{Pat::DocType_C}\z/o =~ raw_string
         raise "cannot recognize as XML declaration: #{raw_string.inspect}"
       end
@@ -310,6 +310,8 @@ module HTree
       root_element_name = $1
       public_identifier = $2 || $3
       system_identifier = $4 || $5
+
+      root_element_name = root_element_name.downcase if !xmldecl_seen
 
       result = DocType.new(root_element_name, public_identifier, system_identifier)
       result.raw_string = raw_string
