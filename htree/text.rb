@@ -42,7 +42,11 @@ module HTree
         elsif u <= 0x7f
           [u].pack("C")
         else
-          [u].pack("U").decode_charset('UTF-8')
+          begin
+            Iconv.conv(Encoder.internal_charset, 'UTF-8', [u].pack("U"))
+          rescue Iconv::Failure
+            '?'
+          end
         end
       }
     end
