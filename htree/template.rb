@@ -2,7 +2,19 @@
 #
 # == Template Syntax
 #
-# The template engine in htree uses HTML 
+# The template engine in htree uses special HTML attributes which begins with
+# a underscore for template directives.
+#
+# - <elem _text="expr">dummy</elem>
+# - <elem _if="expr">then-content</elem>
+# - <elem _if="expr" _else="expr.meth(args)">then-content</elem>
+# - <elem _call="expr.name(args)">dummy</elem>
+# - <elem _iter="expr.meth(args)//fargs" >content</elem>
+# - <elem _iter_children="expr.meth(args)//vars" >content</elem>
+#
+# - <elem _attr_name="expr">content</elem>
+#
+# - <elem _template="name(vars)">body</elem>
 #
 # == Method Summary
 #
