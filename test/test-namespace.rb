@@ -13,7 +13,7 @@ EOT
   # <ppp:nnn xmlns:ppp="uuu">
   def test_prefixed
     stag = HTree::STag.new("ppp:nnn",
-      [["xmlns:ppp", "uuu"], ["a", "x"], ["q:b", "y"], ["{uu}c", "z"]],
+      [["xmlns:ppp", "uuu"], ["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
       {"q"=>"u"})
     assert_equal("ppp:nnn", stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
@@ -29,21 +29,21 @@ EOT
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
-    assert_equal(["uu", nil, "c", "z"], attrs.shift)
+    assert_equal(["uu", "pp", "c", "z"], attrs.shift)
   end
 
   # <nnn xmlns="uuu">
   def test_default_ns
     stag = HTree::STag.new("nnn",
       [["xmlns", "uuu"],
-      ["a", "x"], ["q:b", "y"], ["{uu}c", "z"]],
+      ["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
       {"q"=>"u"})
 
     assert_equal("nnn", stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
     assert_equal("nnn", stag.local_name)
     assert_equal("uuu", stag.namespace_uri)
-    assert_equal(false, stag.namespace_prefix)
+    assert_equal(nil, stag.namespace_prefix)
 
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(1, nsattrs.length)
@@ -53,14 +53,14 @@ EOT
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
-    assert_equal(["uu", nil, "c", "z"], attrs.shift)
+    assert_equal(["uu", "pp", "c", "z"], attrs.shift)
   end
 
   # <nnn xmlns="">
   def test_no_default_ns
     [{"q"=>"u"}, {""=>"uu", "q"=>"u"}].each {|inh|
       stag = HTree::STag.new("nnn",
-        [["xmlns", ""], ["a", "x"], ["q:b", "y"], ["{uu}c", "z"]],
+        [["xmlns", ""], ["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
         inh)
       assert_equal("nnn", stag.qualified_name)
       assert_equal("nnn", stag.universal_name)
@@ -76,14 +76,14 @@ EOT
       assert_equal(3, attrs.length)
       assert_equal([nil, nil, "a", "x"], attrs.shift)
       assert_equal(["u", "q", "b", "y"], attrs.shift)
-      assert_equal(["uu", nil, "c", "z"], attrs.shift)
+      assert_equal(["uu", "pp", "c", "z"], attrs.shift)
     }
   end
 
   # <nnn>
   def test_no_ns
     stag = HTree::STag.new("nnn",
-      [["a", "x"], ["q:b", "y"], ["{uu}c", "z"]],
+      [["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
       {"q"=>"u"})
 
     assert_equal("nnn", stag.qualified_name)
@@ -99,13 +99,14 @@ EOT
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
-    assert_equal(["uu", nil, "c", "z"], attrs.shift)
+    assert_equal(["uu", "pp", "c", "z"], attrs.shift)
   end
 
+=begin
   # internally allocated element whose prefix is allocated dynamically
   def test_universal_name_to_be_prefixed
     stag = HTree::STag.new("{uuu}nnn",
-      [["a", "x"], ["q:b", "y"], ["{uu}c", "z"]],
+      [["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
       {"q"=>"u"})
     assert_equal(nil, stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
@@ -120,19 +121,20 @@ EOT
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
-    assert_equal(["uu", nil, "c", "z"], attrs.shift)
+    assert_equal(["uu", "pp", "c", "z"], attrs.shift)
   end
+=end
 
   # internally allocated element without prefix
   def test_universal_name_to_be_default_namespace
-    stag = HTree::STag.new("-{uuu}nnn",
-      [["a", "x"], ["q:b", "y"], ["{uu}c", "z"]],
+    stag = HTree::STag.new("{uuu}nnn",
+      [["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
       {"q"=>"u"})
     assert_equal("nnn", stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
     assert_equal("nnn", stag.local_name)
     assert_equal("uuu", stag.namespace_uri)
-    assert_equal(false, stag.namespace_prefix)
+    assert_equal(nil, stag.namespace_prefix)
 
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
@@ -141,12 +143,12 @@ EOT
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
-    assert_equal(["uu", nil, "c", "z"], attrs.shift)
+    assert_equal(["uu", "pp", "c", "z"], attrs.shift)
   end
 
   def test_prefixed_universal_name
     stag = HTree::STag.new("ppp{uuu}nnn",
-      [["a", "x"], ["q:b", "y"], ["{uu}c", "z"], ["q{uu}d", "w"]],
+      [["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"], ["q{uu}d", "w"]],
       {"q"=>"u"})
     assert_equal("ppp:nnn", stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
@@ -161,7 +163,7 @@ EOT
     assert_equal(4, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
-    assert_equal(["uu", nil, "c", "z"], attrs.shift)
+    assert_equal(["uu", "pp", "c", "z"], attrs.shift)
     assert_equal(["uu", "q", "d", "w"], attrs.shift)
   end
 

@@ -13,7 +13,6 @@ EOT
   def test_tag_name_prefix
     tags = [
       HTree::STag.new('{u}n'),
-      HTree::STag.new('-{u}n'),
       HTree::STag.new('p1{u}n'),
       HTree::STag.new('p2{u}n'),
       HTree::STag.new('p1:n', [], {'p1'=>'u'}),

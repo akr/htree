@@ -4,9 +4,8 @@ require 'htree/container'
 
 class TestGenerateXML < Test::Unit::TestCase
   def test_name
-    assert_equal('n', HTree::Name.new(false, 'u', 'n').generate_xml)
+    assert_equal('n', HTree::Name.new(nil, 'u', 'n').generate_xml)
     assert_equal('p:n', HTree::Name.new('p', 'u', 'n').generate_xml)
-    assert_raises(HTree::Name::Error) { HTree::Name.new(nil, 'u', 'n').generate_xml }
     assert_equal('n', HTree::Name.new(nil, nil, 'n').generate_xml)
     assert_equal('xmlns', HTree::Name.new('xmlns', nil, nil).generate_xml)
     assert_equal('xmlns:n', HTree::Name.new('xmlns', nil, 'n').generate_xml)

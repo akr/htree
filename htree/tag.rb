@@ -6,33 +6,26 @@ module HTree
   class Name
 =begin
 element name                    prefix  uri     localname
--{u}n, n with xmlns=u           false   u       n
+{u}n, n with xmlns=u            nil     u       n
 p{u}n, p:n with xmlns:p=u       p       u       n
-{u}n                            nil     u       n
 n with xmlns=''                 nil     nil     n
 
 attribute name
 xmlns=                          xmlns   nil     nil
 xmlns:n=                        xmlns   nil     n
 p{u}n=, p:n= with xmlns:p=u     p       u       n
-{u}n=                           nil     u       n
 n=                              nil     nil     n
 =end
     def Name.parse_element_name(name, namespaces)
       if /\{(.*)\}/ =~ name
         # In to_xml, 
-        # "-{u}n" means "use default namespace",
+        # "{u}n" means "use default namespace",
         # "p{u}n" means "use the specified prefix p" and
-        # "{u}n" means "allocate some namespace prefix"
-        case $`
-        when '-'; Name.new(false, $1, $')
-        when ''; Name.new(nil, $1, $')
-        else Name.new($`, $1, $')
-        end
+        $` == '' ? Name.new(nil, $1, $') : Name.new($`, $1, $')
       elsif /:/ =~ name && namespaces.include?($`)
         Name.new($`, namespaces[$`], $')
       elsif namespaces.include?(nil)
-        Name.new(false, namespaces[nil], name)
+        Name.new(nil, namespaces[nil], name)
       else
         Name.new(nil, nil, name)
       end
@@ -82,13 +75,10 @@ n=                              nil     nil     n
 
     def qualified_name
       if @namespace_uri
-        case @namespace_prefix
-        when nil # namespace is not determined yet.
-          nil
-        when false # default namespace
-          @local_name.dup
-        else
+        if @namespace_prefix
           "#{@namespace_prefix}:#{@local_name}"
+        else
+          @local_name.dup
         end
       elsif @local_name
         @local_name.dup
@@ -104,10 +94,8 @@ n=                              nil     nil     n
         else
           out << "xmlns"
         end
-      elsif qname = qualified_name
-        out << qname
       else
-        raise Name::Error, "prefix not determined for #{universal_name}"
+        out << qualified_name
       end
       out
     end
