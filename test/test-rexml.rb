@@ -1,7 +1,10 @@
 require 'test/unit'
 require 'htree/parse'
 require 'htree/rexml'
-require 'rexml/document'
+begin
+  require 'rexml/document'
+rescue LoadError
+end
 
 class TestREXML < Test::Unit::TestCase
   def test_doc
@@ -64,4 +67,4 @@ class TestREXML < Test::Unit::TestCase
   def test_style
     assert_equal('<style>a&lt;b</style>', HTree.parse('<html><style>a<b</style></html>').to_rexml.to_s[/<style.*style>/])
   end
-end
+end if defined? REXML
