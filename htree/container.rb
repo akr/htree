@@ -4,7 +4,7 @@ require 'htree/tag'
 module HTree
   class Doc
     def initialize(children=[])
-      @children = children && children.dup.freeze
+      @children = children.dup.freeze
     end 
     attr_reader :children
 
@@ -69,7 +69,8 @@ module HTree
         raise Elem::Error, "HTree::ETag expected: #{etag.inspect}"
       end
       @stag = stag
-      @children = children && children.dup.freeze
+      @children = (children ? children.dup : []).freeze
+      @empty = children == nil && etag == nil
       @etag = etag
     end
     attr_reader :children, :stag, :etag
@@ -77,13 +78,17 @@ module HTree
     def name; @stag.universal_name end
     def qualified_name; @stag.qualified_name end
 
+    def empty_element?
+      @empty
+    end
+
     def generate_xml(out='')
-      if @children
+      if @empty
+        @stag.generate_emptytag_xml(out)
+      else
         @stag.generate_xml(out)
         @children.each {|n| n.generate_xml(out) }
         @stag.generate_etag_xml(out)
-      else
-        @stag.generate_emptytag_xml(out)
       end
       out
     end

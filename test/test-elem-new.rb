@@ -8,7 +8,8 @@ class TestElemNew < Test::Unit::TestCase
     assert_equal('a', e.stag.qualified_name)
     assert_equal([], e.stag.attributes)
     assert_equal({}, e.stag.inherited_namespaces)
-    assert_nil(e.children)
+    assert_equal([], e.children)
+    assert_equal(true, e.empty_element?)
     assert_nil(e.etag)
   end
 
@@ -18,6 +19,7 @@ class TestElemNew < Test::Unit::TestCase
     assert_equal([], e.stag.attributes)
     assert_equal({}, e.stag.inherited_namespaces)
     assert_equal([], e.children)
+    assert_equal(false, e.empty_element?)
     assert_equal(nil, e.etag)
   end
 

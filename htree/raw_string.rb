@@ -3,14 +3,14 @@ require 'htree/nodehier'
 module HTree
   class Doc
     def raw_string
-      @children ? @children.map {|n| n.raw_string }.join('') : ''
+      @children.map {|n| n.raw_string }.join('')
     end
   end
 
   class Elem
     def raw_string
       result = @stag.raw_string
-      @children.each {|n| result << n.raw_string } if @children
+      @children.each {|n| result << n.raw_string }
       result << @etag.raw_string if @etag
       result
     end
@@ -38,7 +38,7 @@ module HTree
     def eliminate_raw_string
       Elem.new!(
         @stag.eliminate_raw_string,
-        @children && @children.map {|c| c.eliminate_raw_string },
+        @empty ? nil : @children.map {|c| c.eliminate_raw_string },
         @etag && @etag.eliminate_raw_string)
     end
   end

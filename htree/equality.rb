@@ -63,7 +63,7 @@ module HTree
 
   class Elem
     def make_exact_equal_object
-      [@stag, @children, @etag]
+      [@stag, @children, @empty, @etag]
     end
 
     def make_usual_equal_object

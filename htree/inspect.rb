@@ -14,17 +14,17 @@ module HTree
 
   class Elem
     def pretty_print(pp)
-      if @children
+      if @empty
+        pp.group(1, '{emptyelem', '}') {
+          pp.breakable; pp.pp @stag
+        }
+      else
         pp.group(1, "{elem", "}") {
           pp.breakable; pp.pp @stag
           @children.each {|elt| pp.breakable; pp.pp elt }
           if @etag
             pp.breakable; pp.pp @etag
           end
-        }
-      else
-        pp.group(1, '{emptyelem', '}') {
-          pp.breakable; pp.pp @stag
         }
       end
     end

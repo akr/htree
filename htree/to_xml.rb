@@ -59,7 +59,7 @@ module HTree
   class Elem
     def update_xmlns(inherited_namespaces=DefaultNamespace)
       stag = @stag.update_xmlns(inherited_namespaces)
-      Elem.new!(stag, @children && @children.map {|c| c.update_xmlns(stag.namespaces) })
+      Elem.new!(stag, @empty ? nil : @children.map {|c| c.update_xmlns(stag.namespaces) })
     end
   end
 
