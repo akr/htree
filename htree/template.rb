@@ -253,7 +253,7 @@ require 'htree/traverse'
 
 # call-seq:
 #   HTree.expand_template(template_pathname, obj=nil, out=$stdout, encoding=internal_encoding) -> out
-#   HTree.expand_template(obj=nil, out=$stdout, encoding=internal_encoding) { template_string } -> out
+#   HTree.expand_template(out=$stdout, encoding=internal_encoding) { template_string } -> out
 #
 # <code>HTree.expand_template</code> expands a template.
 #
