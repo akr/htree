@@ -42,4 +42,8 @@ class TestText < Test::Unit::TestCase
       '<e _call=m(1) /><f _template=m(v) _text=v></f>')
   end
 
+  def test_span
+    assert_xhtml('1', '<span _text=1>d</span>')
+  end
+
 end
