@@ -170,7 +170,8 @@ module HTree
     def title
       e = find_element('title',
         '{http://www.w3.org/1999/xhtml}title',
-        '{http://purl.org/rss/1.0/}title')
+        '{http://purl.org/rss/1.0/}title',
+        '{http://my.netscape.com/rdf/simple/0.9/}title')
       e && e.extract_text.to_s
     end
 

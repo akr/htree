@@ -94,7 +94,7 @@ module HTree
       out.output_string '<'
       @name.output(out, context)
       children_context = output_attributes(out, context)
-      out.output_string ' />'
+      out.output_string "\n/>"
       children_context
     end
 
@@ -102,14 +102,14 @@ module HTree
       out.output_string '<'
       @name.output(out, context)
       children_context = output_attributes(out, context)
-      out.output_string '>'
+      out.output_string "\n>"
       children_context
     end
 
     def output_etag(out, context)
       out.output_string '</'
       @name.output(out, context)
-      out.output_string '>'
+      out.output_string "\n>"
     end
   end
   # :startdoc:

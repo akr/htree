@@ -41,18 +41,18 @@ class TestOutput < Test::Unit::TestCase
 
   def test_doc
     t = HTree::Doc.new(HTree::Elem.new('a'), HTree::Elem.new('b'))
-    assert_equal('<a /><b />', gen(t))
+    assert_equal("<a\n/><b\n/>", gen(t))
   end
 
   def test_elem
     t = HTree::Elem.new('a', [])
-    assert_equal('<a></a>', gen(t))
+    assert_equal("<a\n></a\n>", gen(t))
 
-    assert_equal('<b />',
+    assert_equal("<b\n/>",
       gen(HTree::Elem.new!(HTree::STag.new('b'))))
-    assert_equal('<b></b>',
+    assert_equal("<b\n></b\n>",
       gen(HTree::Elem.new!(HTree::STag.new('b'), [])))
-    assert_equal('<a><b /><c /><d /></a>',
+    assert_equal("<a\n><b\n/><c\n/><d\n/></a\n>",
       gen(HTree::Elem.new!(HTree::STag.new('a'), [
             HTree::Elem.new!(HTree::STag.new('b')),
             HTree::Elem.new!(HTree::STag.new('c')),
@@ -62,23 +62,23 @@ class TestOutput < Test::Unit::TestCase
 
   def test_elem_empty
     t = HTree::Elem.new('a')
-    assert_equal('<a />', gen(t))
+    assert_equal("<a\n/>", gen(t))
   end
 
   def test_stag
-    assert_equal('<name>',
+    assert_equal("<name\n>",
       gen(HTree::STag.new("name"), :output_stag))
-    assert_equal('<name />',
+    assert_equal("<name\n/>",
       gen(HTree::STag.new("name"), :output_emptytag))
-    assert_equal('</name>',
+    assert_equal("</name\n>",
       gen(HTree::STag.new("name"), :output_etag))
       
-    assert_equal('<name a="b" />',
+    assert_equal("<name a=\"b\"\n/>",
       gen(HTree::STag.new("name", [["a", "b"]]), :output_emptytag))
-    assert_equal('<name a="&lt;&quot;\'&gt;" />',
+    assert_equal("<name a=\"&lt;&quot;\'&gt;\"\n/>",
       gen(HTree::STag.new("name", [['a', '<"\'>']]), :output_emptytag))
       
-    assert_equal('<ppp:nnn xmlns="uuu&quot;b" />',
+    assert_equal("<ppp:nnn xmlns=\"uuu&quot;b\"\n/>",
       gen(HTree::STag.new("ppp:nnn", [["xmlns", "uuu\"b"]]), :output_emptytag))
   end
 

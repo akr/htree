@@ -13,14 +13,14 @@ class TestGenCode < Test::Unit::TestCase
     t = HTree.parse_xml('<p:n xmlns:p=z><p:m>bb').root.children[0] # <p:m>bb</p:m>
     code = t.generate_xml_output_code
     
-    assert_equal('<p:m xmlns:p="z">bb</p:m>', run_code(code, HTree::DefaultContext))
-    assert_equal('<p:m>bb</p:m>', run_code(code, HTree::DefaultContext.subst_namespaces("p"=>"z")))
+    assert_equal("<p:m xmlns:p=\"z\"\n>bb</p:m\n>", run_code(code, HTree::DefaultContext))
+    assert_equal("<p:m\n>bb</p:m\n>", run_code(code, HTree::DefaultContext.subst_namespaces("p"=>"z")))
   end
 
   def test_xmlns_chref
     t = HTree.parse_xml('<p:n xmlns:p="a&amp;<>&quot;b">').root
     code = t.generate_xml_output_code
-    assert_equal('<p:n xmlns:p="a&amp;&lt;&gt;&quot;b" />', run_code(code, HTree::DefaultContext))
+    assert_equal("<p:n xmlns:p=\"a&amp;&lt;&gt;&quot;b\"\n/>", run_code(code, HTree::DefaultContext))
   end
 
 end
