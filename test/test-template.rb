@@ -125,4 +125,12 @@ End
     eval("htree_test_toplevel_local_variable = 1", TOPLEVEL_BINDING)
   end
 
+  def test_extend_compiled_template
+    m = HTree.compile_template('<div _template="m">self is <span _text="inspect"></span></div>')
+    o = "zzz"
+    o.extend m
+    assert_equal('<?xml version="1.0" encoding="US-ASCII"?>self is "zzz"',
+      HTree.expand_template(''){'<div _call="o.m"></div>'})
+  end
+
 end

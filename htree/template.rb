@@ -521,6 +521,7 @@ end
 def _ht_#{name}(#{args2.join(',')})
 #{compile_body(outvar, contextvar, node, false)}\
 end
+public :_ht_#{name}
 End
   end
 
