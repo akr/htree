@@ -5,6 +5,9 @@ class HTree
   class STag < Markup
     def initialize(name, attributes=[], inherited_namespaces={})
       @attributes = attributes.map {|aname, val|
+        if /\A#{Pat::Name}?(?:\{.*\})?#{Pat::Name}\z/ !~ aname
+          raise STag::Error, "invalid attribute name: #{aname.inspect}"
+        end
         val = Text.new(val) unless Text === val
         [aname, val]
       }
