@@ -2,35 +2,43 @@ require 'htree/text'
 
 module HTree
   class STag < Markup
-    def initialize(qualified_name, attributes=[], inherited_namespaces={})
-      @qualified_name = qualified_name
-      @attributes = attributes.map {|qname, val|
+    def initialize(name, attributes=[], inherited_namespaces={})
+      @attributes = attributes.map {|aname, val|
         val = Text.new(val) unless Text === val
-        [qname, val]
+        [aname, val]
       }
       @inherited_namespaces = inherited_namespaces
 
-      init_namespace
+      init_namespace(name)
     end
     attr_reader :qualified_name, :attributes, :inherited_namespaces
 
-    def init_namespace
+    def init_namespace(name)
       @namespaces = make_namespaces
-      if /:/ =~ @qualified_name && @namespaces.include?($`)
-        @namespace_prefix = $`
-        @namespace_uri = @namespaces[@namespace_prefix]
+      if /\A\{(.*)\}/ =~ name
+        @qualified_name = nil
+        @namespace_prefix = nil
+        @namespace_uri = $1
         @local_name = $'
-        @universal_name = "{#{@namespace_uri}}#{@local_name}"
-      elsif @namespaces.include?(nil)
-        @namespace_prefix = nil
-        @namespace_uri = @namespaces[nil]
-        @local_name = @qualified_name
-        @universal_name = "{#{@namespace_uri}}#{@local_name}"
+        @universal_name = name
       else
-        @namespace_prefix = nil
-        @namespace_uri = nil
-        @local_name = @qualified_name
-        @universal_name = @qualified_name
+        @qualified_name = name
+        if /:/ =~ @qualified_name && @namespaces.include?($`)
+          @namespace_prefix = $`
+          @namespace_uri = @namespaces[@namespace_prefix]
+          @local_name = $'
+          @universal_name = "{#{@namespace_uri}}#{@local_name}"
+        elsif @namespaces.include?(nil)
+          @namespace_prefix = nil
+          @namespace_uri = @namespaces[nil]
+          @local_name = @qualified_name
+          @universal_name = "{#{@namespace_uri}}#{@local_name}"
+        else
+          @namespace_prefix = nil
+          @namespace_uri = nil
+          @local_name = @qualified_name
+          @universal_name = @qualified_name
+        end
       end
     end
     attr_reader :namespace_prefix,
@@ -54,8 +62,8 @@ module HTree
     end
 
     def each_namespace_attribute
-      @attributes.each {|qname, text|
-        case qname
+      @attributes.each {|name, text|
+        case name
         when /\Axmlns\z/
           uri = text.to_s
           yield nil, (uri.empty? ? nil : uri)
@@ -66,16 +74,20 @@ module HTree
     end
 
     def each_attribute_info
-      @attributes.each {|qname, text|
-        next if /\A(?:xmlns\z|xmlns:)/ =~ qname
-        if /:/ =~ qname && @namespaces.include?($`)
+      @attributes.each {|name, text|
+        next if /\A(?:xmlns\z|xmlns:)/ =~ name
+        if /\A\{(.*)\}/ =~ name
+          namespace_uri = $1
+          prefix = nil
+          lname = $'
+        elsif /:/ =~ name && @namespaces.include?($`)
           namespace_uri = @namespaces[$`]
           prefix = $`
           lname = $'
         else
           namespace_uri = nil
           prefix = nil
-          lname = qname
+          lname = name
         end
         yield namespace_uri, prefix, lname, text
       }
@@ -89,7 +101,7 @@ module HTree
     end
 
     def fetch_attribute_text(universal_name, *rest)
-      each_attribute {|uname, text|
+      each_attribute_text {|uname, text|
         return text if universal_name == uname
       }
       if block_given?
@@ -105,18 +117,21 @@ module HTree
       fetch_attribute_rcdata(universal_name, nil)
     end
 
+    def prepare_xmlns(inherited_namespaces)
+    end
+
     def to_xml
       result = "<#{@qualified_name}"
-      @attributes.each {|qname, text|
-        result << " #{qname}=#{text.to_xml_attvalue}"
+      @attributes.each {|aname, text|
+        result << " #{aname}=#{text.to_xml_attvalue}"
       }
       result << '>'
     end
 
     def to_emptytag_xml
       result = "<#{@qualified_name}"
-      @attributes.each {|qname, text|
-        result << " #{qname}=#{text.to_xml_attvalue}"
+      @attributes.each {|aname, text|
+        result << " #{aname}=#{text.to_xml_attvalue}"
       }
       result << ' />'
     end
