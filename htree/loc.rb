@@ -1,10 +1,16 @@
 require 'htree/modules'
+require 'htree/elem'
+require 'htree/inspect'
 
 module HTree
   module Node
     # creates a location object which points to self.
     def make_loc
-      self.class::Location.new(nil, nil, self)
+      self.class::Loc.new(nil, nil, self)
+    end
+
+    def to_node
+      self
     end
   end
 
@@ -24,7 +30,7 @@ module HTree
         return "*[#{index}]"
       end
 
-      return @loc_step_children[index] if defined? @loc_step_children
+      return @loc_step_children[index].dup if defined? @loc_step_children
 
       count = {}
       count.default = 0
@@ -46,7 +52,7 @@ module HTree
         end
       }
 
-      return @loc_step_children[index]
+      return @loc_step_children[index].dup
     end
   end
 
@@ -65,7 +71,7 @@ module HTree
   # :startdoc:
 end
 
-module HTree::Loc
+module HTree::Location
   def initialize(parent, index, node) # :nodoc:
     if parent
       @parent = parent
@@ -79,19 +85,24 @@ module HTree::Loc
       @index = nil
       @node = node
     end
-    if self.class != @node.class::Location
-      raise ArgumentError, "invalid location class: #{self.class} should be #{node.class::Location}"
+    if self.class != @node.class::Loc
+      raise ArgumentError, "invalid location class: #{self.class} should be #{node.class::Loc}"
     end
     @subloc = {}
   end
   attr_reader :parent, :index, :node
   alias to_node node
 
-  # +get_subnode+ returns a location object which points to a subnode indexed by _index_. 
+  def make_loc
+    self
+  end
+
+  # +get_subnode+ returns a location object which points to a subnode
+  # indexed by _index_. 
   def get_subnode(index)
     return @subloc[index] if @subloc.include? index
     node = @node.get_subnode(index)
-    @subloc[index] = node.class::Location.new(self, index, node)
+    @subloc[index] = node.class::Loc.new(self, index, node)
   end
 
   # +loc_list+ returns an array containing from location's root to itself.
@@ -105,9 +116,26 @@ module HTree::Loc
     result
   end
 
+  # +path+ returns the path of the location.
+  #
+  #   l = HTree.parse("<a><b>x</b><b/><a/>").make_loc
+  #   l = l.get_subnode(0).get_subnode(0).get_subnode(0)
+  #   p l.path # => "doc()/a/b[1]/text()"
+  def path
+    result = ''
+    loc_list.each {|loc|
+      if parent = loc.parent
+        result << '/' << parent.node.find_loc_step(loc.index)
+      else
+        result << loc.node.node_test_string
+      end
+    }
+    result
+  end
+
   # :stopdoc:
   def pretty_print(q)
-    q.group(1, '#<HTree::Loc', '>') {
+    q.group(1, '#<HTree::Location', '>') {
       q.text ':'
       q.breakable
       loc_list.each {|loc|
@@ -121,5 +149,28 @@ module HTree::Loc
       }
     }
   end
+  alias inspect pretty_print_inspect
   # :startdoc:
+end
+
+module HTree::Container::Loc
+  # +children+ returns an array of child locations.
+  def children
+    (0...@node.children.length).map {|i| get_subnode(i) }
+  end
+end
+
+class HTree::Elem::Loc
+  # +name+ returns universal name of the element.
+  def name
+    @node.name
+  end
+
+  # +each_attribute+ iterates over each attributes.
+  def each_attribute
+    @node.each_attribute {|attr_name, attr_text|
+      attr_loc = get_subnode(attr_name)
+      yield attr_name, attr_loc
+    }
+  end
 end

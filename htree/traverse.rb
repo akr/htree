@@ -1,18 +1,59 @@
 require 'htree/doc'
 require 'htree/elem'
+require 'htree/loc'
+require 'htree/extract_text'
 
 module HTree
-  module Container
-    def each_child
-      @children.each {|child|
-        yield child
-      }
+  module Container::Trav
+    # +each_child+ iterates over each child.
+    def each_child(&block) # :yields: child_node
+      children.each(&block)
+      nil
     end
-  end
 
-  # traverse_element
-  module Container
-    def traverse_element(*names, &block)
+    # +each_child_with_index+ iterates over each child.
+    def each_child_with_index(&block) # :yields: child_node, index
+      children.each_with_index(&block)
+      nil
+    end
+
+    # +find_element+ searches an element which universal name is specified by
+    # the arguments. 
+    # It returns nil if not found.
+    def find_element(*names)
+      traverse_element(*names) {|e| return e }
+      nil
+    end
+
+    # +traverse_element+ traverses elements in the tree.
+    # It yields elements in depth first order.
+    #
+    # If _names_ are empty, it yields all elements.
+    # If non-empty _names_ are given, it should be list of universal names.
+    # 
+    # A nested element is yielded in depth first order as follows.
+    #
+    #   t = HTree('<a id=0><b><a id=1 /></b><c id=2 /></a>') 
+    #   t.traverse_element("a", "c") {|e| p e}
+    #   # =>
+    #   {elem <a id="0"> {elem <b> {emptyelem <a id="1">} </b>} {emptyelem <c id="2">} </a>}
+    #   {emptyelem <a id="1">}
+    #   {emptyelem <c id="2">}
+    #
+    # Universal names are specified as follows.
+    #
+    #   t = HTree(<<'End')
+    #   <html>
+    #   <meta name="robots" content="index,nofollow">
+    #   <meta name="author" content="Who am I?">    
+    #   </html>
+    #   End
+    #   t.traverse_element("{http://www.w3.org/1999/xhtml}meta") {|e| p e}
+    #   # =>
+    #   {emptyelem <{http://www.w3.org/1999/xhtml}meta name="robots" content="index,nofollow">}
+    #   {emptyelem <{http://www.w3.org/1999/xhtml}meta name="author" content="Who am I?">}
+    #
+    def traverse_element(*names, &block) # :yields: element
       if names.empty?
         traverse_all_element(&block)
       else
@@ -20,157 +61,80 @@ module HTree
         names.each {|n| name_set[n] = true }
         traverse_some_element(name_set, &block)
       end
-    end
-  end
-
-  # traverse_all_element
-  class Doc
-    def traverse_all_element(&block)
-      @children.each {|c| c.traverse_all_element(&block) }
       nil
-    end
-  end
-
-  class Elem
-    def traverse_all_element(&block)
-      yield self
-      @children.each {|c| c.traverse_all_element(&block) }
-      nil
-    end
-  end
-
-  module Leaf
-    def traverse_all_element
-      nil
-    end
-  end
-
-  # traverse_some_element
-  class Doc
-    def traverse_some_element(name_set, &block)
-      @children.each {|c| c.traverse_some_element(name_set, &block) }
-      nil
-    end
-  end
-
-  class Elem
-    def traverse_some_element(name_set, &block)
-      yield self if name_set.include? self.name
-      @children.each {|c| c.traverse_some_element(name_set, &block) }
-      nil
-    end
-  end
-
-  module Leaf
-    def traverse_some_element(name_set)
-      nil
-    end
-  end
-
-  # each_with_path
-  module Container
-    def each_with_path(prefix=nil)
-      return unless @children
-      count = {}
-      @children.each {|c|
-        node_test = c.node_test
-        count[node_test] ||= 0
-        count[node_test] += 1
-      }
-      pos = {}
-      @children.each {|child|
-        node_test = child.node_test
-        pos[node_test] ||= 0
-        n = pos[node_test] += 1
-        child_path = node_test
-        child_path += "[#{n}]" unless n == 1 && count[node_test] == 1
-        if prefix
-          child_path = "#{prefix}/#{child_path}"
-        end
-        yield child, child_path
-      }
     end
   end
 
   # :stopdoc:
-  class Elem; alias node_test qualified_name; end
-  class XMLDecl; def node_test; 'xml-declaration()' end end
-  class DocType; def node_test; 'doctype()' end end
-  class ProcIns; def node_test; 'processing-instruction()' end end
-  class Comment; def node_test; 'comment()' end end
-  class BogusETag; def node_test; 'bogus-etag()' end end
-  class Text; def node_test; 'text()' end end
+  module Doc::Trav
+    def traverse_all_element(&block)
+      children.each {|c| c.traverse_all_element(&block) }
+    end
+  end
+
+  module Elem::Trav
+    def traverse_all_element(&block)
+      yield self
+      children.each {|c| c.traverse_all_element(&block) }
+    end
+  end
+
+  module Leaf::Trav
+    def traverse_all_element
+    end
+  end
+
+  module Doc::Trav
+    def traverse_some_element(name_set, &block)
+      children.each {|c| c.traverse_some_element(name_set, &block) }
+    end
+  end
+
+  module Elem::Trav
+    def traverse_some_element(name_set, &block)
+      yield self if name_set.include? self.name
+      children.each {|c| c.traverse_some_element(name_set, &block) }
+    end
+  end
+
+  module Leaf::Trav
+    def traverse_some_element(name_set)
+    end
+  end
   # :startdoc:
 
-  # filter_with_path
-  class Doc
-    def filter_with_path(&block)
-      children = []
-      self.each_with_path('') {|c, path|
-        if yield c, path
-          if Elem === c
-            children << c.filter_with_path(path, &block)
+  module Container::Trav
+    # +filter+ rebuilds the tree without some components.
+    #
+    #   node.filter {|descent_node| predicate } -> node
+    #   loc.filter {|descent_loc| predicate } -> node
+    #
+    # +filter+ yields each node except top node.
+    # If given block returns false, corresponding node is dropped.
+    # If given block returns true, corresponding node is retained and
+    # inner nodes are examined.
+    #
+    # +filter+ returns an node.
+    # It doesn't return location object even if self is location object.
+    #
+    def filter(&block)
+      subst = {}
+      each_child_with_index {|c, i|
+        if yield c
+          if Elem === c.to_node
+            subst[i] = c.filter(&block)
           else
-            children << c
+            subst[i] = c
           end
+        else
+          subst[i] = nil
         end
       }
-      Doc.new(children)
-    end
-  end
-
-  class Elem
-    def filter_with_path(path, &block)
-      return self if self.empty_element?
-      children = []
-      self.each_with_path(path) {|c, child_path|
-        if yield c, child_path
-          if Elem === c
-            children << c.filter_with_path(child_path, &block)
-          else
-            children << c
-          end
-        end
-      }
-      Elem.new!(@stag, children, @etag)
-    end
-  end
-
-  # traverse_with_path
-  class Doc
-    def traverse_with_path(&block)
-      yield self, '/'
-      self.each_with_path('') {|c, path|
-        c.traverse_with_path(path, &block)
-      }
-    end
-  end
-
-  class Elem
-    def traverse_with_path(path, &block)
-      yield self, path
-      self.each_with_path(path) {|c, child_path|
-        c.traverse_with_path(child_path, &block)
-      }
-    end
-  end
-
-  module Leaf
-    def traverse_with_path(path)
-      yield self, path
-    end
-  end
-
-  # misc
-  module Container
-    def find_element(*names)
-      traverse_element(*names) {|e| return e }
-      nil
+      to_node.subst_subnode(subst)
     end
   end
 
   class Doc
-
     def title
       e = find_element('title',
         '{http://www.w3.org/1999/xhtml}title',

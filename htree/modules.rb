@@ -20,15 +20,19 @@ module HTree
       class Comment; include Leaf end
       class BogusETag; include Leaf end
 
-  module Loc; include HTree end
-  class Doc;       module Traverse end; class Location; include Loc, Traverse end; include Traverse end
-  class Elem;      module Traverse end; class Location; include Loc, Traverse end; include Traverse end
-  class Text;      module Traverse end; class Location; include Loc, Traverse end; include Traverse end
-  class XMLDecl;   module Traverse end; class Location; include Loc, Traverse end; include Traverse end
-  class DocType;   module Traverse end; class Location; include Loc, Traverse end; include Traverse end
-  class ProcIns;   module Traverse end; class Location; include Loc, Traverse end; include Traverse end
-  class Comment;   module Traverse end; class Location; include Loc, Traverse end; include Traverse end
-  class BogusETag; module Traverse end; class Location; include Loc, Traverse end; include Traverse end
+  module Location; include HTree end
+  module Container::Loc; include HTree::Location; end
+  module Leaf::Loc; include HTree::Location; end
+  module Container::Trav end
+  module Leaf::Trav end
+  class Doc;       module Trav; include Container::Trav end; class Loc; include Trav, Container::Loc end; include Trav end
+  class Elem;      module Trav; include Container::Trav end; class Loc; include Trav, Container::Loc end; include Trav end
+  class Text;      module Trav; include Leaf::Trav      end; class Loc; include Trav, Leaf::Loc      end; include Trav end
+  class XMLDecl;   module Trav; include Leaf::Trav      end; class Loc; include Trav, Leaf::Loc      end; include Trav end
+  class DocType;   module Trav; include Leaf::Trav      end; class Loc; include Trav, Leaf::Loc      end; include Trav end
+  class ProcIns;   module Trav; include Leaf::Trav      end; class Loc; include Trav, Leaf::Loc      end; include Trav end
+  class Comment;   module Trav; include Leaf::Trav      end; class Loc; include Trav, Leaf::Loc      end; include Trav end
+  class BogusETag; module Trav; include Leaf::Trav      end; class Loc; include Trav, Leaf::Loc      end; include Trav end
 
   class Error < StandardError; end
 end

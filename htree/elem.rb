@@ -15,6 +15,7 @@ module HTree
       children = []
       context = nil
       args.flatten.each {|arg|
+        arg = arg.to_node if HTree::Location === arg
         case arg
         when Context
           raise ArgumentError, "multiple context" if context

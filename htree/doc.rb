@@ -11,6 +11,7 @@ module HTree
     def Doc.new(*args)
       children = []
       args.flatten.each {|arg|
+        arg = arg.to_node if HTree::Location === arg
         case arg
         when HTree::Doc
           arg.children.each {|c|
