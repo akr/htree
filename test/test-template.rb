@@ -80,8 +80,9 @@ End
     assert_xhtml("<pre\n> </pre\n>", '<pre> </pre>')
   end
 
-  def test_div
+  def test_ignorable
     assert_xhtml("<div\n>a</div\n>", '<div>a</div>')
+    assert_xhtml("<span\n>a</span\n>", '<span>a</span>')
   end
 
 end
