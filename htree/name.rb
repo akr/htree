@@ -52,10 +52,10 @@ n=                              nil     ''      'n'
       @namespace_prefix = namespace_prefix && namespace_prefix.dup.freeze
       @namespace_uri = namespace_uri && namespace_uri.dup.freeze
       @local_name = local_name && local_name.dup.freeze
-      if @namespace_prefix && /\A#{Pat::Nmtoken}\z/ !~ @namespace_prefix
+      if @namespace_prefix && /\A#{Pat::Nmtoken}\z/o !~ @namespace_prefix
         raise HTree::Error, "invalid namespace prefix: #{@namespace_prefix.inspect}"
       end
-      if @local_name && /\A#{Pat::Nmtoken}\z/ !~ @local_name
+      if @local_name && /\A#{Pat::Nmtoken}\z/o !~ @local_name
         raise HTree::Error, "invalid local name: #{@local_name.inspect}"
       end
       if @namespace_prefix == 'xmlns'
