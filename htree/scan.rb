@@ -7,6 +7,8 @@ module HTree
     Name = /[A-Za-z_:]#{NameChar}*/
     Nmtoken = /#{NameChar}+/
 
+    EOL = /\n|\r\n?/
+
     Comment_C = /<!--(.*?)-->/m
     Comment = Comment_C.disable_capture
     CDATA_C = /<!\[CDATA\[(.*?)\]\]>/m
@@ -64,8 +66,8 @@ module HTree
     input.scan(/(#{Pat::XmlDecl})
                |(#{Pat::DocType})
                |(#{Pat::XmlProcIns})
-               |(#{Pat::StartTag})
-               |(#{Pat::EndTag})
+               |(#{Pat::StartTag}#{Pat::EOL}?)
+               |(#{Pat::EOL}?#{Pat::EndTag})
                |(#{Pat::EmptyTag})
                |(#{Pat::Comment})
                |(#{Pat::CDATA})/ox) {
@@ -73,7 +75,12 @@ module HTree
       if cdata_content
         str = $&
         if $5 && str[Pat::Name] == cdata_content
-          text_end = match.begin(0)
+          if is_xml && /\A#{Pat::EOL}/o =~ str
+            str = $'
+            text_end = match.begin(0) + $&.length
+          else
+            text_end = match.begin(0)
+          end
           if text_start < text_end
             yield [:text_cdata_content, input[text_start...text_end]]
             text_start = match.end(0)
@@ -82,34 +89,44 @@ module HTree
           cdata_content = nil
         end
       else
-        text_end = match.begin(0)
+        str = match[0]
+        if $5 && is_xml && /\A#{Pat::EOL}/o =~ str
+          str = $'
+          text_end = match.begin(0) + $&.length
+        else
+          text_end = match.begin(0)
+        end
         if text_start < text_end
           yield [:text_pcdata, input[text_start...text_end]]
         end
-        if $1
-          yield [:xmldecl, $&]
+        text_start = match.end(0)
+        if match.begin(1)
+          yield [:xmldecl, str]
           is_xml = true
-        elsif $2
-          yield [:doctype, $&]
-        elsif $3
-          yield [:procins, $&]
-        elsif $4
-          yield stag = [:stag, $&]
-          if !is_xml && ElementContent[tagname = $&[Pat::Name]] == :CDATA
+        elsif match.begin(2)
+          yield [:doctype, str]
+        elsif match.begin(3)
+          yield [:procins, str]
+        elsif match.begin(4)
+          if is_xml && /#{Pat::EOL}\z/o =~ str
+            str = $`
+            text_start = match.end(0) - $&.length
+          end
+          yield stag = [:stag, str]
+          if !is_xml && ElementContent[tagname = str[Pat::Name]] == :CDATA
             cdata_content = tagname
           end
-        elsif $5
-          yield [:etag, $&]
-        elsif $6
-          yield [:emptytag, $&]
-        elsif $7
-          yield [:comment, $&]
-        elsif $8
-          yield [:text_cdata_section, $&]
+        elsif match.begin(5)
+          yield [:etag, str]
+        elsif match.begin(6)
+          yield [:emptytag, str]
+        elsif match.begin(7)
+          yield [:comment, str]
+        elsif match.begin(8)
+          yield [:text_cdata_section, str]
         else
           raise Exception, "unknown match [bug]"
         end
-        text_start = match.end(0)
       end
     }
     text_end = input.length

@@ -77,4 +77,49 @@ class TestScan < Test::Unit::TestCase
     ], scan(s))
   end
 
+  def test_eol_html
+    s = "a\n<e>\nb\n<f>\nc\n</f>\nd\n</e>\ne"
+    assert_equal([
+      [:text_pcdata, "a\n"],
+      [:stag, "<e>\n"],
+      [:text_pcdata, "b\n"],
+      [:stag, "<f>\n"],
+      [:text_pcdata, "c"],
+      [:etag, "\n</f>"],
+      [:text_pcdata, "\nd"],
+      [:etag, "\n</e>"],
+      [:text_pcdata, "\ne"],
+    ], scan(s))
+
+    s = "a\n<e>\nb\n<script>\nc\n</script>\nd\n</e>\ne"
+    assert_equal([
+      [:text_pcdata, "a\n"],
+      [:stag, "<e>\n"],
+      [:text_pcdata, "b\n"],
+      [:stag, "<script>\n"],
+      [:text_cdata_content, "c"],
+      [:etag, "\n</script>"],
+      [:text_pcdata, "\nd"],
+      [:etag, "\n</e>"],
+      [:text_pcdata, "\ne"],
+    ], scan(s))
+
+  end
+
+  def test_eol_xml
+    s = "<?xml version='1.0'?>a\n<e>\nb\n<f>\nc\n</f>\nd\n</e>\ne"
+    assert_equal([
+      [:xmldecl, "<?xml version='1.0'?>"],
+      [:text_pcdata, "a\n"],
+      [:stag, "<e>"],
+      [:text_pcdata, "\nb\n"],
+      [:stag, "<f>"],
+      [:text_pcdata, "\nc\n"],
+      [:etag, "</f>"],
+      [:text_pcdata, "\nd\n"],
+      [:etag, "</e>"],
+      [:text_pcdata, "\ne"],
+    ], scan(s))
+  end
+
 end
