@@ -200,9 +200,6 @@ n=                              nil     nil     n
       fetch_attribute_rcdata(universal_name, nil)
     end
 
-    #def prepare_xmlns(inherited_namespaces)
-    #end
-
     def generate_xml(out='')
       out << "<#{@name.generate_xml}"
       @attributes.each {|aname, text|
@@ -225,7 +222,6 @@ n=                              nil     nil     n
       out << "</#{@name.generate_xml}>"
       out
     end
-
   end
 
   class ETag
