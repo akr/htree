@@ -13,6 +13,7 @@ EOT
   def test_tag_name_prefix
     tags = [
       HTree::STag.new('{u}n'),
+      HTree::STag.new('-{u}n'),
       HTree::STag.new('p1{u}n'),
       HTree::STag.new('p2{u}n'),
       HTree::STag.new('p1:n', [], {'p1'=>'u'}),
@@ -28,6 +29,7 @@ EOT
   def test_tag_attribute_name_prefix
     tags = [
       HTree::STag.new('n', [['{u}a', 'v']]),
+      HTree::STag.new('n', [['-{u}a', 'v']]),
       HTree::STag.new('n', [['p1{u}a', 'v']]),
       HTree::STag.new('n', [['p2{u}a', 'v']]),
       HTree::STag.new('n', [['p1:a', 'v']], {'p1'=>'u'}),

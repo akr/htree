@@ -94,9 +94,30 @@ class TestNamespace < Test::Unit::TestCase
     assert_equal(["uu", nil, "c", "z"], attrs.shift)
   end
 
-  # internally allocated element without prefix
-  def test_universal_name
+  # internally allocated element whose prefix is allocated dynamically
+  def test_universal_name_to_be_prefixed
     stag = HTree::STag.new("{uuu}nnn",
+      [["a", "x"], ["q:b", "y"], ["{uu}c", "z"]],
+      {"q"=>"u"})
+    assert_equal(nil, stag.qualified_name)
+    assert_equal("{uuu}nnn", stag.universal_name)
+    assert_equal("nnn", stag.local_name)
+    assert_equal("uuu", stag.namespace_uri)
+    assert_equal(false, stag.namespace_prefix)
+
+    nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
+    assert_equal(0, nsattrs.length)
+
+    attrs = []; stag.each_attribute_info {|u,p,l,t| attrs << [u,p,l,t.to_s] }
+    assert_equal(3, attrs.length)
+    assert_equal([nil, nil, "a", "x"], attrs.shift)
+    assert_equal(["u", "q", "b", "y"], attrs.shift)
+    assert_equal(["uu", nil, "c", "z"], attrs.shift)
+  end
+
+  # internally allocated element without prefix
+  def test_universal_name_to_be_default_namespace
+    stag = HTree::STag.new("-{uuu}nnn",
       [["a", "x"], ["q:b", "y"], ["{uu}c", "z"]],
       {"q"=>"u"})
     assert_equal(nil, stag.qualified_name)

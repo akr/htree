@@ -1,4 +1,5 @@
 require 'htree/text'
+require 'htree/scan' # for Pat::Name
 
 class HTree
   class STag < Markup
@@ -16,8 +17,16 @@ class HTree
     def init_namespace(name)
       @namespaces = make_namespaces
       if /\{(.*)\}/ =~ name
+        # In to_xml, 
+        # "-{u}n" means "use default namespace",
+        # "p{u}n" means "use the specified prefix p" and
+        # "{u}n" means "allocate some namespace prefix"
+        if $` == '-'
+          @namespace_prefix = nil
+        else
+          @namespace_prefix = $`.empty? ? false : $`
+        end
         @namespace_uri = $1
-        @namespace_prefix = $`.empty? ? nil : $`
         @local_name = $'
         @qualified_name = @namespace_prefix ? "#{@namespace_prefix}:#{@local_name}" : nil
         @universal_name = "{#{@namespace_uri}}#{@local_name}"
@@ -39,6 +48,18 @@ class HTree
           @local_name = @qualified_name
           @universal_name = @qualified_name
         end
+      end
+      if @qualified_name && /\A#{Pat::Name}\z/ !~ @qualified_name
+        raise STag::Error, "invalid qualified name: #{@qualified_name.inspect}"
+      end
+      if @namespace_prefix && /\A#{Pat::Name}\z/ !~ @namespace_prefix
+        raise STag::Error, "invalid namespace prefix: #{@namespace_prefix.inspect}"
+      end
+      if /\A#{Pat::Name}\z/ !~ @local_name
+        raise STag::Error, "invalid local name #{@local_name.inspect}"
+      end
+      if /\A(?:\{.*\})?#{Pat::Name}\z/ !~ @universal_name
+        raise STag::Error, "invalid universal name: #{@universal_name.inspect}"
       end
     end
     attr_reader :namespace_prefix,
