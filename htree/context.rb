@@ -41,7 +41,11 @@ module HTree
         check_namespace_uri(v)
         namespaces[k] = v
       }
-      Context.new(namespaces)
+      if namespaces == @namespaces
+        self
+      else
+        Context.new(namespaces)
+      end
     end
 
     private
