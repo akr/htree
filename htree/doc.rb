@@ -71,13 +71,5 @@ module HTree
       children = [children_left, children, children_right].flatten.compact
       Doc.new(children)
     end
-
-    def root
-      es = []
-      @children.each {|c| es << c if Elem === c }
-      raise HTree::Error, "no element" if es.empty?
-      raise HTree::Error, "multiple elements" if 1 < es.length
-      es[0]
-    end
   end 
 end

@@ -18,6 +18,7 @@ module HTree
         if !(Name === aname) && /\Axmlns(?:\z|:)/ =~ aname
           aname = Name.parse_attribute_name(aname, nil)
         end
+        val = val.to_node if HTree::Location === val
         val = Text.new(val) unless Text === val
         [aname, val]
       }

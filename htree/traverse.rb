@@ -2,6 +2,7 @@ require 'htree/doc'
 require 'htree/elem'
 require 'htree/loc'
 require 'htree/extract_text'
+require 'htree/preds'
 
 module HTree
   module Container::Trav
@@ -121,7 +122,7 @@ module HTree
       subst = {}
       each_child_with_index {|descendant, i|
         if yield descendant
-          if Elem === descendant.to_node
+          if descendant.elem?
             subst[i] = descendant.filter(&block)
           else
             subst[i] = descendant
@@ -204,14 +205,40 @@ module HTree
 
   end
 
-  module Elem::Trav
+  module Doc::Trav
+    def root
+      es = []
+      children.each {|c| es << c if c.elem? }
+      raise HTree::Error, "no element" if es.empty?
+      raise HTree::Error, "multiple elements" if 1 < es.length
+      es[0]
+    end
+  end
 
+  module Elem::Trav
     # +name+ returns the universal name of the element as a string.
+    #
+    #   p HTree('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>').root.name
+    #   # =>
+    #   "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF"
+    #
     def name() element_name.universal_name end
 
     # +qualified_name+ returns the qualified name of the element as a string.
     def qualified_name() element_name.qualified_name end
 
+    # +attributes+ returns attributes as a hash.
+    # The hash keys are HTree::Name objects.
+    # The hash values are HTree::Text or HTree::Location objects.
+    #
+    #   p HTree('<a name="xx" href="uu">').root.attributes
+    #   # =>
+    #   {href=>{text "uu"}, name=>{text "xx"}}
+    #
+    #   p HTree('<a name="xx" href="uu">').make_loc.root.attributes
+    #   # =>
+    #   {href=>#<HTree::Location: doc()/a/@href>, name=>#<HTree::Location: doc()/a/@name>}
+    #
     def attributes
       result = {}
       each_attribute {|name, text|
@@ -228,6 +255,9 @@ module HTree
       }
     end
 
+    # - fetch_attribute(name) -> text or IndexError
+    # - fetch_attribute(name, default) -> text or default
+    # - fetch_attribute(name) {|uname| default } -> text or default
     def fetch_attribute(uname, *rest, &block)
       if 1 < rest.length
         raise ArgumentError, "wrong number of arguments (#{1+rest.length} for 2)"
@@ -247,6 +277,9 @@ module HTree
       }
     end
 
+    # - fetch_attr(name) -> string or IndexError
+    # - fetch_attr(name, default) -> string or default
+    # - fetch_attr(name) {|uname| default } -> string or default
     def fetch_attr(uname, *rest, &block)
       if 1 < rest.length
         raise ArgumentError, "wrong number of arguments (#{1+rest.length} for 2)"

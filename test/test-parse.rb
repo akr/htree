@@ -1,6 +1,7 @@
 require 'test/unit'
 require 'htree/parse'
 require 'htree/equality'
+require 'htree/traverse'
 
 class TestParse < Test::Unit::TestCase
   def test_empty
@@ -71,6 +72,11 @@ class TestParse < Test::Unit::TestCase
     s = "<n a=v/>"
     t2 = HTree.parse(s).root
     assert_equal(t1, t2)
+  end
+
+  def test_downcase
+    assert_equal("{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF",
+      HTree.parse('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>').root.name)
   end
 
 end

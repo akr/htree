@@ -18,9 +18,12 @@ module HTree
   # For example, IO, StringIO, Pathname, URI::HTTP and URI::FTP are acceptable.
   # Note that the URIs need open-uri.
   #
-  # HTree.parse guesses <i>input</i> is HTML or not.
+  # HTree.parse guesses <i>input</i> is HTML or not and XML or not.
+  #
   # If it is guessed as HTML, the default namespace in the result is set to http://www.w3.org/1999/xhtml
   # regardless of <i>input</i> has XML namespace declaration or not nor even it is pre-XML HTML.
+  #
+  # If it is guessed as HTML and not XML, all element and attribute names are downcaseed. 
   #
   # If opened file or read content has charset method,
   # HTree.parse decode it according to $KCODE before parsing.
@@ -68,25 +71,25 @@ module HTree
       tokens << token
     }
     context = is_html ? HTMLContext: DefaultContext
-    structure_list = parse_pairs(tokens, is_xml)
-    structure_list = fix_structure_list(structure_list, is_xml)
-    nodes = structure_list.map {|s| build_node(s, is_xml, context) }
+    structure_list = parse_pairs(tokens, is_xml, is_html)
+    structure_list = fix_structure_list(structure_list, is_xml, is_html)
+    nodes = structure_list.map {|s| build_node(s, is_xml, is_html, context) }
     Doc.new(nodes)
   end
 
-  def HTree.parse_pairs(tokens, is_xml)
+  def HTree.parse_pairs(tokens, is_xml, is_html)
     stack = [[nil, nil, []]]
     tokens.each {|token|
       case token[0]
       when :stag
         stag_raw_string = token[1]
         stagname = stag_raw_string[Pat::Name]
-        stagname = stagname.downcase if !is_xml
+        stagname = stagname.downcase if !is_xml && is_html
         stack << [stagname, stag_raw_string, []]
       when :etag
         etag_raw_string = token[1]
         etagname = etag_raw_string[Pat::Name]
-        etagname = etagname.downcase if !is_xml
+        etagname = etagname.downcase if !is_xml && is_html
         matched_elem = nil
         stack.reverse_each {|elem|
           stagname, _, _ = elem
@@ -117,13 +120,13 @@ module HTree
     stack[0][2]
   end
 
-  def HTree.fix_structure_list(structure_list, is_xml)
+  def HTree.fix_structure_list(structure_list, is_xml, is_html)
     result = []
     rest = structure_list.dup
     until rest.empty?
       structure = rest.shift
       if structure[0] == :elem
-        elem, rest2 = fix_element(structure, [], [], is_xml)
+        elem, rest2 = fix_element(structure, [], [], is_xml, is_html)
         result << elem
         rest = rest2 + rest
       else
@@ -133,14 +136,14 @@ module HTree
     result
   end
 
-  def HTree.fix_element(elem, excluded_tags, included_tags, is_xml)
+  def HTree.fix_element(elem, excluded_tags, included_tags, is_xml, is_html)
     stag_raw_string = elem[1]
     children = elem[2]
     if etag_raw_string = elem[3]
-      return [:elem, stag_raw_string, fix_structure_list(children, is_xml), etag_raw_string], []
+      return [:elem, stag_raw_string, fix_structure_list(children, is_xml, is_html), etag_raw_string], []
     else
       tagname = stag_raw_string[Pat::Name]
-      tagname = tagname.downcase if !is_xml
+      tagname = tagname.downcase if !is_xml && is_html
       if ElementContent[tagname] == :EMPTY
         return [:elem, stag_raw_string, []], children
       else
@@ -167,12 +170,12 @@ module HTree
           if rest[0][0] == :elem
             elem = rest.shift
             elem_tagname = elem[1][Pat::Name]
-            elem_tagname = elem_tagname.downcase if !is_xml
+            elem_tagname = elem_tagname.downcase if !is_xml && is_html
             if uncontainable_tags.include? elem_tagname
               rest.unshift elem
               break
             else
-              fixed_elem, rest2 = fix_element(elem, excluded_tags, included_tags, is_xml)
+              fixed_elem, rest2 = fix_element(elem, excluded_tags, included_tags, is_xml, is_html)
               fixed_children << fixed_elem
               rest = rest2 + rest
             end
@@ -185,27 +188,27 @@ module HTree
     end
   end
 
-  def HTree.build_node(structure, is_xml, inherited_context=DefaultContext)
+  def HTree.build_node(structure, is_xml, is_html, inherited_context=DefaultContext)
     case structure[0]
     when :elem
       _, stag_rawstring, children, etag_rawstring = structure
-      etag = etag_rawstring && ETag.parse(etag_rawstring, is_xml)
-      stag = STag.parse(stag_rawstring, is_xml, inherited_context)
+      etag = etag_rawstring && ETag.parse(etag_rawstring, is_xml, is_html)
+      stag = STag.parse(stag_rawstring, is_xml, is_html, inherited_context)
       if !children.empty? || etag
         Elem.new!(stag,
-                  children.map {|c| build_node(c, is_xml, stag.context) },
+                  children.map {|c| build_node(c, is_xml, is_html, stag.context) },
                   etag)
       else
         Elem.new!(stag)
       end
     when :emptytag
-      Elem.new!(STag.parse(structure[1], is_xml, inherited_context))
+      Elem.new!(STag.parse(structure[1], is_xml, is_html, inherited_context))
     when :bogus_etag
-      BogusETag.parse(structure[1])
+      BogusETag.parse(structure[1], is_xml, is_html)
     when :xmldecl
       XMLDecl.parse(structure[1])
     when :doctype
-      DocType.parse(structure[1], is_xml)
+      DocType.parse(structure[1], is_xml, is_html)
     when :procins
       ProcIns.parse(structure[1])
     when :comment
@@ -221,7 +224,7 @@ module HTree
     end
   end
 
-  def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext)
+  def STag.parse(raw_string, is_xml, is_html, inherited_context=DefaultContext)
     if /\A#{Pat::StartTag}\z/o =~ raw_string
       is_stag = true
     elsif /\A#{Pat::EmptyTag}\z/o =~ raw_string
@@ -250,11 +253,11 @@ module HTree
       raise Exception, "[bug] cannot recognize as start tag: #{raw_string.inspect}"
     end
 
-    qname = qname.downcase unless case_sensitive
+    qname = qname.downcase if !is_xml && is_html
 
     attrs.map! {|aname, aval|
       if aname
-        aname = case_sensitive ? aname : aname.downcase
+        aname = (!is_xml && is_html) ? aname : aname.downcase
         [aname, Text.parse_pcdata(aval)]
       else
         if val2name = OmittedAttrName[qname]
@@ -272,26 +275,26 @@ module HTree
     result
   end
 
-  def ETag.parse(raw_string, case_sensitive=false)
+  def ETag.parse(raw_string, is_xml, is_html)
     unless /\A#{Pat::EndTag_C}\z/o =~ raw_string
       raise HTree::Error, "cannot recognize as end tag: #{raw_string.inspect}"
     end
 
     qname = $1
-    qname = qname.downcase unless case_sensitive
+    qname = qname.downcase if !is_xml && is_html
 
     result = self.new(qname)
     result.raw_string = raw_string
     result
   end
 
-  def BogusETag.parse(raw_string, case_sensitive=false)
+  def BogusETag.parse(raw_string, is_xml, is_html)
     unless /\A#{Pat::EndTag_C}\z/o =~ raw_string
       raise HTree::Error, "cannot recognize as end tag: #{raw_string.inspect}"
     end
 
     qname = $1
-    qname = qname.downcase unless case_sensitive
+    qname = qname.downcase if !is_xml && is_html
 
     result = self.new(qname)
     result.raw_string = raw_string
@@ -360,7 +363,7 @@ module HTree
     result
   end
 
-  def DocType.parse(raw_string, is_xml)
+  def DocType.parse(raw_string, is_xml, is_html)
     unless /\A#{Pat::DocType_C}\z/o =~ raw_string
       raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
     end
@@ -369,7 +372,7 @@ module HTree
     public_identifier = $2 || $3
     system_identifier = $4 || $5
 
-    root_element_name = root_element_name.downcase if !is_xml
+    root_element_name = root_element_name.downcase if !is_xml && is_html
 
     result = DocType.new(root_element_name, public_identifier, system_identifier)
     result.raw_string = raw_string

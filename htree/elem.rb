@@ -157,7 +157,8 @@ module HTree
   end 
 
   module Elem::Trav
-    def update_attribute_hash # :nodoc:
+    private
+    def update_attribute_hash
       if defined?(@attribute_hash)
         @attribute_hash
       else

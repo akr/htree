@@ -520,7 +520,7 @@ End
   end
 
   def compile_body(outvar, contextvar, node, is_toplevel, local_templates={})
-    if HTree::Elem === node && IGNORABLE_ELEMENTS[node.name] && node.attributes.empty?
+    if node.elem? && IGNORABLE_ELEMENTS[node.name] && node.attributes.empty?
       node = TemplateNode.new(node.children)
     else
       node = TemplateNode.new(node)

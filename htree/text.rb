@@ -11,6 +11,7 @@ module HTree
     # :startdoc:
 
     def Text.new(arg)
+      arg = arg.to_node if HTree::Location === arg
       if Text === arg
         new! arg.rcdata
       elsif String === arg
@@ -49,6 +50,7 @@ module HTree
     def Text.concat(*args)
       rcdata = ''
       args.each {|arg|
+        arg = arg.to_node if HTree::Location === arg
         if Text === arg
           rcdata << arg.rcdata
         else
