@@ -35,7 +35,7 @@ class TestCharset < Test::Unit::TestCase
   def test_e
     $KCODE = 'e'
     assert_equal(EUCJP, HTree.parse(UTF8).children[0].to_s)
-    assert_equal(EUCKR, HTree.parse(EUCKR).children[0].to_s)
+    assert_equal(EUCJP, HTree.parse(EUCKR).children[0].to_s)
     assert_equal(EUCJP, HTree.parse(EUCJP).children[0].to_s)
     assert_equal(EUCJP, HTree.parse(SJIS).children[0].to_s)
     assert_equal(EUCJP, HTree.parse(ISO2022JP).children[0].to_s)
