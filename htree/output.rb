@@ -50,11 +50,12 @@ module HTree
 
   class Doc
     def output(out, context)
+      context = DefaultContext # discard outer context
       xmldecl = false
       doctypedecl = false
       @children.each {|n|
         if n.respond_to? :output_prolog_xmldecl
-          n.output_prolog_xmldecl(out, context) unless xmldecl
+          n.output_prolog_xmldecl(out, context) unless xmldecl # xxx: encoding?
           xmldecl = true
         elsif n.respond_to? :output_prolog_doctypedecl
           n.output_prolog_doctypedecl(out, context) unless doctypedecl
@@ -112,18 +113,25 @@ module HTree
   end
 
   class Context
-    def output_namespaces(out, context)
+    def output_namespaces(out, outer_context)
+      unknown_namespaces = {}
       @namespaces.each {|prefix, uri|
-        if context.namespace_uri(prefix) != uri
+        outer_uri = outer_context.namespace_uri(prefix)
+        if outer_uri == nil
+          unknown_namespaces[prefix] = uri
+        elsif outer_uri != uri
           if prefix
             out.output_string " xmlns:#{prefix}="
           else
             out.output_string " xmlns="
           end
-          Text.new(uri).output_attvalue(out, context)
+          Text.new(uri).output_attvalue(out, outer_context)
         end
       }
-      context.subst_namespaces(@namespaces)
+      unless unknown_namespaces.empty?
+        out.output_xmlns(unknown_namespaces)
+      end
+      outer_context.subst_namespaces(@namespaces)
     end
   end
 
