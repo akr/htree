@@ -115,7 +115,7 @@ class TestNamespace < Test::Unit::TestCase
     assert_equal(["uu", nil, "c", "z"], attrs.shift)
   end
 
-  def test_universal_name
+  def test_prefixed_universal_name
     stag = HTree::STag.new("ppp{uuu}nnn",
       [["a", "x"], ["q:b", "y"], ["{uu}c", "z"], ["q{uu}d", "w"]],
       {"q"=>"u"})
