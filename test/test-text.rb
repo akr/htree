@@ -28,8 +28,8 @@ class TestText < Test::Unit::TestCase
 
   def test_normalize
     kcode('EUC') {
-      assert_equal("<ABC&amp;&amp;&#160;\xa6\xc1",
-        HTree::Text.new!("&lt;&#65;&#x42;C&amp;&#38;&nbsp;&alpha;").normalize.rcdata)
+      assert_equal("<ABC&#38;&#38;&#160;\xa6\xc1",
+        HTree::Text.new!("&lt;&#65;&#x42;C&amp;&#38;&nbsp;&alpha;").normalized_rcdata)
     }
   end
 end

@@ -157,9 +157,8 @@ module HTree
     end
 
     def make_usual_equal_object
-      @rcdata #xxx: should be normalized
+      @normalized_rcdata
     end
-
   end
 
   class XMLDecl

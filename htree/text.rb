@@ -15,7 +15,7 @@ module HTree
     def Text.new(arg)
       arg = arg.to_node if HTree::Location === arg
       if Text === arg
-        new! arg.rcdata
+        new! arg.rcdata, arg.normalized_rcdata
       elsif String === arg
         new! arg.gsub(/&/, '&amp;')
       else
@@ -23,14 +23,17 @@ module HTree
       end
     end
 
-    def initialize(rcdata) # :notnew:
+    def initialize(rcdata, normalized_rcdata=internal_normalize(rcdata)) # :notnew:
       init_raw_string
       @rcdata = rcdata && rcdata.dup
+      @normalized_rcdata = normalized_rcdata
     end
-    attr_reader :rcdata
+    attr_reader :rcdata, :normalized_rcdata
 
-    def to_s
-      @rcdata.gsub(/&(?:#([0-9]+)|#x([0-9a-fA-F]+)|([A-Za-z][A-Za-z0-9]*));/o) {|s|
+    def internal_normalize(rcdata)
+      # - character references are decoded as much as possible.
+      # - undecodable character references are converted to decimal numeric character refereces.
+      rcdata.gsub(/&(?:#([0-9]+)|#x([0-9a-fA-F]+)|([A-Za-z][A-Za-z0-9]*));/o) {|s|
         u = nil
         if $1
           u = $1.to_i
@@ -41,47 +44,33 @@ module HTree
         end
         if !u || u < 0 || 0x7fffffff < u
           '?'
+        elsif u == 38 # '&' character.
+          '&#38;'
         elsif u <= 0x7f
           [u].pack("C")
         else
           begin
             Iconv.conv(Encoder.internal_charset, 'UTF-8', [u].pack("U"))
           rescue Iconv::Failure
-            '?'
+            "&##{u};"
           end
         end
       }
     end
+    private :internal_normalize
 
-    # normalize the text as follows.
+    # HTree::Text#to_s converts the text to a String.
     # - character references are decoded as much as possible.
-    # - undecodable character references are converted to decimal numeric character refereces.
-    # - ambersand (&amp;, &#38;, etc.) is normalized to &amp;.
-    def normalize
-      Text.new!(
-        @rcdata.gsub(/&(?:#([0-9]+)|#x([0-9a-fA-F]+)|([A-Za-z][A-Za-z0-9]*));/o) {|s|
-          u = nil
-          if $1
-            u = $1.to_i
-          elsif $2
-            u = $2.hex
-          elsif $3
-            u = NamedCharacters[$3]
-          end
-          if !u || u < 0 || 0x7fffffff < u
-            '?'
-          elsif u == 0x26 # '&' character.
-            '&amp;'
-          elsif u <= 0x7f
-            [u].pack("C")
-          else
-            begin
-              Iconv.conv(Encoder.internal_charset, 'UTF-8', [u].pack("U"))
-            rescue Iconv::Failure
-              "&##{u};"
-            end
-          end
-        })
+    # - undecodable character reference are converted to '?' character.
+    def to_s
+      @normalized_rcdata.gsub(/&(?:#([0-9]+));/o) {|s|
+        u = $1.to_i
+        if 0 <= u && u <= 0x7f
+          [u].pack("C")
+        else
+          '?'
+        end
+      }
     end
 
     def Text.concat(*args)
