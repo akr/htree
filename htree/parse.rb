@@ -249,13 +249,13 @@ class HTree
           end
         end
       }
-      result = new! fixed
+      result = new!(fixed)
       result.raw_string = raw_string
       result
     end
 
     def Text.parse_cdata_content(raw_string)
-      result = Text.new raw_string
+      result = Text.new(raw_string)
       result.raw_string = raw_string
       result
     end
@@ -267,7 +267,7 @@ class HTree
 
       content = $1
 
-      result = Text.new content
+      result = Text.new(content)
       result.raw_string = raw_string
       result
     end
