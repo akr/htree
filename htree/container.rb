@@ -29,12 +29,18 @@ module HTree
           case arg
           when Hash
             arg.each {|k, v| attrs << [k, v] }
-          when HTree
+          when HTree::Text, HTree::ProcIns, HTree::Comment, HTree::Elem
             children << arg
+          when HTree::Doc
+            arg.children.each {|c|
+              next if HTree::XMLDecl === c
+              next if HTree::DocType === c
+              children << c
+            }
           when String
             children << Text.new(arg)
           else
-            raise "unexpected argument: #{arg.inspect}"
+            raise Elem::Error, "unexpected argument: #{arg.inspect}"
           end
         }
         new!(STag.new(name, attrs), children, ETag.new(name))
@@ -43,13 +49,13 @@ module HTree
 
     def initialize(stag, children=nil, etag=nil)
       unless stag.class == STag
-        raise "HTree::STag expected: #{stag.inspect}"
+        raise Elem::Error, "HTree::STag expected: #{stag.inspect}"
       end
       unless !children || children.all? {|c| HTree === c }
-        raise "HTree array expected: #{children.inspect}"
+        raise Elem::Error, "HTree array expected: #{children.inspect}"
       end
       unless !etag || etag.class == ETag
-        raise "HTree::ETag expected: #{etag.inspect}"
+        raise Elem::Error, "HTree::ETag expected: #{etag.inspect}"
       end
       @stag = stag
       @children = children

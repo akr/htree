@@ -22,5 +22,7 @@ module HTree
     class DocType::Error < Error; end
     class ProcIns::Error < Error; end
     class Comment::Error < Error; end
+    class Doc::Error < Error; end
+    class Elem::Error < Error; end
 end
 

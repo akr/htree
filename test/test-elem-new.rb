@@ -56,4 +56,15 @@ class TestElemNew < Test::Unit::TestCase
     assert_equal([t, t, t], e.children)
   end
 
+  def test_err
+    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::Leaf.new) }
+    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::Markup.new) }
+    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::STag.new('a')) }
+    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::ETag.new('a')) }
+    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::BogusETag.new('a')) }
+    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::XMLDecl.new('1.0')) }
+    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::DocType.new('html')) }
+    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::Container.new) }
+  end
+
 end
