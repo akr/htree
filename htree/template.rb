@@ -145,9 +145,15 @@
 #
 # == Method Summary
 #
-# - HTree.expand_template{<i>template_string</i>}
-# - HTree.expand_template(<i>encoding</i>){<i>template_string</i>}
+# - HTree.expand_template(<i>pathname</i>) -> STDOUT
+# - HTree.expand_template(<i>pathname</i>, <i>arg</i>) -> STDOUT
+# - HTree.expand_template(<i>pathname</i>, <i>arg</i>, <i>encoding</i>) -> STDOUT
+# - HTree.expand_template(<i>pathname</i>, <i>arg</i>, <i>encoding</i>, <i>out</i>) -> <i>out</i>
+#
+# - HTree.expand_template{<i>template_string</i>} -> STDOUT
+# - HTree.expand_template(<i>encoding</i>){<i>template_string</i>} -> STDOUT
 # - HTree.expand_template(<i>encoding</i>, <i>out</i>){<i>template_string</i>} -> <i>out</i>
+#
 # - HTree.compile_template(<i>template_string</i>) -> Module
 # - HTree{<i>template_string</i>} -> HTree::Doc
 # - HTree(<i>html_string</i>) -> HTree::Doc
@@ -156,15 +162,80 @@ require 'htree/parse'
 require 'htree/gencode'
 require 'htree/equality'
 
-# <code>HTree.expand_template{<i>template_string</i>}</code> expands <i>template_string</i> as a template.
-# The generated result is encoded as <i>encoding</i> and sent to <i>out</i> using <tt><<</tt> method.
-# Ruby expressions in <i>template_string</i> is evaluated in the scope of the caller.
+# <code>HTree.expand_template</code> expands a template.
+#
+# The arguments should be specified as follows.
+# All argument except <i>pathname</i> are optional.
+#
+# - HTree.expand_template(<i>pathname</i>, <i>arg</i>, <i>encoding</i>, <i>out</i>) -> <i>out</i>
+# - HTree.expand_template(<i>encoding</i>, <i>out</i>) {<i>template_string</i>} -> <i>out</i>
+#
+# The template is specified by a file or a string.
+# If a block is not given, the first argument represent a template pathname.
+# Otherwise, the block is yielded and its value is interpreted as a template
+# string.
+# So it can be called as follows in simplest case.
+#
+# - HTree.expand_template(<i>template_pathname</i>)
+# - HTree.expand_template{<i>template_string</i>}
+#
+# Ruby expressions in the template file specified by _template_pathname_ are
+# evaluated in the context of the module <code>HTreeTemplateContext</code>.
+# The optional second argument <i>arg</i> can be specified to give information
+# to the template.
+# It is bound for the local variable _ in the template.
+#
+#   # arg is bound for _ in template.
+#   HTree.expand_template(template_pathname, arg)
+#
+# Ruby expressions in the template_string are evaluated
+# in the context of the caller of HTree.expand_template.
+# (binding information is specified by the block.)
 # I.e. they can access local variables etc.
 #
-# The return value is <i>out</i>.
-def HTree.expand_template(encoding=HTree::Encoder.internal_charset, out=STDOUT, &block)
-  template = block.call
-  HTree::TemplateCompiler.new.expand_template(template, encoding, out, block)
+# HTree.expand_template has two more optional arguments:
+# <i>encoding</i>, <i>out</i>.
+#
+# <i>encoding</i> specifies output character encoding.
+# If it is not specified, internal encoding is used.
+#
+# <i>out</i> specifies output target.
+# It should have <tt><<</tt> method: IO and String for example.
+# If it is not specified, STDOUT is used.
+# 
+# HTree.expand_template returns <i>out</i> or STDOUT if <i>out</i> is not
+# specified.
+#
+def HTree.expand_template(*args, &block)
+  if block
+    template = block.call
+    binding = block
+  else
+    pathname = args.shift
+    arg = args.shift
+    if pathname.respond_to? :read
+      template = pathname.read
+      if template.respond_to? :charset
+        template = Iconv.conv(HTree::Encoder.internal_charset, template.charset, template)
+      end
+    else
+      template = File.read(pathname)
+    end
+    binding = HTreeTemplateContext.make_template_binding(arg)
+  end
+
+  encoding = args.shift || HTree::Encoder.internal_charset
+  out = args.shift || STDOUT
+  if !args.empty?
+    raise ArgumentError, "wrong number of arguments" 
+  end
+  HTree::TemplateCompiler.new.expand_template(template, encoding, out, binding)
+end
+
+module HTreeTemplateContext
+  def HTreeTemplateContext.make_template_binding(_)
+    binding
+  end
 end
 
 # <code>HTree(<i>html_string</i>)</code> parses <i>html_string</i>.
