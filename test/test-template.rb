@@ -133,6 +133,17 @@ End
     assert_equal('<?xml version="1.0" encoding="US-ASCII"?>self is "zzz"',
       HTree.expand_template(''){'<div _call="o.m"></div>'})
   end
+
+  def test_attr_nbsp
+    @t = HTree::Text.new!('&nbsp;')
+    assert_xhtml("<span x=\"&nbsp;\"\n>d</span\n>", '<span _attr_x="@t">d</span>')
+  end
+
+  def test_text_nbsp
+    @t = HTree::Text.new!('&nbsp;')
+    assert_xhtml("&nbsp;", '<span _text="@t">d</span>')
+  end
+
 end
 
 class MemFile

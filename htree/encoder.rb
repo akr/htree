@@ -77,11 +77,19 @@ module HTree
     }
 
     def output_dynamic_text(string)
-      output_text(string.to_s.gsub(/[&<>]/) { ChRef[$&] })
+      if string.respond_to? :rcdata
+        output_text(string.rcdata.gsub(/[<>]/) { ChRef[$&] })
+      else
+        output_text(string.to_s.gsub(/[&<>]/) { ChRef[$&] })
+      end
     end
 
     def output_dynamic_attvalue(string)
-      output_text(string.to_s.gsub(/[&<>"]/) { ChRef[$&] })
+      if string.respond_to? :rcdata
+        output_text(string.rcdata.gsub(/[<>"]/) { ChRef[$&] })
+      else
+        output_text(string.to_s.gsub(/[&<>"]/) { ChRef[$&] })
+      end
     end
 
     # :startdoc:
