@@ -42,13 +42,13 @@
 #
 # - Genrating Methods
 #   - HTree::Node#display_xml -> STDOUT
-#   - HTree::Node#display_xml(<i>encoding</i>) -> STDOUT
-#   - HTree::Node#display_xml(<i>encoding</i>, <i>out</i>) -> <i>out</i>
+#   - HTree::Node#display_xml(<i>out</i>) -> <i>out</i>
+#   - HTree::Node#display_xml(<i>out</i>, <i>encoding</i>) -> <i>out</i>
 #
 # - Template Methods
 #   - HTree.expand_template{<i>template_string</i>} -> STDOUT
-#   - HTree.expand_template(<i>encoding</i>){<i>template_string</i>} -> STDOUT
-#   - HTree.expand_template(<i>encoding</i>, <i>out</i>){<i>template_string</i>} -> <i>out</i>
+#   - HTree.expand_template(<i>out</i>){<i>template_string</i>} -> <i>out</i>
+#   - HTree.expand_template(<i>out</i>, <i>encoding</i>){<i>template_string</i>} -> <i>out</i>
 #   - HTree.compile_template(<i>template_string</i>) -> Module
 #   - HTree{<i>template_string</i>} -> HTree::Doc
 #

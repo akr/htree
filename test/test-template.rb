@@ -1,7 +1,7 @@
 require 'test/unit'
 require 'htree/template'
 
-class TestText < Test::Unit::TestCase
+class TestTemplate < Test::Unit::TestCase
   Decl = '<?xml version="1.0" encoding="US-ASCII"?>'
 
   def assert_xhtml(expected, template, message=nil)
@@ -78,6 +78,8 @@ End
     assert_xhtml("<x\n></x\n>", '<x> </x>')
     assert_xhtml("<x\n>&#32;</x\n>", '<x>&#32;</x>')
     assert_xhtml("<pre\n> </pre\n>", '<pre> </pre>')
+    assert_xhtml(" ", %q{<span _text="' '"> </span>})
+    assert_xhtml(" ", %q{<span _text="' '"/>})
   end
 
   def test_ignorable

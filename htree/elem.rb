@@ -105,16 +105,15 @@ module HTree
       arg_hash.each_pair {|index, value|
         case index
         when Name, Integer
-          hash[index] = value
         when String
-          name = Name.parse_attribute_name(index, DefaultContext)
-          if hash.include? name
-            raise ArgumentError, "duplicate index: #{index.inspect}"
-          end
-          hash[name] = value
+          index = Name.parse_attribute_name(index, DefaultContext)
         else
           raise TypeError, "invalid index: #{index.inspect}"
         end
+        if hash.include? index
+          raise ArgumentError, "duplicate index: #{index.inspect}"
+        end
+        hash[index] = value
       }
 
       attrs = {}

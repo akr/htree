@@ -1,4 +1,3 @@
-# :stopdoc:
 class Regexp
   def disable_capture
     re = ''
@@ -12,5 +11,4 @@ class Regexp
     Regexp.new(re, self.options, self.kcode)
   end
 end
-# :startdoc:
 

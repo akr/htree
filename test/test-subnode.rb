@@ -24,6 +24,12 @@ class TestSubnode < Test::Unit::TestCase
     assert_equal(false, e1.subst_subnode(0=>"xxx").empty_element?)
   end
 
+  def test_elem_subst_fail
+    assert_raise(ArgumentError) {
+      HTree::Elem.new("a").subst_subnode("b"=>"c", HTree::Name.new(nil, "", "b")=>"d")
+    }
+  end
+
   def test_doc_get
     doc = HTree.parse("<?xml?><a href=x>abc</a> ")
     assert_equal(doc.root, doc.get_subnode(1))

@@ -2,44 +2,59 @@ require 'htree/modules'
 
 module HTree
   module Node
+    # raw_string returns a source string recorded by parsing.
+    # It returns +nil+ if the node is constructed not via parsing.
     def raw_string
-      raise NotImplementedError
+      catch(:raw_string_tag) {
+        return raw_string_internal('')
+      }
+      nil
     end
+  end
 
+  # :stopdoc:
+  class Doc
+    def raw_string_internal(result)
+      @children.each {|n|
+        n.raw_string_internal(result)
+      }
+    end
+  end
+
+  class Elem
+    def raw_string_internal(result)
+      @stag.raw_string_internal(result)
+      @children.each {|n| n.raw_string_internal(result) }
+      @etag.raw_string_internal(result) if @etag
+    end
+  end
+
+  module Tag
+    def init_raw_string() @raw_string = nil end
+    def raw_string=(arg) @raw_string = arg.dup.freeze end
+    def raw_string_internal(result)
+      throw :raw_string_tag if !@raw_string
+      result << @raw_string
+    end
+  end
+
+  module Leaf
+    def init_raw_string() @raw_string = nil end
+    def raw_string=(arg) @raw_string = arg.dup.freeze end
+    def raw_string_internal(result)
+      throw :raw_string_tag if !@raw_string
+      result << @raw_string
+    end
+  end
+  # :startdoc:
+
+  module Node
     def eliminate_raw_string
       raise NotImplementedError
     end
   end
 
   # :stopdoc:
-  class Doc
-    def raw_string
-      @children.map {|n| n.raw_string }.join('')
-    end
-  end
-
-  class Elem
-    def raw_string
-      result = @stag.raw_string.dup
-      @children.each {|n| result << n.raw_string }
-      result << @etag.raw_string if @etag
-      result
-    end
-  end
-
-  module Leaf
-    def init_raw_string
-      @raw_string = nil
-    end
-
-    def raw_string=(arg)
-      @raw_string = arg.dup.freeze
-    end
-
-    def raw_string
-      @raw_string || self.display_xml('')
-    end
-  end
 
   class Doc
     def eliminate_raw_string
