@@ -128,7 +128,7 @@ module HTree
           end
         end
       }
-      Elem.new!(self.stag, children, self.etag)
+      Elem.new!(@stag, children, @etag)
     end
   end
 
@@ -185,8 +185,8 @@ module HTree
       traverse_element('link',
         '{http://www.w3.org/1999/xhtml}link') {|e|
         begin
-          next unless e.stag.fetch_attr('rev').downcase == 'made'
-          author = e.stag.fetch_attr('title').strip
+          next unless e.fetch_attr('rev').downcase == 'made'
+          author = e.fetch_attr('title').strip
           return author if !author.empty?
         rescue IndexError
         end

@@ -68,7 +68,7 @@ module HTree
       @empty = children == nil && etag == nil
       @etag = etag
     end
-    attr_reader :children, :stag, :etag
+    attr_reader :children
     
     def name; @stag.universal_name end
     def qualified_name; @stag.qualified_name end
