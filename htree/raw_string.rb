@@ -9,7 +9,7 @@ module HTree
 
   class Elem
     def raw_string
-      result = @stag.raw_string
+      result = @stag.raw_string.dup
       @children.each {|n| result << n.raw_string }
       result << @etag.raw_string if @etag
       result
