@@ -26,6 +26,13 @@ class TestParse < Test::Unit::TestCase
       HTree.parse('<?xml version="1.0"?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><HTML>').children[1].root_element_name)
   end
 
+  def test_doctype_system_identifier
+    assert_equal('http://www.w3.org/TR/html4/loose.dtd',
+      HTree.parse("<!DOCTYPE HTML SYSTEM 'http://www.w3.org/TR/html4/loose.dtd'>").children[0].system_identifier)
+    assert_equal('http://www.w3.org/TR/html4/loose.dtd',
+      HTree.parse("<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN' 'http://www.w3.org/TR/html4/loose.dtd'>").children[0].system_identifier)
+  end
+
   def test_procins
     t = HTree.parse_xml("<?x?>").children[0]
     assert_equal('x', t.target)

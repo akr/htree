@@ -46,7 +46,7 @@ module HTree
     XmlDecl = /<\?xml#{XmlVersionInfo}#{XmlEncodingDecl}?#{XmlSDDecl}?\s*\?>/
 
     # xxx: internal DTD subset is not recognized: '[' (markupdecl | DeclSep)* ']' S?)?
-    SystemLiteral_C = /"([^"]*)"|'([^'])'/
+    SystemLiteral_C = /"([^"]*)"|'([^']*)'/
     PubidLiteral_C = %r{"([\sa-zA-Z0-9\-'()+,./:=?;!*\#@$_%]*)"|'([\sa-zA-Z0-9\-()+,./:=?;!*\#@$_%]*)'}
     ExternalID_C = /(?:SYSTEM|PUBLIC\s+#{PubidLiteral_C})(?:\s+#{SystemLiteral_C})?/
     DocType_C = /<!DOCTYPE\s+(#{Name})(?:\s+#{ExternalID_C})?\s*(?:\[.*?\]\s*)?>/m

@@ -165,7 +165,7 @@ module HTree
     def output(out, context)
     end
 
-    def generate_content
+    def generate_content # :nodoc:
       result = ''
       if @public_identifier
         result << "PUBLIC \"#{@public_identifier}\""
