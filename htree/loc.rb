@@ -163,7 +163,7 @@ module HTree::Container::Loc
 end
 
 class HTree::Elem::Loc
-  # +name+ returns universal name of the element.
+  # +name+ returns universal name of the element as a string.
   def name
     @node.name
   end

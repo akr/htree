@@ -64,7 +64,7 @@ module HTree
 
     def context; @stag.context end
     
-    # +name+ returns universal name of the element.
+    # +name+ returns universal name of the element as a string.
     def name; @stag.universal_name end
     def qualified_name; @stag.qualified_name end
     def element_name; @stag.element_name end
