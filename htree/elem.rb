@@ -104,5 +104,75 @@ module HTree
       end
       out
     end
+
+    def get_subnode(index)
+      case index
+      when String
+        name = Name.parse_attribute_name(index, DefaultContext)
+        @stag.get_attribute(name.universal_name)
+      when Name
+        @stag.get_attribute(index.universal_name)
+      when Integer
+        @children[index]
+      else
+        raise ArgumentError, "invalid index: #{index.inspect}"
+      end
+    end
+
+    def subst_subnode(arg_hash)
+      hash = {}
+      arg_hash.each_pair {|index, value|
+        case index
+        when Name, Integer
+          hash[index] = value
+        when String
+          name = Name.parse_attribute_name(index, DefaultContext)
+          if hash.include? name
+            raise ArgumentError, "duplicate index: #{index.inspect}"
+          end
+          hash[name] = value
+        else
+          raise ArgumentError, "invalid index: #{index.inspect}"
+        end
+      }
+
+      attrs = {}
+      @stag.attributes.each {|k, v|
+        attrs[k] = v
+      }
+
+      children_left = []
+      children = @children.dup
+      children_right = []
+
+      hash.each_pair {|index, value|
+        case index
+        when Name
+          if value
+            attrs[index] = value
+          else
+            attrs.delete(index) {
+              raise ArgumentError, "nonexist index: #{index.inspect}"
+            }
+          end
+        when Integer
+          if index < 0
+            children_left << value
+          elsif children.length <= index
+            children_right << value
+          else
+            children[index] = value
+          end
+        end
+      }
+
+      Elem.new(
+        @stag.element_name,
+        attrs,
+        children_left,
+        children,
+        children_right,
+        @stag.context)
+    end
   end 
 end
