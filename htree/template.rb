@@ -267,12 +267,12 @@ def HTree.expand_template(*args, &block)
     pathname = args.shift
     obj = args.shift
     if pathname.respond_to? :read
-      template = pathname.read
+      template = pathname.read.untaint
       if template.respond_to? :charset
         template = Iconv.conv(HTree::Encoder.internal_charset, template.charset, template)
       end
     else
-      template = File.read(pathname)
+      template = File.read(pathname).untaint
     end
     binding = eval("lambda {|context_object| context_object.instance_eval 'binding'}", TOPLEVEL_BINDING).call(obj)
   end
