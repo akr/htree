@@ -218,7 +218,7 @@ def HTree.expand_template(*args, &block)
     else
       template = File.read(pathname)
     end
-    binding = HTreeTemplateContext.make_template_binding(obj)
+    binding = eval("lambda {|context_object| context_object.instance_eval 'binding'}", TOPLEVEL_BINDING).call(obj)
   end
 
   encoding = args.shift || HTree::Encoder.internal_charset
@@ -227,13 +227,6 @@ def HTree.expand_template(*args, &block)
     raise ArgumentError, "wrong number of arguments" 
   end
   HTree::TemplateCompiler.new.expand_template(template, encoding, out, binding)
-end
-
-module HTreeTemplateContext
-  def HTreeTemplateContext.make_template_binding(context_object)
-    context_object.instance_eval { binding }
-  end
-  HTreeTemplateContext.freeze
 end
 
 # <code>HTree(<i>html_string</i>)</code> parses <i>html_string</i>.
