@@ -302,8 +302,14 @@ def HTree.expand_template(*args, &block)
     else
       template = File.read(pathname).untaint
     end
-    binding = eval("lambda {|context_object| context_object.instance_eval 'binding'}",
-      HTree::EmptyBindingObject.empty_binding).call(obj)
+    Thread.current[:htree_expand_template_obj] = obj
+    binding = eval(<<-'End',
+        Thread.current[:htree_expand_template_obj].class.class_eval <<-'EE'
+          Thread.current[:htree_expand_template_obj].instance_eval { binding }
+        EE
+      End
+      HTree::EmptyBindingObject.empty_binding)
+    Thread.current[:htree_expand_template_obj] = nil
   end
 
   out = args.shift || $stdout
@@ -357,7 +363,13 @@ end
 #
 def HTree.compile_template(template_string)
   code = HTree::TemplateCompiler.new.compile_template(template_string)
-  eval(code)
+  Thread.current[:htree_compile_template_code] = code
+  mod = eval(<<-'End',
+      eval(Thread.current[:htree_compile_template_code])
+    End
+    HTree::EmptyBindingObject.empty_binding)
+  Thread.current[:htree_compile_template_code] = nil
+  mod
 end
 
 # :stopdoc:
@@ -450,10 +462,11 @@ End
     <<"End"
 require 'htree/encoder'
 require 'htree/context'
-Module.new {
+Module.new.module_eval <<'EE'
 module_function
 #{methods.join('').chomp}
-}
+self
+EE
 End
   end
 

@@ -1,5 +1,6 @@
 require 'test/unit'
 require 'htree/template'
+require 'stringio'
 
 class TestTemplate < Test::Unit::TestCase
   Decl = '<?xml version="1.0" encoding="US-ASCII"?>'
@@ -132,5 +133,56 @@ End
     assert_equal('<?xml version="1.0" encoding="US-ASCII"?>self is "zzz"',
       HTree.expand_template(''){'<div _call="o.m"></div>'})
   end
+end
 
+class MemFile
+  def initialize(str)
+    @str = str
+  end
+
+  def read
+    @str
+  end
+end
+
+class TestTemplateScopeObj
+  Const = 'good_const'
+  @@cvar = 'good_cvar'
+  def initialize
+    @ivar = 'good_ivar'
+  end
+end
+
+class TestTemplateScope < Test::Unit::TestCase
+  Const = 'bad_const'
+  @@cvar = 'bad_cvar'
+  def setup
+    @ivar = 'bad_ivar'
+    eval("test_local_variable = 'bad_lvar'", TOPLEVEL_BINDING)
+  end
+
+  XMLDeclStr = '<?xml version="1.0" encoding="US-ASCII"?>'
+
+  def test_expand_template
+    obj = TestTemplateScopeObj.new
+    assert_equal("#{XMLDeclStr}[TestTemplateScopeObj]",
+      HTree.expand_template(MemFile.new('<span _text="Module.nesting.inspect"/>'), obj, ''))
+    assert_equal("#{XMLDeclStr}good_ivar",
+      HTree.expand_template(MemFile.new('<span _text="@ivar"/>'), obj, ''))
+    assert_equal("#{XMLDeclStr}good_cvar",
+      HTree.expand_template(MemFile.new('<span _text="@@cvar"/>'), obj, ''))
+    assert_equal("#{XMLDeclStr}good_const",
+      HTree.expand_template(MemFile.new('<span _text="Const"/>'), obj, ''))
+    test_local_variable = 'bad_lvar'
+    assert_equal("#{XMLDeclStr}good_lvar",
+      HTree.expand_template(MemFile.new('<span _text="begin test_local_variable rescue NameError; \'good_lvar\' end"/>'), obj, ''))
+  end
+
+  def test_compile_template
+    obj = TestTemplateScopeObj.new
+    mod = HTree.compile_template(MemFile.new(<<-'End'))
+      <span _template=meth _text="Module.nesting.inspect"/>
+    End
+    assert_equal("[#{mod.inspect}]", mod.meth.extract_text.to_s)
+  end
 end
