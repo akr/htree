@@ -154,7 +154,7 @@ module HTree
   end
 
   module Doc::Trav
-    # +title+ searches title and return it as a string.
+    # +title+ searches title and return it as a text.
     # It returns nil if not found.
     #
     # +title+ searchs following information.
@@ -166,10 +166,10 @@ module HTree
         '{http://www.w3.org/1999/xhtml}title',
         '{http://purl.org/rss/1.0/}title',
         '{http://my.netscape.com/rdf/simple/0.9/}title')
-      e && e.extract_text.to_s
+      e && e.extract_text
     end
 
-    # +author+ searches author and return it as a string.
+    # +author+ searches author and return it as a text.
     # It returns nil if not found.
     #
     # +author+ searchs following information.
@@ -183,7 +183,7 @@ module HTree
         '{http://www.w3.org/1999/xhtml}meta') {|e|
         begin
           next unless e.fetch_attr('name').downcase == 'author'
-          author = e.fetch_attr('content').strip
+          author = e.fetch_attribute('content').strip
           return author if !author.empty?
         rescue IndexError
         end
@@ -193,7 +193,7 @@ module HTree
         '{http://www.w3.org/1999/xhtml}link') {|e|
         begin
           next unless e.fetch_attr('rev').downcase == 'made'
-          author = e.fetch_attr('title').strip
+          author = e.fetch_attribute('title').strip
           return author if !author.empty?
         rescue IndexError
         end
@@ -203,14 +203,14 @@ module HTree
         if channel = find_element('{http://purl.org/rss/1.0/}channel')
           channel.traverse_element('{http://purl.org/dc/elements/1.1/}creator') {|e|
             begin
-              author = e.extract_text.to_s.strip
+              author = e.extract_text.strip
               return author if !author.empty?
             rescue IndexError
             end
           }
           channel.traverse_element('{http://purl.org/dc/elements/1.1/}publisher') {|e|
             begin
-              author = e.extract_text.to_s.strip
+              author = e.extract_text.strip
               return author if !author.empty?
             rescue IndexError
             end

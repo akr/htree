@@ -73,6 +73,17 @@ module HTree
       }
     end
 
+    def empty?
+      @normalized_rcdata.empty?
+    end
+
+    def strip
+      rcdata = @normalized_rcdata.dup
+      rcdata.sub!(/\A(?:\s|&nbsp;)+/, '')
+      rcdata.sub!(/(?:\s|&nbsp;)+\z/, '')
+      Text.new!(rcdata, rcdata)
+    end
+
     # HTree::Text.concat returns a text which is concatenation of arguments.
     def Text.concat(*args)
       rcdata = ''

@@ -11,8 +11,9 @@ class TestTraverse < Test::Unit::TestCase
   end
 
   def test_title
+    result = HTree::Text.new('aaa')
     t = HTree.parse('<html><title>aaa</title>')
-    assert_equal('aaa', t.title)
+    assert_equal(result, t.title)
     t = HTree.parse(<<'End')
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -22,14 +23,15 @@ class TestTraverse < Test::Unit::TestCase
   </channel>
 </rdf:RDF>
 End
-    assert_equal('aaa', t.title)
+    assert_equal(result, t.title)
   end
 
   def test_author
+    result = HTree::Text.new('xxx')
     t = HTree.parse('<html><meta name=author content=xxx>')
-    assert_equal('xxx', t.author)
+    assert_equal(result, t.author)
     t = HTree.parse('<html><link rev=made title=xxx>')
-    assert_equal('xxx', t.author)
+    assert_equal(result, t.author)
     t = HTree.parse(<<'End')
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -39,7 +41,7 @@ End
   </channel>
 </rdf:RDF>
 End
-    assert_equal('xxx', t.author)
+    assert_equal(result, t.author)
     t = HTree.parse(<<'End')
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -49,6 +51,6 @@ End
   </channel>
 </rdf:RDF>
 End
-    assert_equal('xxx', t.author)
+    assert_equal(result, t.author)
   end
 end
