@@ -8,7 +8,7 @@ require 'htree/raw_string'
 require 'htree/context'
 
 module HTree
-  # HTree.parse returns parses <i>input</i> and return a document tree.
+  # HTree.parse parses <i>input</i> and return a document tree.
   # represented by HTree::Doc.
   #
   # <i>input</i> should be a String or
@@ -25,7 +25,7 @@ module HTree
     parse_as(input, HTMLContext, false)
   end
 
-  # HTree.parse_xml returns parses <i>input</i> as XML and
+  # HTree.parse_xml parses <i>input</i> as XML and
   # return a document tree represented by HTree::Doc.
   #
   # It behaves almost same as HTree.parse but it assumes <i>input</> is XML
