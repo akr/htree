@@ -8,10 +8,9 @@
 # == Features
 #
 # - Template Engine: link:files/htree/template_rb.html
+# - REXML Tree Generator: link:files/htree/rexml_rb.html
 #
-# == Examples
-#
-# === Example 1: dump a document tree
+# == Example
 #
 #   % ruby -rhtree -e 'pp HTree.parse(ARGF)' html-file
 #
@@ -53,6 +52,8 @@
 #   - HTree.compile_template(<i>template_string</i>) -> Module
 #   - HTree{<i>template_string</i>} -> HTree::Doc
 #
+# - REXML Tree Generator
+#   - HTree::Node#to_rexml -> REXML::Child
 
 require 'htree/parse'
 require 'htree/extract_text'

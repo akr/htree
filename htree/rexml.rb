@@ -1,3 +1,25 @@
+# = REXML Tree Generator
+#
+# HTree::Node#to_rexml is used for converting HTree to REXML.
+#
+# == Method Summary
+#
+# - HTree::Node#to_rexml -> REXML::Child
+#
+# == Example
+#
+#   HTree.parse(...).to_rexml #=> REXML::Document
+#
+# == Comparison between HTree and REXML.
+#
+# - HTree parser is permissive HTML/XML parser.
+#   REXML parser is strict XML parser.
+#   HTree is recommended if you need to parse realworld HTML.
+#   REXML is recommended if you need strict error checking.
+# - HTree object is immutable.
+#   REXML object is mutable.
+#   REXML should be used if you need modification.
+#
 require 'htree/modules'
 
 module HTree
