@@ -152,7 +152,9 @@
 # - HTree{<i>template_string</i>} -> HTree::Doc
 # - HTree(<i>html_string</i>) -> HTree::Doc
 
+require 'htree/parse'
 require 'htree/gencode'
+require 'htree/equality'
 
 # <code>HTree.expand_template{<i>template_string</i>}</code> expands <i>template_string</i> as a template.
 # The generated result is encoded as <i>encoding</i> and sent to <i>out</i> using <tt><<</tt> method.
