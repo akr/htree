@@ -138,6 +138,9 @@ n=                              nil     nil     n
 
       @attributes = attributes.map {|aname, text|
         aname = Name.parse_attribute_name(aname, @namespaces) unless Name === aname
+        if !aname.namespace_prefix && aname.namespace_uri
+          raise HTree::Error, "global attribute has no namespace prefix: #{aname.inspect}"
+        end
         [aname, text]
       }
       @attributes.freeze
