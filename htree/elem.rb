@@ -1,6 +1,7 @@
 require 'htree/modules'
 require 'htree/tag'
 require 'htree/context'
+require 'htree/container'
 
 module HTree
   class Elem
@@ -95,11 +96,6 @@ module HTree
       @children = (children ? children.dup : []).freeze
       @empty = children == nil && etag == nil
       @etag = etag
-    end
-
-    # +children+ returns children nodes as an array.
-    def children
-      @children.dup
     end
 
     def context; @stag.context end

@@ -38,7 +38,6 @@
 # - Parsing Methods
 #   - HTree(<i>html_string</i>) -> HTree::Doc
 #   - HTree.parse(<i>input</i>) -> HTree::Doc
-#   - HTree.parse_xml(<i>input</i>) -> HTree::Doc
 #
 # - Genrating Methods
 #   - HTree::Node#display_xml -> STDOUT
@@ -52,6 +51,20 @@
 #   - HTree.compile_template(<i>template_string</i>) -> Module
 #   - HTree{<i>template_string</i>} -> HTree::Doc
 #
+# - Traverse Methods
+#   - HTree::Elem#attributes -> Hash[HTree::Name -> HTree::Text]
+#   - HTree::Elem::Loc#attributes -> Hash[HTree::Name -> HTree::Location]
+#
+# - Predicate Methods
+#   - HTree::Traverse#doc? -> true or false
+#   - HTree::Traverse#elem? -> true or false
+#   - HTree::Traverse#text? -> true or false
+#   - HTree::Traverse#xmldecl? -> true or false
+#   - HTree::Traverse#doctype? -> true or false
+#   - HTree::Traverse#procins? -> true or false
+#   - HTree::Traverse#comment? -> true or false
+#   - HTree::Traverse#bogusetag? -> true or false
+#
 # - REXML Tree Generator
 #   - HTree::Node#to_rexml -> REXML::Child
 
@@ -63,5 +76,4 @@ require 'htree/display'
 require 'htree/loc'
 require 'htree/traverse'
 require 'htree/template'
-require 'htree/preds'
 require 'htree/rexml'

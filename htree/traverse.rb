@@ -2,10 +2,18 @@ require 'htree/doc'
 require 'htree/elem'
 require 'htree/loc'
 require 'htree/extract_text'
-require 'htree/preds'
 
 module HTree
   module Traverse
+    def doc?() Doc::Trav === self end
+    def elem?() Elem::Trav === self end
+    def text?() Text::Trav === self end
+    def xmldecl?() XMLDecl::Trav === self end
+    def doctype?() DocType::Trav === self end
+    def procins?() ProcIns::Trav === self end
+    def comment?() Comment::Trav === self end
+    def bogusetag?() BogusETag::Trav === self end
+
     def get_subnode(*indexes)
       n = self
       indexes.each {|index|

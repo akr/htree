@@ -1,6 +1,7 @@
 require 'test/unit'
 require 'htree/loc'
 require 'htree/parse'
+require 'htree/traverse'
 
 class TestLoc < Test::Unit::TestCase
   def test_make_loc

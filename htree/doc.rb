@@ -1,4 +1,5 @@
 require 'htree/modules'
+require 'htree/container'
 
 module HTree
   class Doc
@@ -60,7 +61,6 @@ module HTree
         raise TypeError, "Unacceptable document child: #{unacceptable}"
       end
     end 
-    attr_reader :children
 
     def get_subnode_internal(index) # :nodoc:
       unless Integer === index
