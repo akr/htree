@@ -106,4 +106,15 @@ End
     assert_xhtml("<elem\n></elem\n>", '<elem _iter_content="2.times//" />')
   end
 
+  def test_empty_element_start_end_tag
+    assert_xhtml("<elem\n></elem\n>", '<elem></elem>')
+    assert_xhtml("<elem x=\"1\"\n></elem\n>", '<elem _attr_x=1 ></elem>')
+    assert_xhtml("<elem\n></elem\n>", '<elem _text=\'""\' ></elem>')
+    assert_xhtml("<elem\n></elem\n>", '<elem _if="true" ></elem>')
+    assert_xhtml("", '<elem _if="false" ></elem>')
+    assert_xhtml("<foo\n></foo\n>", '<elem _if="false" _else="foo"></elem><foo _template="foo"></foo>')
+    assert_xhtml("<elem\n></elem\n><elem\n></elem\n>", '<elem _iter="2.times//" ></elem>')
+    assert_xhtml("<elem\n></elem\n>", '<elem _iter_content="2.times//" ></elem>')
+  end
+
 end
