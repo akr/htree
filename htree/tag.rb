@@ -25,9 +25,9 @@ module HTree
         # "p{u}n" means "use the specified prefix p" and
         # "{u}n" means "allocate some namespace prefix"
         if $` == '-'
-          @namespace_prefix = nil
+          @namespace_prefix = false
         else
-          @namespace_prefix = $`.empty? ? false : $`
+          @namespace_prefix = $`.empty? ? nil : $`
         end
         @namespace_uri = $1
         @local_name = $'

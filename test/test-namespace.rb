@@ -103,7 +103,7 @@ class TestNamespace < Test::Unit::TestCase
     assert_equal("{uuu}nnn", stag.universal_name)
     assert_equal("nnn", stag.local_name)
     assert_equal("uuu", stag.namespace_uri)
-    assert_equal(false, stag.namespace_prefix)
+    assert_equal(nil, stag.namespace_prefix)
 
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
@@ -124,7 +124,7 @@ class TestNamespace < Test::Unit::TestCase
     assert_equal("{uuu}nnn", stag.universal_name)
     assert_equal("nnn", stag.local_name)
     assert_equal("uuu", stag.namespace_uri)
-    assert_equal(nil, stag.namespace_prefix)
+    assert_equal(false, stag.namespace_prefix)
 
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
