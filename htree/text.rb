@@ -47,7 +47,7 @@ module HTree
       out
     end
 
-    def generate_xml_attvalue(out=''
+    def generate_xml_attvalue(out='')
       out << "\"#{@rcdata.gsub(/[<>"]/) {|s| ChRef[s] }}\""
       out
     end
