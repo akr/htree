@@ -24,10 +24,13 @@ module HTree
     end
     attr_reader :namespaces
 
+    # get a namespace URI corresponding to _prefix_.
     def namespace_uri(prefix)
       @namespaces[prefix]
     end
 
+    # generate a new Context object which namespaces are substituted by
+    # a hash _declared_namespaces_.
     def subst_namespaces(declared_namespaces)
       namespaces = @namespaces.dup
       declared_namespaces.each {|k, v|

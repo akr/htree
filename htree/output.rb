@@ -165,23 +165,27 @@ module HTree
     def output(out, context)
     end
 
-    def output_prolog_doctypedecl(out, context)
-      out.output_string "<!DOCTYPE #{@root_element_name}"
+    def generate_content
+      result = ''
       if @public_identifier
-        out.output_string " PUBLIC \"#{@public_identifier}\""
+        result << "PUBLIC \"#{@public_identifier}\""
       else
-        out.output_string " SYSTEM"
+        result << "SYSTEM"
       end
       # Although a system identifier is not omissible in XML,
       # we cannot output it if it is not given.
       if @system_identifier
         if /"/ !~ @system_identifier
-          out.output_string " \"#{@system_identifier}\""
+          result << " \"#{@system_identifier}\""
         else
-          out.output_string " '#{@system_identifier}'"
+          result << " '#{@system_identifier}'"
         end
       end
-      out.output_string ">"
+      result
+    end
+
+    def output_prolog_doctypedecl(out, context)
+      out.output_string "<!DOCTYPE #{@root_element_name} #{generate_content}>"
     end
   end
 

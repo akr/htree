@@ -2,18 +2,20 @@ require 'htree/scan' # for Pat::Nmtoken
 require 'htree/context'
 
 module HTree
+  # Name represents a element name and attribute name.
+  # It consists of a namespace prefix, a namespace URI and a local name.
   class Name
 =begin
 element name                    prefix  uri     localname
-{u}n, n with xmlns=u            nil     u       n
-p{u}n, p:n with xmlns:p=u       p       u       n
-n with xmlns=''                 nil     ''      n
+{u}n, n with xmlns=u            nil     'u'     'n'
+p{u}n, p:n with xmlns:p=u       'p'     'u'     'n'
+n with xmlns=''                 nil     ''      'n'
 
 attribute name
-xmlns=                          xmlns   nil     nil
-xmlns:n=                        xmlns   nil     n
-p{u}n=, p:n= with xmlns:p=u     p       u       n
-n=                              nil     ''      n
+xmlns=                          'xmlns' nil     nil
+xmlns:n=                        'xmlns' nil     'n'
+p{u}n=, p:n= with xmlns:p=u     'p'     'u'     'n'
+n=                              nil     ''      'n'
 =end
     def Name.parse_element_name(name, context)
       if /\{(.*)\}/ =~ name
