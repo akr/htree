@@ -60,4 +60,8 @@ class TestREXML < Test::Unit::TestCase
   def test_bogusetag
     assert_equal(nil, HTree.parse('</e>').children[0].to_rexml)
   end
+
+  def test_style
+    assert_equal('<style>a&lt;b</style>', HTree.parse('<html><style>a<b</style></html>').to_rexml.to_s[/<style.*style>/])
+  end
 end

@@ -24,6 +24,7 @@ class TestTemplate < Test::Unit::TestCase
   def test_attr
     assert_xhtml("<e x=\"1\"\n>d</e\n>", '<e _attr_x=1>d</e>')
     assert_xhtml("<span x=\"1\"\n>d</span\n>", '<span _attr_x=1>d</span>')
+    assert_xhtml("<span x=\"&quot;\"\n>d</span\n>", '<span _attr_x=\'"\x22"\'>d</span>')
   end
 
   def test_if

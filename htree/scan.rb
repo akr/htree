@@ -95,7 +95,11 @@ module HTree
           is_xml = true
         elsif match.begin(2)
           Pat::DocType_C =~ str
-          is_html = true if /\Ahtml\z/i =~ $1 
+          root_element_name = $1
+          public_identifier = $2 || $3
+          system_identifier = $4 || $5
+          is_html = true if /\Ahtml\z/i =~ root_element_name
+          is_xml = true if public_identifier && %r{\A-//W3C//DTD XHTML } =~ public_identifier
           yield [:doctype, str]
         elsif match.begin(3)
           yield [:procins, str]

@@ -138,6 +138,7 @@ class TestScan < Test::Unit::TestCase
   def test_xml_html_detection
     assert_equal([false, true], HTree.scan("<html></html>") {})
     assert_equal([true, false], HTree.scan("<rss></rss>") {})
+    assert_equal([true, true], HTree.scan('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">') {})
   end
 
 end

@@ -59,24 +59,19 @@ module HTree
       end
     end
 
-    TextChRef = {
+    ChRef = {
       '&' => '&amp;',
       '<' => '&lt;',
       '>' => '&gt;',
+      '"' => '&quot;',
     }
+
     def output_dynamic_text(string)
-      output_text(string.to_s.gsub(/[&<>]/) { TextChRef[$&] })
+      output_text(string.to_s.gsub(/[&<>]/) { ChRef[$&] })
     end
 
-    AttrChRef = {
-      '&' => '&amp;',
-      '<' => '&lt;',
-      '>' => '&gt;',
-      '"' => '&gt;',
-    }
-
     def output_dynamic_attvalue(string)
-      output_text(string.to_s.gsub(/[&<>"]/) { AttrChRef[$&] })
+      output_text(string.to_s.gsub(/[&<>"]/) { ChRef[$&] })
     end
 
     # :startdoc:

@@ -88,7 +88,8 @@ module HTree
 
   class Text
     def to_rexml_internal(parent, context)
-      REXML::Text.new(self.rcdata, true, parent, true)
+      rcdata = self.rcdata.gsub(/[<>]/) { Encoder::ChRef[$&] }
+      REXML::Text.new(rcdata, true, parent, true)
     end
   end
 
