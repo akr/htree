@@ -97,7 +97,7 @@ n=                              nil     nil     n
       end
     end
 
-    def to_xml
+    def generate_xml
       if xmlns?
         if @local_name
           "xmlns:#{@local_name}"
@@ -209,24 +209,24 @@ n=                              nil     nil     n
     #def prepare_xmlns(inherited_namespaces)
     #end
 
-    def to_xml
-      result = "<#{@name.to_xml}"
+    def generate_xml
+      result = "<#{@name.generate_xml}"
       @attributes.each {|aname, text|
-        result << " #{aname.to_xml}=#{text.to_xml_attvalue}"
+        result << " #{aname.generate_xml}=#{text.generate_xml_attvalue}"
       }
       result << '>'
     end
 
-    def to_emptytag_xml
-      result = "<#{@name.to_xml}"
+    def generate_emptytag_xml
+      result = "<#{@name.generate_xml}"
       @attributes.each {|aname, text|
-        result << " #{aname.to_xml}=#{text.to_xml_attvalue}"
+        result << " #{aname.generate_xml}=#{text.generate_xml_attvalue}"
       }
       result << ' />'
     end
 
-    def to_etag_xml
-      "</#{@name.to_xml}>"
+    def generate_etag_xml
+      "</#{@name.generate_xml}>"
     end
 
   end
@@ -238,13 +238,13 @@ n=                              nil     nil     n
     end
     attr_reader :qualified_name
 
-    def to_xml
+    def generate_xml
       "</#{@qualified_name}>"
     end
   end
 
   class BogusETag
-    def to_xml
+    def generate_xml
       ""
     end
   end

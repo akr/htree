@@ -20,7 +20,7 @@ module HTree
     end
     attr_reader :version, :encoding, :standalone
 
-    def to_xml
+    def generate_xml
       result = "<?xml version=\"#{@version}\""
       if @encoding
         result << " encoding=\"#{@encoding}\""
@@ -48,7 +48,7 @@ module HTree
     end
     attr_reader :root_element_name, :public_identifier, :system_identifier
 
-    def to_xml
+    def generate_xml
       result = "<!DOCTYPE #{@root_element_name}"
       if public_identifier
         result << "PUBLIC \"#{@public_identifier}\""
@@ -88,7 +88,7 @@ module HTree
     end
     attr_reader :target, :content
 
-    def to_xml
+    def generate_xml
       "<?#{@target} #{@content}?>"
     end
   end
@@ -112,7 +112,7 @@ module HTree
     end
     attr_reader :content
 
-    def to_xml
+    def generate_xml
       "<!--#{@content}-->"
     end
   end

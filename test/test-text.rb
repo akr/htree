@@ -16,15 +16,15 @@ class TestText < Test::Unit::TestCase
   end
 =end
 
-  def test_to_xml
-    assert_equal("abc&amp;def", HTree::Text.new("abc&def").to_xml)
-    assert_equal('"\'&amp;', HTree::Text.new('"\'&').to_xml)
-    assert_equal('"\'&lt;&amp;&gt;', HTree::Text.new('"\'<&>').to_xml)
+  def test_generate_xml
+    assert_equal("abc&amp;def", HTree::Text.new("abc&def").generate_xml)
+    assert_equal('"\'&amp;', HTree::Text.new('"\'&').generate_xml)
+    assert_equal('"\'&lt;&amp;&gt;', HTree::Text.new('"\'<&>').generate_xml)
   end
 
-  def test_to_xml_attvalue
-    assert_equal('"abc"', HTree::Text.new("abc").to_xml_attvalue)
-    assert_equal('"&quot;"', HTree::Text.new('"').to_xml_attvalue)
+  def test_generate_xml_attvalue
+    assert_equal('"abc"', HTree::Text.new("abc").generate_xml_attvalue)
+    assert_equal('"&quot;"', HTree::Text.new('"').generate_xml_attvalue)
   end
 
 end

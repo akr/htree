@@ -23,7 +23,7 @@ module HTree
     attr_writer :raw_string
 
     def raw_string
-      @raw_string || self.to_xml
+      @raw_string || self.generate_xml
     end
   end
 

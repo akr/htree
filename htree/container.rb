@@ -8,8 +8,8 @@ module HTree
     end 
     attr_reader :children
 
-    def to_xml
-      @children.map {|n| n.to_xml }.join('')
+    def generate_xml
+      @children.map {|n| n.generate_xml }.join('')
     end
 
   end 
@@ -67,11 +67,11 @@ module HTree
     def name; @stag.universal_name end
     def qualified_name; @stag.qualified_name end
 
-    def to_xml
+    def generate_xml
       if @children
-        @stag.to_xml + @children.map {|n| n.to_xml }.join('') + @stag.to_etag_xml
+        @stag.generate_xml + @children.map {|n| n.generate_xml }.join('') + @stag.generate_etag_xml
       else
-        @stag.to_emptytag_xml
+        @stag.generate_emptytag_xml
       end
     end
   end 

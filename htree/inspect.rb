@@ -40,7 +40,7 @@ module HTree
           }
         else
           pp.breakable
-          pp.text to_xml
+          pp.text generate_xml # xxx: may raise
         end
       }
     end
@@ -82,7 +82,7 @@ module HTree
                 pp.text "{#{n.namespace_uri}}"
               end
             end
-            pp.text "#{n.local_name}=#{t.to_xml_attvalue}"
+            pp.text "#{n.local_name}=#{t.generate_xml_attvalue}"
           end
         }
       }
