@@ -6,7 +6,7 @@ README.html: README.rd
 	rd2 -o README README.rd
 
 check test:
-	$(RUBY) test-all.rb
+	$(RUBY) -I. test-all.rb
 
 install:
 	$(RUBY) install.rb

@@ -1,92 +1,52 @@
 require 'htree/modules'
 
 module HTree
-  class Loc
-    # - Loc.new(target_node) => loc
-    # - Loc.new(parent_loc, index) => loc
-    def initialize(base, *rest)
-      case base
-      when Loc
-        if rest.length != 1
-          raise ArgumentError, "not index argument: #{rest[0].inspect}"
-        end
-        index, = rest
-        @parent = base
-        @index = index
-        @node = @parent.node.get_subnode(@index)
-      when Node
-        if rest.length != 0
-          raise ArgumentError, "extra argument: #{rest.inspect}"
-        end
-        @parent = nil
-        @index = nil
-        @node = base
-      else
-        raise TypeError, "invalid base argument: #{base.inspect}"
-      end
-      extend @node.class::LocMixin if @node != nil
+  module Node
+    # creates a location object which points to self.
+    def make_loc
+      self.class::Location.new(nil, nil, self)
     end
-    attr_reader :parent, :index, :node
-
-    def get_subloc(*indexes)
-      loc = self
-      indexes.each {|index|
-        loc = Loc.new(loc, index)
-      }
-      loc
-    end
-
-    # returns an array containing from location's root to itself.
-    def loc_list
-      loc = self
-      result = [self]
-      while loc = loc.parent
-        result << loc
-      end
-      result.reverse!
-      result
-    end
-
-    # :stopdoc:
-    def pretty_print(q)
-      q.object_group(self) {
-        q.text ':'
-        q.breakable
-        loc_list.each {|loc|
-          if loc.parent
-            q.text '/'
-            q.text loc.parent.node.find_loc_step(loc.index)
-          else
-            q.text loc.node.node_test
-          end
-        }
-      }
-    end
-    # :startdoc:
   end
 
   # :stopdoc:
+  class Doc; def node_test_string() 'doc()' end end
+  class Elem; alias node_test_string qualified_name end
+  class Text; def node_test_string() 'text()' end end
+  class BogusETag; def node_test_string() 'bogus-etag()' end end
+  class XMLDecl; def node_test_string() 'xml-declaration()' end end
+  class DocType; def node_test_string() 'doctype()' end end
+  class ProcIns; def node_test_string() 'processing-instruction()' end end
+  class Comment; def node_test_string() 'comment()' end end
+
   module Container
-    def find_loc_step(index) # :nodoc:
+    def find_loc_step(index)
       if index < 0 || @children.length <= index
         return "*[#{index}]"
       end
-      child = @children[index]
-      node_test = child.node_test
 
-      n = 0
-      j = nil
-      @children.each_with_index {|c, i|
-        if c.node_test == node_test
-          n += 1
-          j = n if i == index
+      return @loc_step_children[index] if defined? @loc_step_children
+
+      count = {}
+      count.default = 0
+
+      steps = []
+
+      @children.each {|c|
+        node_test = c.node_test_string
+        count[node_test] += 1
+        steps << [node_test, count[node_test]]
+      }
+
+      @loc_step_children = []
+      steps.each {|node_test, i|
+        if count[node_test] == 1
+          @loc_step_children << node_test
+        else
+          @loc_step_children << "#{node_test}[#{i}]"
         end
       }
-      if n != 1
-        "#{node_test}[#{j}]"
-      else
-        node_test
-      end
+
+      return @loc_step_children[index]
     end
   end
 
@@ -102,29 +62,64 @@ module HTree
       "@#{index.qualified_name}"
     end
   end
-
-  class Doc; def node_test() 'doc()' end end
-  class Elem; alias node_test qualified_name end
-  class Text; def node_test() 'text()' end end
-  class BogusETag; def node_test() 'bogus-etag()' end end
-  class XMLDecl; def node_test() 'xml-declaration()' end end
-  class DocType; def node_test() 'doctype()' end end
-  class ProcIns; def node_test() 'processing-instruction()' end end
-  class Comment; def node_test() 'comment()' end end
   # :startdoc:
+end
 
-  module Node::LocMixin
+module HTree::Loc
+  def initialize(parent, index, node) # :nodoc:
+    if parent
+      @parent = parent
+      @index = index
+      @node = parent.node.get_subnode(index)
+      if !@node.equal?(node)
+        raise ArgumentError, "unexpected node"
+      end
+    else
+      @parent = nil
+      @index = nil
+      @node = node
+    end
+    if self.class != @node.class::Location
+      raise ArgumentError, "invalid location class: #{self.class} should be #{node.class::Location}"
+    end
+    @subloc = {}
+  end
+  attr_reader :parent, :index, :node
+  alias to_node node
+
+  # +get_subnode+ returns a location object which points to a subnode indexed by _index_. 
+  def get_subnode(index)
+    return @subloc[index] if @subloc.include? index
+    node = @node.get_subnode(index)
+    @subloc[index] = node.class::Location.new(self, index, node)
   end
 
-  module ContainerLocMixin
-    include Node::LocMixin
+  # +loc_list+ returns an array containing from location's root to itself.
+  def loc_list
+    loc = self
+    result = [self]
+    while loc = loc.parent
+      result << loc
+    end
+    result.reverse!
+    result
   end
 
-  module Elem::LocMixin
-    include ContainerLocMixin
+  # :stopdoc:
+  def pretty_print(q)
+    q.group(1, '#<HTree::Loc', '>') {
+      q.text ':'
+      q.breakable
+      loc_list.each {|loc|
+        if parent = loc.parent
+          q.text '/'
+          q.breakable ''
+          q.text parent.node.find_loc_step(loc.index)
+        else
+          q.text loc.node.node_test_string
+        end
+      }
+    }
   end
-
-  module Doc::LocMixin
-    include ContainerLocMixin
-  end
+  # :startdoc:
 end
