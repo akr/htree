@@ -21,6 +21,9 @@
 #   - <elem \_attr_<i>name</i>="<i>expr</i>">content</elem>
 #
 #   \_attr_<i>name</i> is used for a dynamic attribute.
+#
+#        <elem _attr_xxx="..."/>
+#     -> <elem xxx="..."/>
 # 
 #   It is expanded to <i>name</i>="content".
 #   The content is escaped form of a value of _expr_.
@@ -35,11 +38,28 @@
 #   If the element is span and there is no other attributes,
 #   no tags are produced.
 #
+#        <elem _text="...">dummy-content</elem>
+#     -> <elem>...</elem>
+#
 # - conditional
 #   - <elem _if="<i>expr</i>">then-content</elem>
 #   - <elem _if="<i>expr</i>" _else="<i>name(args)</i>">then-content</elem>
 #
 #   _if is used for conditional.
+#
+#   If <i>expr</i> is evaluated to true, it expands as follows
+#   regardless of existence of _else.
+#
+#        <elem _if="<i>expr</i>">then-content</elem>
+#     -> <elem>then-content</elem>
+#
+#   If <i>expr</i> is evaluated to false, it expands using _else.
+#   If _else is not given, it expands to empty.
+#   If _else is given, it expands as follows.
+#
+#        <elem _if="<i>expr</i>" _else="<i>name(args)</i>">then-content</elem>
+#     -> <elem _call="<i>name(args)</i>">then-content</elem>
+#     -> see _call for further expansion.
 #
 #   It is expanded to <elem>then-content</elem> if _expr_ is evaluated to
 #   a true value.
@@ -51,8 +71,13 @@
 #   - <elem _iter_content="<i>expr.meth(args)//vars</i>">content</elem>
 #
 #   _iter and _iter_content is used for iteration.
-#   _iter iterates the element itself: <elem>content</elem><elem>content</elem>
-#   but _iter_content iterates the content: <elem>content content</elem>.
+#   _iter iterates the element itself but _iter_content iterates the content.
+#
+#        <outer _iter="..."><inner/></outer>
+#     -> <outer><inner/></outer><outer><inner/></outer>...
+#
+#        <outer _iter_content="..."><inner/></outer>
+#     -> <outer><inner/><inner/>...</outer>
 #
 #   <i>expr.meth(args)</i> specifies iterator method call.
 #   It is actually called with a block.
@@ -65,6 +90,10 @@
 #   
 #   _call is used to expand a template function.
 #   The template function is defined by _template.
+#
+#        <d _template="m">...</d>
+#        <c _call="m">...</c>
+#     -> <d>...</d>
 #
 #   A local template can be called as follows:
 #
