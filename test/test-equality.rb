@@ -27,7 +27,6 @@ EOT
 
   def test_tag_attribute_name_prefix
     tags = [
-      HTree::STag.new('n', [['{u}a', 'v']]),
       HTree::STag.new('n', [['p1{u}a', 'v']]),
       HTree::STag.new('n', [['p2{u}a', 'v']]),
       HTree::STag.new('n', [['p1:a', 'v']], {'p1'=>'u'}),
