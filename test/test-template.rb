@@ -118,4 +118,11 @@ End
     assert_xhtml("<elem\n></elem\n>", '<elem _iter_content="2.times//" ></elem>')
   end
 
+  def test_toplevel_local_variable
+    eval("htree_test_toplevel_local_variable = :non_modified_value", TOPLEVEL_BINDING)
+    HTree.expand_template("#{File.dirname __FILE__}/assign.html", "aaa", '')
+    assert_equal(:non_modified_value, eval("htree_test_toplevel_local_variable", TOPLEVEL_BINDING))
+    eval("htree_test_toplevel_local_variable = 1", TOPLEVEL_BINDING)
+  end
+
 end

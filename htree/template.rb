@@ -224,6 +224,15 @@
 # It doesn't need to tangle an application. 
 #
 
+module HTree
+# :stopdoc:
+  EmptyBindingObject = Object.new
+# :startdoc:
+end
+def (HTree::EmptyBindingObject).empty_binding
+  binding
+end
+
 require 'htree/parse'
 require 'htree/gencode'
 require 'htree/equality'
@@ -287,7 +296,8 @@ def HTree.expand_template(*args, &block)
     else
       template = File.read(pathname).untaint
     end
-    binding = eval("lambda {|context_object| context_object.instance_eval 'binding'}", TOPLEVEL_BINDING).call(obj)
+    binding = eval("lambda {|context_object| context_object.instance_eval 'binding'}",
+      HTree::EmptyBindingObject.empty_binding).call(obj)
   end
 
   out = args.shift || $stdout
