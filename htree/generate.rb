@@ -16,12 +16,14 @@ module HTree
       out.output_text @rcdata.gsub(/[<>]/) {|s| ChRef[s] }
     end
 
-    def to_attvalue
-      "\"#{@rcdata.gsub(/[<>"]/) {|s| ChRef[s] }}\""
+    def to_attvalue_content
+      @rcdata.gsub(/[<>"]/) {|s| ChRef[s] }
     end
 
     def generate_attvalue(out, context)
-      out.output_text to_attvalue
+      out.output_string '"'
+      out.output_text to_attvalue_content
+      out.output_string '"'
     end
   end
 

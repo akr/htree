@@ -72,7 +72,7 @@ module HTree
 
         @attributes.each {|n, t|
           q.breakable
-          q.text "#{n.inspect}=#{t.to_attvalue}"
+          q.text "#{n.inspect}=\"#{t.to_attvalue_content}\""
         }
       }
     end
