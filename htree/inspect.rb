@@ -53,7 +53,7 @@ module HTree
     def inspect
       if xmlns?
         @local_name ? "xmlns:#{@local_name}" : "xmlns"
-      elsif !@namespace_uri
+      elsif !@namespace_uri || @namespace_uri.empty?
         @local_name
       elsif @namespace_prefix
         "#{@namespace_prefix}{#{@namespace_uri}}#{@local_name}"
