@@ -14,7 +14,43 @@ module HTree
   end 
   
   class Elem < Container 
+    class << self
+      alias new! new
+    end
+
+    def Elem.new(name, *args)
+      if args.empty?
+        new!(STag.new(name))
+      else
+        attrs = []
+        children = []
+        args.flatten!
+        args.each {|arg|
+          case arg
+          when Hash
+            arg.each {|k, v| attrs << [k, v] }
+          when Node
+            children << arg
+          when String
+            children << Text.new(arg)
+          else
+            raise "unexpected argument: #{arg.inspect}"
+          end
+        }
+        new!(STag.new(name, attrs), children, ETag.new(name))
+      end
+    end
+
     def initialize(stag, children=nil, etag=nil)
+      unless stag.class == STag
+        raise "HTree::STag expected: #{stag.inspect}"
+      end
+      unless !children || children.all? {|c| Node === c }
+        raise "HTree::Node array expected: #{children.inspect}"
+      end
+      unless !etag || etag.class == ETag
+        raise "HTree::ETag expected: #{etag.inspect}"
+      end
       @stag = stag
       @children = children
       @etag = etag

@@ -24,14 +24,14 @@ class TestToXML < Test::Unit::TestCase
 
   def test_elem
     assert_equal('<b />',
-      HTree::Elem.new(HTree::STag.new('b')).to_xml)
+      HTree::Elem.new!(HTree::STag.new('b')).to_xml)
     assert_equal('<b></b>',
-      HTree::Elem.new(HTree::STag.new('b'), []).to_xml)
+      HTree::Elem.new!(HTree::STag.new('b'), []).to_xml)
     assert_equal('<a><b /><c /><d /></a>',
-      HTree::Elem.new(HTree::STag.new('a'), [
-        HTree::Elem.new(HTree::STag.new('b')),
-        HTree::Elem.new(HTree::STag.new('c')),
-        HTree::Elem.new(HTree::STag.new('d'))
+      HTree::Elem.new!(HTree::STag.new('a'), [
+        HTree::Elem.new!(HTree::STag.new('b')),
+        HTree::Elem.new!(HTree::STag.new('c')),
+        HTree::Elem.new!(HTree::STag.new('d'))
         ]).to_xml)
   end
 end

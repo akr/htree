@@ -9,10 +9,10 @@ class TestParse < Test::Unit::TestCase
 
   def test_xmlns_default
     t1 = HTree::Doc.new([
-           HTree::Elem.new(
+           HTree::Elem.new!(
              HTree::STag.new('x1', [['xmlns', 'bb']],
                {'xml'=>'http://www.w3.org/XML/1998/namespace'}),
-             [HTree::Elem.new(HTree::STag.new('x2', [],
+             [HTree::Elem.new!(HTree::STag.new('x2', [],
                                 {nil => 'bb', 'xml'=>'http://www.w3.org/XML/1998/namespace'}), [])])
          ])
     t2 = HTree.parse('<x1 xmlns="bb"><x2>')

@@ -33,7 +33,7 @@ module HTree
 
   class Elem
     def eliminate_raw_string
-      Elem.new(
+      Elem.new!(
         @stag.eliminate_raw_string,
         @children && @children.map {|c| c.eliminate_raw_string },
         @etag && @etag.eliminate_raw_string)

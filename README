@@ -5,9 +5,11 @@ htree provides a tree data structre which represent HTML and XML data.
 == Feature
 
 * Unified HTML/XML parser
-* roundtripping unparser
+* byte-to-byte roundtripping unparser
+* XML namespace support
 #* XHTML/XML generator
 #* converter to REXML document
+#* template engine
 
 == Usage
 
