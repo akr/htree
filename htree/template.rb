@@ -204,7 +204,7 @@ def HTree.compile_template(template_string)
   eval(code)
 end
 
-# :enddoc:
+# :stopdoc:
 
 class HTree::TemplateCompiler
   IGNORABLE_ELEMENTS = {
@@ -659,3 +659,5 @@ End
   end
 
 end
+
+# :startdoc:

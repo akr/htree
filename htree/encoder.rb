@@ -106,7 +106,7 @@ module HTree
       @output_encoding
     end
 
-    # :enddoc:
+    # :stopdoc:
 
     KcodeCharset = {
       'EUC' => 'EUC-JP',
@@ -144,5 +144,7 @@ module HTree
       'UTF-16' => [],
     }
     SubCharset.default = ['US-ASCII']
+
+    # :startdoc:
   end
 end

@@ -1,7 +1,7 @@
 require 'htree/encoder'
 require 'htree/output'
 
-# :enddoc:
+# :stopdoc:
 
 module HTree
   module Node
@@ -95,3 +95,5 @@ module HTree
     end
   end
 end
+
+# :startdoc:
