@@ -3,6 +3,8 @@
 # usage: ruby install.rb [-n]
 # options:
 #  -n : don't install
+#
+# Author: Tanaka Akira <akr@m17n.org>
 
 require 'optparse'
 require 'fileutils'
