@@ -1,6 +1,6 @@
 require 'htree/raw_string'
 require 'htree/text'
-require 'htree/scan' # for Pat::Name
+require 'htree/scan' # for Pat::Name and Pat::Nmtoken
 
 module HTree
   class Name
@@ -52,10 +52,10 @@ n=                              nil     nil     n
       @namespace_prefix = namespace_prefix && namespace_prefix.dup.freeze
       @namespace_uri = namespace_uri && namespace_uri.dup.freeze
       @local_name = local_name && local_name.dup.freeze
-      if @namespace_prefix && /\A#{Pat::Name}\z/ !~ @namespace_prefix
+      if @namespace_prefix && /\A#{Pat::Nmtoken}\z/ !~ @namespace_prefix
         raise HTree::Error, "invalid namespace prefix: #{@namespace_prefix.inspect}"
       end
-      if @local_name && /\A#{Pat::Name}\z/ !~ @local_name
+      if @local_name && /\A#{Pat::Nmtoken}\z/ !~ @local_name
         raise HTree::Error, "invalid local name: #{@local_name.inspect}"
       end
     end
@@ -120,7 +120,7 @@ n=                              nil     nil     n
       init_raw_string
       # normalize xml declaration name and attribute value.
       attributes = attributes.map {|aname, val|
-        if !(Name === aname) && /\A#{Pat::Name}?(?:\{.*\})?#{Pat::Name}\z/ !~ aname
+        if !(Name === aname) && /\A(?:#{Pat::Name}?\{.*\})?#{Pat::Nmtoken}\z/ !~ aname
           raise HTree::Error, "invalid attribute name: #{aname.inspect}"
         end
         if !(Name === aname) && /\Axmlns(?:\z|:)/ =~ aname
