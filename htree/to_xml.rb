@@ -5,9 +5,13 @@ require 'htree/output'
 
 module HTree
   module Node
-    def to_xml
-      # xxx: take charset as optional argument.
-      encoder = HTree::Encoder.new(Encoder.internal_charset)
+    # to_xml encodes the node in XML.
+    #
+    # The optional argument, <i>encoding</i>,
+    # specifies output MIME character encoding.
+    # If it is not specified, Encoder.internal_charset is used.
+    def to_xml(encoding=Encoder.internal_charset)
+      encoder = HTree::Encoder.new(encoding)
       self.output(encoder, HTree::DefaultContext)
       encoder.finish
     end
