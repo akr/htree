@@ -139,9 +139,13 @@ module HTree
       _, stag_rawstring, children, etag_rawstring = structure
       stag = STag.parse(stag_rawstring, xmldecl_seen, inherited_namespaces)
       etag = etag_rawstring && ETag.parse(etag_rawstring, xmldecl_seen)
-      Elem.new!(stag,
-                children.map {|c| build_node(c, xmldecl_seen, stag.namespaces) },
-                etag)
+      if !children.empty? || etag
+        Elem.new!(stag,
+                  children.map {|c| build_node(c, xmldecl_seen, stag.namespaces) },
+                  etag)
+      else
+        Elem.new!(stag)
+      end
     when :emptytag
       Elem.new!(STag.parse(structure[1], xmldecl_seen, inherited_namespaces))
     when :bogus_etag
