@@ -48,10 +48,21 @@ n=                              nil     ''      'n'
       end
     end
 
+    class << Name
+      NameCache = {}
+      def new(namespace_prefix, namespace_uri, local_name)
+        key = [namespace_prefix, namespace_uri, local_name, self]
+        NameCache.fetch(key) {
+          0.upto(2) {|i| key[i] = key[i].dup.freeze if key[i] }
+          NameCache[key] = super(key[0], key[1], key[2])
+        }
+      end
+    end
+
     def initialize(namespace_prefix, namespace_uri, local_name)
-      @namespace_prefix = namespace_prefix && namespace_prefix.dup.freeze
-      @namespace_uri = namespace_uri && namespace_uri.dup.freeze
-      @local_name = local_name && local_name.dup.freeze
+      @namespace_prefix = namespace_prefix
+      @namespace_uri = namespace_uri
+      @local_name = local_name
       if @namespace_prefix && /\A#{Pat::Nmtoken}\z/o !~ @namespace_prefix
         raise HTree::Error, "invalid namespace prefix: #{@namespace_prefix.inspect}"
       end
