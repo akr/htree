@@ -59,4 +59,11 @@ class TestParse < Test::Unit::TestCase
     assert_equal(t1, t2)
   end
 
+  def test_bare_slash_empty
+    t1 = HTree::Elem.new('{http://www.w3.org/1999/xhtml}n', {'a'=>'v/'})
+    s = "<n a=v/>"
+    t2 = HTree.parse(s).root
+    assert_equal(t1, t2)
+  end
+
 end
