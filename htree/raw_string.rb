@@ -20,7 +20,10 @@ module HTree
     def init_raw_string
       @raw_string = nil
     end
-    attr_writer :raw_string
+
+    def raw_string=(arg)
+      @raw_string = arg.dup.freeze
+    end
 
     def raw_string
       @raw_string || self.generate_xml
