@@ -112,7 +112,7 @@ class TestScan < Test::Unit::TestCase
   end
 
   def test_eol_xml
-    # In XML, line breaks are handled as part of content.
+    # In XML, line breaks are treated as part of content.
     # It's because KEEPRSRE is yes in XML.
     # http://www.satoshii.org/markup/websgml/valid-xml#keeprsre
     s = "<?xml version='1.0'?>a\n<e>\nb\n<f>\nc\n</f>\nd\n</e>\ne"
