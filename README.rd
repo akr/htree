@@ -2,6 +2,15 @@
 
 htree provides a tree data structre which represent HTML and XML data.
 
+== Home Page
+
+((<URL:http://cvs.m17n.org/~akr/htree/>))
+
+== Download
+
+* ((<URL:http://cvs.m17n.org/cgi-bin/viewcvs/htree/htree.tar.gz?tarball=1&cvsroot=ruby>))
+* ((<URL:http://cvs.m17n.org/cgi-bin/viewcvs/htree/?tarball=1&cvsroot=ruby>))
+
 == Feature
 
 * Permissive unified HTML/XML parser
@@ -11,6 +20,10 @@ htree provides a tree data structre which represent HTML and XML data.
 * XHTML/XML generator
 * template engine
 #* converter to REXML document
+
+== Reference Manual
+
+((<URL:doc/index.html>))
 
 == Usage
 
