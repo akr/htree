@@ -24,8 +24,7 @@ module HTree
       else
         attrs = []
         children = []
-        args.flatten!
-        args.each {|arg|
+        args.flatten.each {|arg|
           case arg
           when Hash
             arg.each {|k, v| attrs << [k, v] }
