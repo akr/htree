@@ -15,6 +15,8 @@ module HTree
   end
   alias eql? ==
 
+  # :stopdoc:
+
   def usual_equal_object
     return @usual_equal_object if defined? @usual_equal_object
     @usual_equal_object = make_usual_equal_object
@@ -194,4 +196,6 @@ module HTree
 
     alias usual_equal_object content
   end
+
+  # :startdoc:
 end
