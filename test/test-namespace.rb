@@ -114,4 +114,26 @@ class TestNamespace < Test::Unit::TestCase
     assert_equal(["u", "q", "b", "y"], attrs.shift)
     assert_equal(["uu", nil, "c", "z"], attrs.shift)
   end
+
+  def test_universal_name
+    stag = HTree::STag.new("ppp{uuu}nnn",
+      [["a", "x"], ["q:b", "y"], ["{uu}c", "z"], ["q{uu}d", "w"]],
+      {"q"=>"u"})
+    assert_equal("ppp:nnn", stag.qualified_name)
+    assert_equal("{uuu}nnn", stag.universal_name)
+    assert_equal("nnn", stag.local_name)
+    assert_equal("uuu", stag.namespace_uri)
+    assert_equal("ppp", stag.namespace_prefix)
+
+    nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
+    assert_equal(0, nsattrs.length)
+
+    attrs = []; stag.each_attribute_info {|u,p,l,t| attrs << [u,p,l,t.to_s] }
+    assert_equal(4, attrs.length)
+    assert_equal([nil, nil, "a", "x"], attrs.shift)
+    assert_equal(["u", "q", "b", "y"], attrs.shift)
+    assert_equal(["uu", nil, "c", "z"], attrs.shift)
+    assert_equal(["uu", "q", "d", "w"], attrs.shift)
+  end
+
 end

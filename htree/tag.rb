@@ -15,12 +15,12 @@ module HTree
 
     def init_namespace(name)
       @namespaces = make_namespaces
-      if /\A\{(.*)\}/ =~ name
-        @qualified_name = nil
-        @namespace_prefix = nil
+      if /\{(.*)\}/ =~ name
         @namespace_uri = $1
+        @namespace_prefix = $`.empty? ? nil : $`
         @local_name = $'
-        @universal_name = name
+        @qualified_name = @namespace_prefix ? "#{@namespace_prefix}:#{@local_name}" : nil
+        @universal_name = "{#{@namespace_uri}}#{@local_name}"
       else
         @qualified_name = name
         if /:/ =~ @qualified_name && @namespaces.include?($`)
@@ -76,9 +76,9 @@ module HTree
     def each_attribute_info
       @attributes.each {|name, text|
         next if /\A(?:xmlns\z|xmlns:)/ =~ name
-        if /\A\{(.*)\}/ =~ name
+        if /\{(.*)\}/ =~ name
           namespace_uri = $1
-          prefix = nil
+          prefix = $`.empty? ? nil : $`
           lname = $'
         elsif /:/ =~ name && @namespaces.include?($`)
           namespace_uri = @namespaces[$`]
@@ -117,11 +117,11 @@ module HTree
       fetch_attribute_rcdata(universal_name, nil)
     end
 
-    def prepare_xmlns(inherited_namespaces)
-    end
+    #def prepare_xmlns(inherited_namespaces)
+    #end
 
     def to_xml
-      result = "<#{@qualified_name}"
+      result = "<#{@qualified_name || @universal_name}"
       @attributes.each {|aname, text|
         result << " #{aname}=#{text.to_xml_attvalue}"
       }
@@ -129,7 +129,7 @@ module HTree
     end
 
     def to_emptytag_xml
-      result = "<#{@qualified_name}"
+      result = "<#{@qualified_name || @universal_name}"
       @attributes.each {|aname, text|
         result << " #{aname}=#{text.to_xml_attvalue}"
       }
@@ -137,7 +137,7 @@ module HTree
     end
 
     def to_etag_xml
-      "</#{@qualified_name}>"
+      "</#{@qualified_name || @universal_name}>"
     end
 
   end
