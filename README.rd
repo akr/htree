@@ -9,7 +9,6 @@ htree provides a tree data structre which represent HTML and XML data.
 == Download
 
 * ((<URL:http://cvs.m17n.org/cgi-bin/viewcvs/htree/htree.tar.gz?tarball=1&cvsroot=ruby>))
-* ((<URL:http://cvs.m17n.org/cgi-bin/viewcvs/htree/?tarball=1&cvsroot=ruby>))
 
 == Feature
 
