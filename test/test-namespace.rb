@@ -2,6 +2,14 @@ require 'test/unit'
 require 'htree/tag'
 
 class TestNamespace < Test::Unit::TestCase
+  def assert_equal_exact(expected, actual, message=nil)
+    full_message = build_message(message, <<EOT, expected, actual)
+<?> expected but was
+<?>.
+EOT
+    assert_block(full_message) { expected.equal_exact? actual }
+  end
+
   # <ppp:nnn xmlns:ppp="uuu">
   def test_prefixed
     stag = HTree::STag.new("ppp:nnn",
@@ -17,7 +25,7 @@ class TestNamespace < Test::Unit::TestCase
     assert_equal(1, nsattrs.length)
     assert_equal(["ppp", "uuu"], nsattrs.shift)
 
-    attrs = []; stag.each_attribute_info {|u,p,l,t| attrs << [u,p,l,t.to_s] }
+    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -35,13 +43,13 @@ class TestNamespace < Test::Unit::TestCase
     assert_equal("{uuu}nnn", stag.universal_name)
     assert_equal("nnn", stag.local_name)
     assert_equal("uuu", stag.namespace_uri)
-    assert_equal(nil, stag.namespace_prefix)
+    assert_equal(false, stag.namespace_prefix)
 
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(1, nsattrs.length)
     assert_equal([nil, "uuu"], nsattrs.shift)
 
-    attrs = []; stag.each_attribute_info {|u,p,l,t| attrs << [u,p,l,t.to_s] }
+    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -64,7 +72,7 @@ class TestNamespace < Test::Unit::TestCase
       assert_equal(1, nsattrs.length)
       assert_equal([nil, nil], nsattrs.shift)
 
-      attrs = []; stag.each_attribute_info {|u,p,l,t| attrs << [u,p,l,t.to_s] }
+      attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
       assert_equal(3, attrs.length)
       assert_equal([nil, nil, "a", "x"], attrs.shift)
       assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -87,7 +95,7 @@ class TestNamespace < Test::Unit::TestCase
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
 
-    attrs = []; stag.each_attribute_info {|u,p,l,t| attrs << [u,p,l,t.to_s] }
+    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -108,7 +116,7 @@ class TestNamespace < Test::Unit::TestCase
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
 
-    attrs = []; stag.each_attribute_info {|u,p,l,t| attrs << [u,p,l,t.to_s] }
+    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -120,7 +128,7 @@ class TestNamespace < Test::Unit::TestCase
     stag = HTree::STag.new("-{uuu}nnn",
       [["a", "x"], ["q:b", "y"], ["{uu}c", "z"]],
       {"q"=>"u"})
-    assert_equal(nil, stag.qualified_name)
+    assert_equal("nnn", stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
     assert_equal("nnn", stag.local_name)
     assert_equal("uuu", stag.namespace_uri)
@@ -129,7 +137,7 @@ class TestNamespace < Test::Unit::TestCase
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
 
-    attrs = []; stag.each_attribute_info {|u,p,l,t| attrs << [u,p,l,t.to_s] }
+    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -149,7 +157,7 @@ class TestNamespace < Test::Unit::TestCase
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
 
-    attrs = []; stag.each_attribute_info {|u,p,l,t| attrs << [u,p,l,t.to_s] }
+    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(4, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)

@@ -1,8 +1,10 @@
 require 'htree/nodehier'
+require 'htree/raw_string'
 
 module HTree
   class XMLDecl < Markup
     def initialize(version, encoding=nil, standalone=nil)
+      init_raw_string
       if /\A[a-zA-Z0-9_.:-]+\z/ !~ version
         raise XMLDecl::Error, "invalid version in XML declaration: #{version.inspect}"
       end
@@ -32,6 +34,7 @@ module HTree
 
   class DocType < Markup
     def initialize(root_element_name, public_identifier=nil, system_identifier=nil)
+      init_raw_string
       if public_identifier && /\A[ \x0d\x0aa-zA-Z0-9\-'()+,.\/:=?;!*\#@$_%]*\z/ !~ public_identifier
         raise DocType::Error, "invalid public identifier in document type declaration: #{public_identifier.inspect}"
       end
@@ -76,6 +79,7 @@ module HTree
     end
 
     def initialize(target, content)
+      init_raw_string
       if /\?>/ =~ content
         raise ProcIns::Error, "invalid processing instruction content: #{content.inspect}"
       end
@@ -100,6 +104,7 @@ module HTree
     end
 
     def initialize(content)
+      init_raw_string
       if /--/ =~ content || /-\z/ =~ content
         raise Comment::Error, "invalid comment content: #{content.inspect}"
       end

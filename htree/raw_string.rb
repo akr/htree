@@ -17,10 +17,13 @@ module HTree
   end
 
   class Leaf
+    def init_raw_string
+      @raw_string = nil
+    end
     attr_writer :raw_string
 
     def raw_string
-      (defined?(@raw_string) ? @raw_string : nil) || self.to_xml
+      @raw_string || self.to_xml
     end
   end
 

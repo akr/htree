@@ -31,7 +31,7 @@ class TestElemNew < Test::Unit::TestCase
   def test_hash
     t = HTree::Text.new('t')
     e = HTree::Elem.new('a', {'b' => t})
-    assert_equal([['b', t]], e.stag.attributes)
+    assert_equal([['b', t]], e.stag.attributes.map {|n,v| [n.universal_name, v] })
     assert_equal([], e.children)
   end
 
@@ -45,7 +45,7 @@ class TestElemNew < Test::Unit::TestCase
   def test_interleave
     t = HTree::Text.new('t')
     e = HTree::Elem.new('a', t, {'b' => t}, t, {'c' => 'd'}, t)
-    assert_equal([['b', t], ['c', HTree::Text.new('d')]], e.stag.attributes)
+    assert_equal([['b', t], ['c', HTree::Text.new('d')]], e.stag.attributes.map {|n,v| [n.universal_name, v] })
     assert_equal([t, t, t], e.children)
   end
 

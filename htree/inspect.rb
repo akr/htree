@@ -47,38 +47,43 @@ module HTree
     alias inspect pretty_print_inspect
   end
 
+  class Name
+    def inspect
+      if !@namespace_uri
+        @local_name
+      elsif @namespace_prefix
+        "#{@namespace_prefix}{#{@namespace_uri}}#{@local_name}"
+      elsif self.qualified_name
+        "-{#{@namespace_uri}}#{@local_name}"
+      else
+        "{#{@namespace_uri}}#{@local_name}"
+      end
+    end
+  end
+
   class STag < Markup
     def pretty_print(pp)
       pp.group(1, '<', '>') {
-        if !@namespace_uri
-          pp.text @local_name
-        elsif @namespace_prefix
-          pp.text "#{@namespace_prefix}{#{@namespace_uri}}#{@local_name}"
-        elsif @qualified_name
-          pp.text "-{#{@namespace_uri}}#{@local_name}"
-        else
-          pp.text "{#{@namespace_uri}}#{@local_name}"
-        end
+        pp.text @name.inspect
 
-        each_namespace_attribute {|prefix, uri|
+        @attributes.each {|n, t|
           pp.breakable
-          if prefix
-            pp.text "xmlns:#{prefix}=#{uri}"
-          else
-            pp.text "xmlns=#{uri}"
-          end
-        }
-
-        each_attribute_info {|namespace_uri, prefix, lname, text|
-          pp.breakable
-          if namespace_uri
-            if prefix
-              pp.text "#{prefix}{#{namespace_uri}}"
+          if n.xmlns?
+            if n.namespace_prefix
+              pp.text "xmlns:#{n.namespace_prefix}=#{t}"
             else
-              pp.text "{#{namespace_uri}}"
+              pp.text "xmlns=#{t}"
             end
+          else
+            if n.namespace_uri
+              if n.namespace_prefix
+                pp.text "#{n.namespace_prefix}{#{n.namespace_uri}}"
+              else
+                pp.text "{#{n.namespace_uri}}"
+              end
+            end
+            pp.text "#{n.local_name}=#{t.to_xml_attvalue}"
           end
-          pp.text "#{lname}=#{text.to_xml_attvalue}"
         }
       }
     end

@@ -1,4 +1,6 @@
 module HTree
+  class Name; include HTree; end
+
   class Leaf; include HTree; end
     class Text < Leaf; end
     class Markup < Leaf; end
@@ -12,7 +14,6 @@ module HTree
   class Container; include HTree; end
     class Doc < Container; end
     class Elem < Container; end
-
 
   class Error < StandardError; end
     class STag::Error < Error; end
