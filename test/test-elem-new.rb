@@ -23,6 +23,16 @@ class TestElemNew < Test::Unit::TestCase
     assert_equal(nil, e.etag)
   end
 
+  def test_empty_attr
+    e = HTree::Elem.new('a', {'href'=>'xxx'})
+    assert_equal('a', e.stag.qualified_name)
+    assert_equal([[HTree::Name.parse_attribute_name('href', HTree::DefaultContext), HTree::Text.new('xxx')]], e.stag.attributes)
+    assert_equal(HTree::DefaultContext, e.stag.inherited_context)
+    assert_equal([], e.children)
+    assert_equal(true, e.empty_element?)
+    assert_equal(nil, e.etag)
+  end
+
   def test_node
     t = HTree::Text.new('t')
     e = HTree::Elem.new('a', t)

@@ -20,38 +20,35 @@ module HTree
       HTree::BogusETag,
     ]
     def Elem.new(name, *args)
-      if args.empty?
-        new!(STag.new(name))
-      else
-        attrs = []
-        children = []
-        context = nil
-        args.flatten.each {|arg|
-          case arg
-          when Context
-            raise ArgumentError, "multiple context" if context
-            context = arg
-          when Hash
-            arg.each {|k, v| attrs << [k, v] }
-          when *AcceptableChild
-            children << arg
-          when HTree::Doc
-            arg.children.each {|c|
-              next if HTree::XMLDecl === c
-              next if HTree::DocType === c
-              children << c
-            }
-          when String
-            children << Text.new(arg)
-          else
-            raise HTree::Error, "unexpected argument: #{arg.inspect}"
-          end
-        }
-        context ||= DefaultContext
-        # Since name's prefix may not determined,
-        # ETag cannot create.
-        new!(STag.new(name, attrs, context), children)
+      attrs = []
+      children = []
+      context = nil
+      args.flatten.each {|arg|
+        case arg
+        when Context
+          raise ArgumentError, "multiple context" if context
+          context = arg
+        when Hash
+          arg.each {|k, v| attrs << [k, v] }
+        when *AcceptableChild
+          children << arg
+        when HTree::Doc
+          arg.children.each {|c|
+            next if HTree::XMLDecl === c
+            next if HTree::DocType === c
+            children << c
+          }
+        when String
+          children << Text.new(arg)
+        else
+          raise HTree::Error, "unexpected argument: #{arg.inspect}"
+        end
+      }
+      context ||= DefaultContext
+      if children.empty? && args.all? {|arg| Hash === arg || Context === arg }
+        children = nil
       end
+      new!(STag.new(name, attrs, context), children)
     end
 
     def initialize(stag, children=nil, etag=nil)
