@@ -192,6 +192,14 @@ module HTree
         end
       } 
 
+      traverse_element('{http://purl.org/dc/elements/1.1/}creator') {|e|
+        begin
+          author = e.extract_text.to_s.strip
+          return author if !author.empty?
+        rescue IndexError
+        end
+      }
+
       nil
     end
 
