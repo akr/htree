@@ -422,7 +422,12 @@ End
   end
 
   def compile_body(outvar, contextvar, node, is_toplevel, local_templates={})
-    generate_logic_node([:content], TemplateNode.new(node), local_templates).generate_xml_output_code(outvar, contextvar)
+    if HTree::Elem === node && IGNORABLE_ELEMENTS[node.name] && node.attributes.empty?
+      node = TemplateNode.new(node.children)
+    else
+      node = TemplateNode.new(node)
+    end
+    generate_logic_node([:content], node, local_templates).generate_xml_output_code(outvar, contextvar)
   end
 
   def compile_node(node, local_templates)

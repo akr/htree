@@ -5,13 +5,14 @@ class TestText < Test::Unit::TestCase
   Decl = '<?xml version="1.0" encoding="US-ASCII"?>'
 
   def assert_xhtml(expected, template, message=nil)
-    assert_equal(
-      '<?xml version="1.0" encoding="US-ASCII"?>' +
-      '<html xmlns="http://www.w3.org/1999/xhtml">' +
-      expected +
-      '</html>',
-      HTree.expand_template(''){"<html>#{template}</html>"},
-      message)
+    prefix = '<?xml version="1.0" encoding="US-ASCII"?>' +
+             '<html xmlns="http://www.w3.org/1999/xhtml">'
+    suffix = '</html>'
+    result = HTree.expand_template(''){"<html>#{template}</html>"}
+    assert_match(/\A#{Regexp.quote prefix}/, result)
+    assert_match(/#{Regexp.quote suffix}\z/, result)
+    result = result[prefix.length..(-suffix.length-1)]
+    assert_equal(expected, result, message)
   end
 
   def test_text
@@ -50,6 +51,8 @@ class TestText < Test::Unit::TestCase
   def test_iter_local_template
     assert_xhtml('<o><i>1</i></o><o><i>2</i></o><o><i>3</i></o>',
       '<o _iter=[1,2,3].each//v><i _call=m /><i _template=m _text=v></i></o>')
+    assert_xhtml('d',
+      '<span _template="span()">d</span><e _call="span()"></e>')
   end
 
   def test_call
