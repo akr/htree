@@ -84,13 +84,13 @@ module HTree
     end
 
     def ProcIns.new(target, content)
-      content = content.gsub(/\?>/, '? >')
+      content = content.gsub(/\?>/, '? >') if content
       new! target, content
     end
 
     def initialize(target, content)
       init_raw_string
-      if /\?>/ =~ content
+      if content && /\?>/ =~ content
         raise HTree::Error, "invalid processing instruction content: #{content.inspect}"
       end
       @target = target
@@ -99,7 +99,9 @@ module HTree
     attr_reader :target, :content
 
     def generate_xml(out='')
-      out << "<?#{@target} #{@content}?>"
+      out << "<?#{@target}"
+      out << " #{@content}" if @content
+      out << "?>"
       out
     end
   end

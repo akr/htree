@@ -108,3 +108,10 @@ class TestUpdateXMLNS < Test::Unit::TestCase
       HTree::STag.new(HTree::Name.new('p', 'u', 'n'), [], HTree::DefaultContext).update_xmlns(HTree::Context.new({'p'=>'v'})).attributes)
   end
 end
+
+class TestUGenXML < Test::Unit::TestCase
+  def test_procins_generate_xml
+    t = HTree::ProcIns.new('x', nil)
+    assert_equal('<?x?>', t.generate_xml)
+  end
+end

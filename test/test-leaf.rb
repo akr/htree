@@ -8,6 +8,7 @@ class TestProcIns < Test::Unit::TestCase
 
   def test_new
     assert_equal('? >', HTree::ProcIns.new('target', "?>").content)
+    assert_equal(nil, HTree::ProcIns.new('target', nil).content)
   end
 end
 

@@ -25,4 +25,10 @@ class TestParse < Test::Unit::TestCase
     assert_equal('HTML',
       HTree.parse('<?xml version="1.0"?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><HTML>').children[1].root_element_name)
   end
+
+  def test_procins
+    t = HTree.parse("<?x?>").children[0]
+    assert_equal('x', t.target)
+    assert_equal(nil, t.content)
+  end
 end
