@@ -158,6 +158,7 @@ module HTree
         else
           raise TypeError, "invalid index: #{index.inspect}"
         end
+        value = value.to_node if HTree::Location === value
         case value
         when Node
           value = [value]
@@ -171,6 +172,7 @@ module HTree
           raise TypeError, "invalid value: #{value.inspect}"
         end
         value.map! {|v|
+          v = v.to_node if HTree::Location === v
           case v
           when Node
             v
