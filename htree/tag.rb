@@ -130,7 +130,11 @@ n=                              nil     nil     n
       }
       @namespaces = make_namespaces
 
-      @name = Name.parse_element_name(name, @namespaces) unless Name === name
+      if Name === name
+        @name = name
+      else
+        @name = Name.parse_element_name(name, @namespaces)
+      end
 
       @attributes = attributes.map {|aname, text|
         aname = Name.parse_attribute_name(aname, @namespaces) unless Name === aname
