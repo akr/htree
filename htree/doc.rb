@@ -30,7 +30,7 @@ module HTree
         when String
           children << Text.new(arg)
         else
-          raise HTree::Error, "unexpected argument: #{arg.inspect}"
+          raise TypeError, "unexpected argument: #{arg.inspect}"
         end
       }
       new!(children)
@@ -38,6 +38,11 @@ module HTree
 
     def initialize(children=[])
       @children = children.dup.freeze
+      unless @children.all? {|c| AcceptableChild.include? c.class }
+        unacceptable = @children.reject {|c| AcceptableChild.include? c.class }
+        unacceptable = unacceptable.map {|uc| uc.inspect }.join(', ')
+        raise TypeError, "Unacceptable document child: #{unacceptable}"
+      end
     end 
     attr_reader :children
 
@@ -60,7 +65,7 @@ module HTree
 
     def get_subnode(index)
       unless Integer === index
-        raise ArgumentError, "invalid index: #{index.inspect}"
+        raise TypeError, "invalid index: #{index.inspect}"
       end
       @children[index]
     end
@@ -68,7 +73,7 @@ module HTree
     def subst_subnode(hash)
       hash.each_pair {|index, value|
         unless Integer === index
-          raise ArgumentError, "invalid index: #{index.inspect}"
+          raise TypeError, "invalid index: #{index.inspect}"
         end
       }
 

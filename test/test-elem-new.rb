@@ -72,8 +72,8 @@ class TestElemNew < Test::Unit::TestCase
   end
 
   def test_err
-    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::STag.new('a')) }
-    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::ETag.new('a')) }
+    assert_raises(TypeError) { HTree::Elem.new('e', HTree::STag.new('a')) }
+    assert_raises(TypeError) { HTree::Elem.new('e', HTree::ETag.new('a')) }
   end
 
   def test_context

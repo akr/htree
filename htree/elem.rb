@@ -41,7 +41,7 @@ module HTree
         when String
           children << Text.new(arg)
         else
-          raise HTree::Error, "unexpected argument: #{arg.inspect}"
+          raise TypeError, "unexpected argument: #{arg.inspect}"
         end
       }
       context ||= DefaultContext
@@ -53,13 +53,15 @@ module HTree
 
     def initialize(stag, children=nil, etag=nil)
       unless stag.class == STag
-        raise HTree::Error, "HTree::STag expected: #{stag.inspect}"
+        raise TypeError, "HTree::STag expected: #{stag.inspect}"
       end
       unless !children || children.all? {|c| AcceptableChild.include? c.class }
-        raise HTree::Error, "Unacceptable child: #{children.find_all {|c| !AcceptableChild.include?(c.class) }.inspect}"
+        unacceptable = children.reject {|c| AcceptableChild.include?(c.class) }
+        unacceptable = unacceptable.map {|uc| uc.inspect }.join(', ')
+        raise TypeError, "Unacceptable element child: #{unacceptable}"
       end
       unless !etag || etag.class == ETag
-        raise HTree::Error, "HTree::ETag expected: #{etag.inspect}"
+        raise TypeError, "HTree::ETag expected: #{etag.inspect}"
       end
       @stag = stag
       @children = (children ? children.dup : []).freeze
@@ -112,7 +114,7 @@ module HTree
       when Integer
         @children[index]
       else
-        raise ArgumentError, "invalid index: #{index.inspect}"
+        raise TypeError, "invalid index: #{index.inspect}"
       end
     end
 
@@ -129,7 +131,7 @@ module HTree
           end
           hash[name] = value
         else
-          raise ArgumentError, "invalid index: #{index.inspect}"
+          raise TypeError, "invalid index: #{index.inspect}"
         end
       }
 
