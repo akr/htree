@@ -73,8 +73,9 @@ def install_file(src, dst)
   ignore_exc(Errno::ENOENT) { return if FileUtils.compare_file src, dst }
   # check shadow
   ignore_exc(Errno::ENOENT) { File.unlink dst }
-  FileUtils.mkdir_p(File.dirname(dst))
+  FileUtils.mkdir_p(File.dirname(dst), :mode=>0755)
   FileUtils.cp(src, dst, :verbose => true)
+  File.chmod(0644, dst)
 end
 
 def ignore_exc(exc)
@@ -99,6 +100,7 @@ if $opt_n
   }
   exit
 else
+  File.umask 022
   dir = target_directory
   collect_target.each {|filename|
     install_file filename, "#{dir}/#{filename}"
