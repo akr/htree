@@ -15,11 +15,11 @@ module HTree
 
 
   class Error < StandardError; end
-  class STag::Error < Error; end
-  class ETag::Error < Error; end
-  class XMLDecl::Error < Error; end
-  class DocType::Error < Error; end
-  class ProcIns::Error < Error; end
-  class Comment::Error < Error; end
+    class STag::Error < Error; end
+    class ETag::Error < Error; end
+    class XMLDecl::Error < Error; end
+    class DocType::Error < Error; end
+    class ProcIns::Error < Error; end
+    class Comment::Error < Error; end
 end
 
