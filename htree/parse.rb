@@ -45,7 +45,7 @@ module HTree
 
   # :stopdoc:
 
-  def HTree.parse_as(input, is_xml) # :nodoc:
+  def HTree.parse_as(input, is_xml)
     input_charset = nil
     if input.tainted? && 1 <= $SAFE
       raise SecurityError, "input tainted"
@@ -74,7 +74,7 @@ module HTree
     Doc.new(nodes)
   end
 
-  def HTree.parse_pairs(tokens, is_xml) # :nodoc:
+  def HTree.parse_pairs(tokens, is_xml)
     stack = [[nil, nil, []]]
     tokens.each {|token|
       case token[0]
@@ -117,7 +117,7 @@ module HTree
     stack[0][2]
   end
 
-  def HTree.fix_structure_list(structure_list, is_xml) # :nodoc:
+  def HTree.fix_structure_list(structure_list, is_xml)
     result = []
     rest = structure_list.dup
     until rest.empty?
@@ -133,7 +133,7 @@ module HTree
     result
   end
 
-  def HTree.fix_element(elem, excluded_tags, included_tags, is_xml) # :nodoc:
+  def HTree.fix_element(elem, excluded_tags, included_tags, is_xml)
     stag_raw_string = elem[1]
     children = elem[2]
     if etag_raw_string = elem[3]
@@ -185,7 +185,7 @@ module HTree
     end
   end
 
-  def HTree.build_node(structure, is_xml, inherited_context=DefaultContext) # :nodoc:
+  def HTree.build_node(structure, is_xml, inherited_context=DefaultContext)
     case structure[0]
     when :elem
       _, stag_rawstring, children, etag_rawstring = structure
@@ -221,185 +221,184 @@ module HTree
     end
   end
 
-  class STag
-    def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext) # :nodoc:
-      if /\A#{Pat::StartTag}\z/o =~ raw_string
-        is_stag = true
-      elsif /\A#{Pat::EmptyTag}\z/o =~ raw_string
-        is_stag = false
-      else
-        raise HTree::Error, "cannot recognize as start tag or empty tag: #{raw_string.inspect}"
-      end
-
-      attrs = []
-      if (is_stag ? /\A#{Pat::ValidStartTag_C}\z/o : /\A#{Pat::ValidEmptyTag_C}\z/o) =~ raw_string
-        qname = $1
-        $2.scan(Pat::ValidAttr_C) {
-          attrs << ($5 ? [nil, $5] : [$1, $2 || $3 || $4])
-        }
-      elsif (is_stag ? /\A#{Pat::InvalidStartTag_C}\z/o : /\A#{Pat::InvalidEmptyTag_C}\z/o) =~ raw_string
-        qname = $1
-        last_attr = $3
-        $2.scan(Pat::InvalidAttr1_C) {
-          attrs << ($5 ? [nil, $5] : [$1, $2 || $3 || $4])
-        }
-        if last_attr
-          /#{Pat::InvalidAttr1End_C}/o =~ last_attr
-          attrs << [$1, $2 || $3]
-        end
-      else
-        raise Exception, "[bug] cannot recognize as start tag: #{raw_string.inspect}"
-      end
-
-      qname = qname.downcase unless case_sensitive
-
-      attrs.map! {|aname, aval|
-        if aname
-          aname = case_sensitive ? aname : aname.downcase
-          [aname, Text.parse_pcdata(aval)]
-        else
-          if val2name = OmittedAttrName[qname]
-            aval_downcase = aval.downcase
-            aname = val2name.fetch(aval_downcase, aval_downcase)
-          else
-            aname = aval
-          end
-          [aname, Text.new(aval)]
-        end
-      }
-
-      result = STag.new(qname, attrs, inherited_context)
-      result.raw_string = raw_string
-      result
+  def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext)
+    if /\A#{Pat::StartTag}\z/o =~ raw_string
+      is_stag = true
+    elsif /\A#{Pat::EmptyTag}\z/o =~ raw_string
+      is_stag = false
+    else
+      raise HTree::Error, "cannot recognize as start tag or empty tag: #{raw_string.inspect}"
     end
-  end
 
-  class ETag
-    def ETag.parse(raw_string, case_sensitive=false) # :nodoc:
-      unless /\A#{Pat::EndTag_C}\z/o =~ raw_string
-        raise HTree::Error, "cannot recognize as end tag: #{raw_string.inspect}"
-      end
-
+    attrs = []
+    if (is_stag ? /\A#{Pat::ValidStartTag_C}\z/o : /\A#{Pat::ValidEmptyTag_C}\z/o) =~ raw_string
       qname = $1
-      qname = qname.downcase unless case_sensitive
-
-      result = self.new(qname)
-      result.raw_string = raw_string
-      result
-    end
-  end
-
-  class Text
-    def Text.parse_pcdata(raw_string) # :nodoc:
-      fixed = raw_string.gsub(/&(?:(?:#[0-9]+|#x[0-9a-fA-F]+|([A-Za-z][A-Za-z0-9]*));?)?/o) {|s|
-        name = $1
-        case s
-        when /;\z/
-          s
-        when /\A&#/
-          "#{s};"
-        when '&'
-          '&amp;'
-        else 
-          if NamedCharactersPattern =~ name
-            "&#{name};"
-          else
-            "&amp;#{name}"
-          end
-        end
+      $2.scan(Pat::ValidAttr_C) {
+        attrs << ($5 ? [nil, $5] : [$1, $2 || $3 || $4])
       }
-      result = new!(fixed)
-      result.raw_string = raw_string
-      result
-    end
-
-    def Text.parse_cdata_content(raw_string) # :nodoc:
-      result = Text.new(raw_string)
-      result.raw_string = raw_string
-      result
-    end
-
-    def Text.parse_cdata_section(raw_string) # :nodoc:
-      unless /\A#{Pat::CDATA_C}\z/o =~ raw_string
-        raise HTree::Error, "cannot recognize as CDATA section: #{raw_string.inspect}"
+    elsif (is_stag ? /\A#{Pat::InvalidStartTag_C}\z/o : /\A#{Pat::InvalidEmptyTag_C}\z/o) =~ raw_string
+      qname = $1
+      last_attr = $3
+      $2.scan(Pat::InvalidAttr1_C) {
+        attrs << ($5 ? [nil, $5] : [$1, $2 || $3 || $4])
+      }
+      if last_attr
+        /#{Pat::InvalidAttr1End_C}/o =~ last_attr
+        attrs << [$1, $2 || $3]
       end
-
-      content = $1
-
-      result = Text.new(content)
-      result.raw_string = raw_string
-      result
+    else
+      raise Exception, "[bug] cannot recognize as start tag: #{raw_string.inspect}"
     end
-  end
 
-  class XMLDecl
-    def XMLDecl.parse(raw_string) # :nodoc:
-      unless /\A#{Pat::XmlDecl_C}\z/o =~ raw_string
-        raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
-      end
+    qname = qname.downcase unless case_sensitive
 
-      version = $1 || $2
-      encoding = $3 || $4
-      case $5 || $6
-      when 'yes'
-        standalone = true
-      when 'no'
-        standalone = false
+    attrs.map! {|aname, aval|
+      if aname
+        aname = case_sensitive ? aname : aname.downcase
+        [aname, Text.parse_pcdata(aval)]
       else
-        standalone = nil
+        if val2name = OmittedAttrName[qname]
+          aval_downcase = aval.downcase
+          aname = val2name.fetch(aval_downcase, aval_downcase)
+        else
+          aname = aval
+        end
+        [aname, Text.new(aval)]
       end
+    }
 
-      result = XMLDecl.new(version, encoding, standalone)
-      result.raw_string = raw_string
-      result
-    end
+    result = STag.new(qname, attrs, inherited_context)
+    result.raw_string = raw_string
+    result
   end
 
-  class DocType
-    def DocType.parse(raw_string, is_xml) # :nodoc:
-      unless /\A#{Pat::DocType_C}\z/o =~ raw_string
-        raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
-      end
-
-      root_element_name = $1
-      public_identifier = $2 || $3
-      system_identifier = $4 || $5
-
-      root_element_name = root_element_name.downcase if !is_xml
-
-      result = DocType.new(root_element_name, public_identifier, system_identifier)
-      result.raw_string = raw_string
-      result
+  def ETag.parse(raw_string, case_sensitive=false)
+    unless /\A#{Pat::EndTag_C}\z/o =~ raw_string
+      raise HTree::Error, "cannot recognize as end tag: #{raw_string.inspect}"
     end
+
+    qname = $1
+    qname = qname.downcase unless case_sensitive
+
+    result = self.new(qname)
+    result.raw_string = raw_string
+    result
   end
 
-  class ProcIns
-    def ProcIns.parse(raw_string) # :nodoc:
-      unless /\A#{Pat::XmlProcIns_C}\z/o =~ raw_string
-        raise HTree::Error, "cannot recognize as processing instruction: #{raw_string.inspect}"
-      end
-
-      target = $1
-      content = $2
-
-      result = ProcIns.new(target, content)
-      result.raw_string = raw_string
-      result
+  def BogusETag.parse(raw_string, case_sensitive=false)
+    unless /\A#{Pat::EndTag_C}\z/o =~ raw_string
+      raise HTree::Error, "cannot recognize as end tag: #{raw_string.inspect}"
     end
+
+    qname = $1
+    qname = qname.downcase unless case_sensitive
+
+    result = self.new(qname)
+    result.raw_string = raw_string
+    result
   end
 
-  class Comment
-    def Comment.parse(raw_string) # :nodoc:
-      unless /\A#{Pat::Comment_C}\z/o =~ raw_string
-        raise HTree::Error, "cannot recognize as comment: #{raw_string.inspect}"
+  def Text.parse_pcdata(raw_string)
+    fixed = raw_string.gsub(/&(?:(?:#[0-9]+|#x[0-9a-fA-F]+|([A-Za-z][A-Za-z0-9]*));?)?/o) {|s|
+      name = $1
+      case s
+      when /;\z/
+        s
+      when /\A&#/
+        "#{s};"
+      when '&'
+        '&amp;'
+      else 
+        if NamedCharactersPattern =~ name
+          "&#{name};"
+        else
+          "&amp;#{name}"
+        end
       end
+    }
+    result = new!(fixed)
+    result.raw_string = raw_string
+    result
+  end
 
-      content = $1
+  def Text.parse_cdata_content(raw_string)
+    result = Text.new(raw_string)
+    result.raw_string = raw_string
+    result
+  end
 
-      result = Comment.new(content)
-      result.raw_string = raw_string
-      result
+  def Text.parse_cdata_section(raw_string)
+    unless /\A#{Pat::CDATA_C}\z/o =~ raw_string
+      raise HTree::Error, "cannot recognize as CDATA section: #{raw_string.inspect}"
     end
+
+    content = $1
+
+    result = Text.new(content)
+    result.raw_string = raw_string
+    result
+  end
+
+  def XMLDecl.parse(raw_string)
+    unless /\A#{Pat::XmlDecl_C}\z/o =~ raw_string
+      raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
+    end
+
+    version = $1 || $2
+    encoding = $3 || $4
+    case $5 || $6
+    when 'yes'
+      standalone = true
+    when 'no'
+      standalone = false
+    else
+      standalone = nil
+    end
+
+    result = XMLDecl.new(version, encoding, standalone)
+    result.raw_string = raw_string
+    result
+  end
+
+  def DocType.parse(raw_string, is_xml)
+    unless /\A#{Pat::DocType_C}\z/o =~ raw_string
+      raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
+    end
+
+    root_element_name = $1
+    public_identifier = $2 || $3
+    system_identifier = $4 || $5
+
+    root_element_name = root_element_name.downcase if !is_xml
+
+    result = DocType.new(root_element_name, public_identifier, system_identifier)
+    result.raw_string = raw_string
+    result
+  end
+
+  def ProcIns.parse(raw_string)
+    unless /\A#{Pat::XmlProcIns_C}\z/o =~ raw_string
+      raise HTree::Error, "cannot recognize as processing instruction: #{raw_string.inspect}"
+    end
+
+    target = $1
+    content = $2
+
+    result = ProcIns.new(target, content)
+    result.raw_string = raw_string
+    result
+  end
+
+  def Comment.parse(raw_string)
+    unless /\A#{Pat::Comment_C}\z/o =~ raw_string
+      raise HTree::Error, "cannot recognize as comment: #{raw_string.inspect}"
+    end
+
+    content = $1
+
+    result = Comment.new(content)
+    result.raw_string = raw_string
+    result
   end
 
   # :startdoc:

@@ -20,7 +20,7 @@ module HTree
     class DocType; include Markup, Node end
     class ProcIns; include Markup, Node end
     class Comment; include Markup, Node end
-    class BogusETag < ETag; include Node end
+    class BogusETag; include Markup, Node end
 
   class Error < StandardError; end
 end

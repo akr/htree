@@ -82,4 +82,11 @@ module HTree
     end
     attr_reader :content
   end
+
+  class BogusETag
+    def initialize(qualified_name)
+      init_raw_string
+      @etag = ETag.new(qualified_name)
+    end
+  end
 end

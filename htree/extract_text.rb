@@ -5,6 +5,7 @@ require 'htree/elem'
 module HTree
   module Node
     def extract_text
+      p self
       raise NotImplementedError
     end
   end
