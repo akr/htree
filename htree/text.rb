@@ -9,18 +9,18 @@ module HTree
   class Text
     # :stopdoc:
     class << self
-      alias new! new
+      alias new_internal new
     end
     # :startdoc:
 
     def Text.new(arg)
       arg = arg.to_node if HTree::Location === arg
       if Text === arg
-        new! arg.rcdata, arg.normalized_rcdata
+        new_internal arg.rcdata, arg.normalized_rcdata
       elsif String === arg
         arg2 = arg.gsub(/&/, '&amp;')
         arg = arg2.freeze if arg != arg2
-        new! arg
+        new_internal arg
       else
         raise TypeError, "cannot initialize Text with #{arg.inspect}"
       end
@@ -89,7 +89,7 @@ module HTree
         self
       else
         rcdata.freeze
-        Text.new!(rcdata, rcdata)
+        Text.new_internal(rcdata, rcdata)
       end
     end
 
@@ -109,7 +109,7 @@ module HTree
           rcdata << arg.gsub(/&/, '&amp;')
         end
       }
-      new! rcdata
+      new_internal rcdata
     end
   end
 end

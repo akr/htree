@@ -327,7 +327,7 @@ module HTree
       end
     }
     fixed = raw_string if fixed == raw_string
-    result = Text.new!(fixed)
+    result = Text.new_internal(fixed)
     result.raw_string = raw_string
     result
   end

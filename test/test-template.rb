@@ -135,12 +135,12 @@ End
   end
 
   def test_attr_nbsp
-    @t = HTree::Text.new!('&nbsp;')
+    @t = HTree::Text.parse_pcdata('&nbsp;')
     assert_xhtml("<span x=\"&nbsp;\"\n>d</span\n>", '<span _attr_x="@t">d</span>')
   end
 
   def test_text_nbsp
-    @t = HTree::Text.new!('&nbsp;')
+    @t = HTree::Text.parse_pcdata('&nbsp;')
     assert_xhtml("&nbsp;", '<span _text="@t">d</span>')
   end
 

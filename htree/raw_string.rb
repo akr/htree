@@ -84,7 +84,7 @@ module HTree
 
   class Text
     def eliminate_raw_string
-      Text.new!(@rcdata)
+      Text.new_internal(@rcdata)
     end
   end
 
