@@ -5,11 +5,32 @@
 #
 # Author:: Tanaka Akira <akr@m17n.org>
 #
+# == Features
+#
+# - Template Engine: link:files/htree/template_rb.html
+#
 # == Examples
 #
 # === Example 1: dump a document tree
 #
 #   % ruby -rhtree -e 'pp HTree.parse(ARGF)' html-file
+#
+# == Module/Class Hierarchy
+#
+# * HTree
+#   * HTree::Name
+#   * HTree::Context
+#   * HTree::Loc
+#   * HTree::Node
+#     * HTree::Doc
+#     * HTree::Elem
+#     * HTree::Text
+#     * HTree::XMLDecl
+#     * HTree::DocType
+#     * HTree::ProcIns
+#     * HTree::Comment
+#     * HTree::BogusETag
+# * HTree::Error
 #
 # == Method Summary
 #

@@ -1,6 +1,8 @@
 require 'htree/encoder'
 require 'htree/output'
 
+# :enddoc:
+
 module HTree
   module Node
     def generate_xml_output_code(outvar='out', contextvar='top_context')

@@ -18,7 +18,7 @@ module HTree
       end
     end
 
-    def initialize(rcdata)
+    def initialize(rcdata) # :notnew:
       init_raw_string
       @rcdata = rcdata && rcdata.dup
     end

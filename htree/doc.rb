@@ -27,7 +27,7 @@ module HTree
       new!(children)
     end
 
-    def initialize(children=[])
+    def initialize(children=[]) # :notnew:
       @children = children.dup.freeze
       unless @children.all? {|c| c.kind_of?(HTree::Node) and !c.kind_of?(HTree::Doc) }
         unacceptable = @children.reject {|c| c.kind_of?(HTree::Node) and !c.kind_of?(HTree::Doc) }

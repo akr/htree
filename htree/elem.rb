@@ -40,7 +40,7 @@ module HTree
       new!(STag.new(name, attrs, context), children)
     end
 
-    def initialize(stag, children=nil, etag=nil)
+    def initialize(stag, children=nil, etag=nil) # :notnew:
       unless stag.class == STag
         raise TypeError, "HTree::STag expected: #{stag.inspect}"
       end

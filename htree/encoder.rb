@@ -2,11 +2,20 @@ require 'iconv'
 
 module HTree
   class Encoder
+    # HTree::Encoder.internal_charset returns the MIME charset corresponding to $KCODE.
+    #
+    # - 'ISO-8859-1' when $KCODE=='NONE'
+    # - 'UTF-8' when $KCODE=='UTF8'
+    # - 'EUC-JP' when $KCODE=='EUC'
+    # - 'Shift_JIS' when $KCODE=='SJIS'
+    #
+    # This mapping ignores EUC-KR and various single byte charset other than ISO-8859-1 at least.
+    # This should be fixed when Ruby is m17nized.
     def Encoder.internal_charset
       KcodeCharset[$KCODE]
     end
 
-    def initialize(output_encoding, internal_encoding=Encoder.internal_charset)
+    def initialize(output_encoding, internal_encoding=HTree::Encoder.internal_charset)
       @buf = ''
       @internal_encoding = internal_encoding
       @output_encoding = output_encoding
@@ -53,7 +62,7 @@ module HTree
       '&' => '&amp;',
       '<' => '&lt;',
       '>' => '&gt;',
-    }
+    } # :nodoc:
     def output_dynamic_text(string)
       output_text(string.to_s.gsub(/[&<>]/) { TextChRef[$&] })
     end
@@ -63,7 +72,7 @@ module HTree
       '<' => '&lt;',
       '>' => '&gt;',
       '"' => '&gt;',
-    }
+    } # :nodoc:
     def output_dynamic_attvalue(string)
       output_text(string.to_s.gsub(/[&<>"]/) { AttrChRef[$&] })
     end
@@ -96,6 +105,8 @@ module HTree
       }
       @output_encoding
     end
+
+    # :enddoc:
 
     KcodeCharset = {
       'EUC' => 'EUC-JP',

@@ -48,7 +48,7 @@ module HTree
       new! target, content
     end
 
-    def initialize(target, content)
+    def initialize(target, content) # :notnew:
       init_raw_string
       if content && /\?>/ =~ content
         raise HTree::Error, "invalid processing instruction content: #{content.inspect}"
@@ -69,7 +69,7 @@ module HTree
       new! content
     end
 
-    def initialize(content)
+    def initialize(content) # :notnew:
       init_raw_string
       if /--/ =~ content || /-\z/ =~ content
         raise HTree::Error, "invalid comment content: #{content.inspect}"

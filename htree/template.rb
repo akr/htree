@@ -1,5 +1,9 @@
 # = Template Engine
 #
+# == Template Syntax
+#
+# The template engine in htree uses HTML 
+#
 # == Method Summary
 #
 # - HTree.expand_template{<i>template_string</i>}
@@ -13,6 +17,8 @@ require 'htree/gencode'
 
 # <code>HTree.expand_template{<i>template_string</i>}</code> expands <i>template_string</i> as a template.
 # The generated result is encoded as <i>encoding</i> and sent to <i>out</i> using <tt><<</tt> method.
+# Ruby expressions in <i>template_string</i> is evaluated in the scope of the caller.
+# I.e. they can access local variables etc.
 #
 # The return value is <i>out</i>.
 def HTree.expand_template(encoding=HTree::Encoder.internal_charset, out=STDOUT, &block)
@@ -20,8 +26,9 @@ def HTree.expand_template(encoding=HTree::Encoder.internal_charset, out=STDOUT, 
   HTree::TemplateCompiler.new.expand_template(template, encoding, out, block)
 end
 
-# <code>HTree(<i>html_string</i>)</code> parses <i>template_string</i>.
+# <code>HTree(<i>html_string</i>)</code> parses <i>html_string</i>.
 # <code>HTree{<i>template_string</i>}</code> parses <i>template_string</i> and expand it as a template.
+# Ruby expressions in <i>template_string</i> is evaluated in the scope of the caller.
 #
 # <code>HTree()</code> and <code>HTree{}</code> returns a tree as an instance of HTree::Doc.
 def HTree(html_string=nil, &block)
@@ -40,7 +47,7 @@ end
 # HTree.compile_template returns a module.
 # The module has module functions for each templates defined in
 # <i>template_string</i>.
-# The returned module can be used for <tt>include</tt>.
+# The returned module can be used for +include+.
 #
 #  M = HTree.compile_template(<<'End')
 #  <p _template=birthday(subj,t)
