@@ -181,8 +181,26 @@ class TestTemplateScope < Test::Unit::TestCase
   def test_compile_template
     obj = TestTemplateScopeObj.new
     mod = HTree.compile_template(MemFile.new(<<-'End'))
-      <span _template=meth _text="Module.nesting.inspect"/>
+      <span _template=test_nesting _text="Module.nesting.inspect"/>
+      <span _template=test_const _text="Const"/>
+      <span _template=test_cvar _text="@@cvar"/>
+      <span _template=test_ivar _text="@ivar"/>
     End
-    assert_equal("[#{mod.inspect}]", mod.meth.extract_text.to_s)
+    mod.module_eval <<-'End'
+      Const = 'mod_const'
+      @@cvar = 'mod_cvar'
+      @ivar = 'mod_ivar'
+    End
+    assert_equal("[#{mod.inspect}]", mod.test_nesting.extract_text.to_s)
+    assert_equal("mod_const", mod.test_const.extract_text.to_s)
+    assert_equal("mod_cvar", mod.test_cvar.extract_text.to_s)
+    assert_equal("mod_ivar", mod.test_ivar.extract_text.to_s)
+    obj = Object.new
+    obj.instance_variable_set :@ivar, 'obj_ivar'
+    obj.extend mod
+    assert_equal("[#{mod.inspect}]", obj.__send__(:test_nesting).extract_text.to_s)
+    assert_equal("mod_const", obj.__send__(:test_const).extract_text.to_s)
+    assert_equal("mod_cvar", obj.__send__(:test_cvar).extract_text.to_s)
+    assert_equal("obj_ivar", obj.__send__(:test_ivar).extract_text.to_s)
   end
 end
