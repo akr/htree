@@ -5,6 +5,10 @@
 # The htree template engine converts HTML and some data to XHTML.
 # A template directive is described as special HTML attribute which name
 # begins with underscore.
+#
+# The htree template engine strips text nodes which consists only whitespaces
+# except under HTML pre element.
+#
 # The template directives are listed as follows.
 #
 # - <elem \_attr_<i>name</i>="<i>expr</i>">content</elem>
@@ -337,8 +341,38 @@ class HTree::TemplateCompiler
     "g#{@gensym_id}#{suffix}"
   end
 
+  def parse_template(template)
+    strip_whitespaces(HTree.parse(template))
+  end
+
+  WhiteSpacePreservingElements = {
+    '{http://www.w3.org/1999/xhtml}pre' => true
+  }
+
+  def strip_whitespaces(template)
+    case template
+    when HTree::Doc
+      HTree::Doc.new(*template.children.map {|c| strip_whitespaces(c) }.compact)
+    when HTree::Elem, HTree::Doc
+      return template if WhiteSpacePreservingElements[template.name]
+      subst = {}
+      template.children.each_with_index {|c, i|
+        subst[i] = strip_whitespaces(c)
+      }
+      template.subst_subnode(subst)
+    when HTree::Text
+      if /\A[ \t\r\n]*\z/ =~ template.rcdata
+        nil
+      else
+        template
+      end
+    else
+      template
+    end
+  end
+
   def expand_template(template, out, encoding, binding)
-    template = HTree.parse(template)
+    template = parse_template(template)
     outvar = gensym('out')
     contextvar = gensym('top_context')
     code = <<"End"
@@ -353,7 +387,7 @@ End
   end
 
   def expand_fragment_template(template, out, encoding, binding)
-    template = HTree.parse(template)
+    template = parse_template(template)
     outvar = gensym('out')
     contextvar = gensym('top_context')
     code = <<"End"
@@ -368,7 +402,7 @@ End
   end
 
   def compile_template(src)
-    srcdoc = HTree.parse(src)
+    srcdoc = parse_template(src)
     templates = []
     body = extract_templates(srcdoc, templates, true)
     methods = []

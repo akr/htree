@@ -64,15 +64,20 @@ class TestText < Test::Unit::TestCase
   end
 
   def test_file
-    assert_equal(<<'End',
+    assert_equal(<<'End'.chop,
 <?xml version="1.0" encoding="US-ASCII"?><html xmlns="http://www.w3.org/1999/xhtml"
->
-  <title
+><title
 >aaa</title
->
-</html
+></html
 >
 End
       HTree.expand_template("#{File.dirname __FILE__}/template.html", "aaa", ''))
+  end
+
+  def test_whitespace
+    assert_xhtml("<x\n></x\n>",
+      '<x> </x>')
+    assert_xhtml("<pre\n> </pre\n>",
+      '<pre> </pre>')
   end
 end
