@@ -17,6 +17,10 @@ module HTree
   # For example, IO, StringIO, Pathname, URI::HTTP and URI::FTP are acceptable.
   # Note that the URIs need open-uri.
   #
+  # HTree.parse guesses <i>input</i> is HTML or not.
+  # If it is guessed as HTML, the default namespace in the result is set to http://www.w3.org/1999/xhtml
+  # regardless of <i>input</i> has XML namespace declaration or not nor even it is pre-XML HTML.
+  #
   # If opened file or read content has charset method,
   # HTree.parse decode it according to $KCODE before parsing.
   # Otherwise HTree.parse assumes the character encoding of the content is
@@ -34,7 +38,6 @@ module HTree
   # The assumption causes following differences.
   # * doesn't downcase element name.
   # * The content of <script> and <style> element is PCDATA, not CDATA.
-  # * doesn't assume a default namespace http://www.w3.org/1999/xhtml.
   def HTree.parse_xml(input)
     parse_as(input, true)
   end
