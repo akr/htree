@@ -1,7 +1,6 @@
 require 'test/unit'
 require 'htree/parse'
 require 'htree/equality'
-require 'htree/traverse'
 
 class TestParse < Test::Unit::TestCase
   def test_empty
@@ -50,7 +49,7 @@ class TestParse < Test::Unit::TestCase
 
   def test_parse_html
     t1 = HTree.parse("<html>a</html>")
-    assert_equal("{http://www.w3.org/1999/xhtml}html", t1.root.name)
+    assert_equal("{http://www.w3.org/1999/xhtml}html", t1.root.element_name.universal_name)
   end
 
   def test_bare_url

@@ -83,9 +83,9 @@ module HTree
       case index
       when String
         name = Name.parse_attribute_name(index, DefaultContext)
-        get_attribute(name.universal_name) # xxx: defined in traverse.rb
+        update_attribute_hash[name.universal_name]
       when Name
-        get_attribute(index.universal_name)
+        update_attribute_hash[index.universal_name]
       when Integer
         @children[index]
       else
@@ -155,4 +155,18 @@ module HTree
       end
     end
   end 
+
+  module Elem::Trav
+    def update_attribute_hash # :nodoc:
+      if defined?(@attribute_hash)
+        @attribute_hash
+      else
+        h = {}
+        each_attribute {|name, text|
+          h[name.universal_name] = text
+        }
+        @attribute_hash = h
+      end
+    end
+  end
 end

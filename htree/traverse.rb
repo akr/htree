@@ -228,18 +228,6 @@ module HTree
       }
     end
 
-    def update_attribute_hash # :nodoc:
-      if defined?(@attribute_hash)
-        @attribute_hash
-      else
-        h = {}
-        each_attribute {|name, text|
-          h[name.universal_name] = text
-        }
-        @attribute_hash = h
-      end
-    end
-
     def fetch_attribute(uname, *rest, &block)
       if 1 < rest.length
         raise ArgumentError, "wrong number of arguments (#{1+rest.length} for 2)"
