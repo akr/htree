@@ -41,7 +41,7 @@
 #
 #   _text substitutes content of the element by the string
 #   evaluated from _expr_.
-#   If the element is span and there is no other attributes,
+#   If the element is span or div, and there is no other attributes,
 #   no tags are produced.
 #
 #        <elem _text="...">dummy-content</elem>
@@ -329,9 +329,9 @@ end
 class HTree::TemplateCompiler
   IGNORABLE_ELEMENTS = {
     'span' => true,
-    #'div' => true,
+    'div' => true,
     '{http://www.w3.org/1999/xhtml}span' => true,
-    #'{http://www.w3.org/1999/xhtml}div' => true,
+    '{http://www.w3.org/1999/xhtml}div' => true,
   }
 
   def initialize
