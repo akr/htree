@@ -304,9 +304,12 @@ module HTree
       }
     end
 
-    # - fetch_attribute(name) -> text or IndexError
-    # - fetch_attribute(name, default) -> text or default
-    # - fetch_attribute(name) {|uname| default } -> text or default
+    # call-seq:
+    #   elem.fetch_attribute(name) -> text or raise IndexError
+    #   elem.fetch_attribute(name, default) -> text or default
+    #   elem.fetch_attribute(name) {|uname| default } -> text or default
+    #
+    # elem may be an instance of HTree::Elem or a location points to it.
     def fetch_attribute(uname, *rest, &block)
       if 1 < rest.length
         raise ArgumentError, "wrong number of arguments (#{1+rest.length} for 2)"
@@ -326,9 +329,12 @@ module HTree
       }
     end
 
-    # - fetch_attr(name) -> string or IndexError
-    # - fetch_attr(name, default) -> string or default
-    # - fetch_attr(name) {|uname| default } -> string or default
+    # call-seq:
+    #   elem.fetch_attr(name) -> string or raise IndexError
+    #   elem.fetch_attr(name, default) -> string or default
+    #   elem.fetch_attr(name) {|uname| default } -> string or default
+    #
+    # elem may be an instance of HTree::Elem or a location points to it.
     def fetch_attr(uname, *rest, &block)
       if 1 < rest.length
         raise ArgumentError, "wrong number of arguments (#{1+rest.length} for 2)"

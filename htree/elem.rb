@@ -129,6 +129,7 @@ module HTree
       end
     end
 
+    # call-seq:
     #   elem.subst_subnode(pairs) -> elem
     #
     # The argument _pairs_ should be a hash or an assocs.
