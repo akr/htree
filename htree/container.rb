@@ -45,7 +45,9 @@ module HTree
             raise Elem::Error, "unexpected argument: #{arg.inspect}"
           end
         }
-        new!(STag.new(name, attrs), children, ETag.new(name))
+        # Since name's prefix may not determined,
+        # ETag cannot create.
+        new!(STag.new(name, attrs), children)
       end
     end
 

@@ -18,7 +18,9 @@ module HTree
         pp.group(1, "{elem", "}") {
           pp.breakable; pp.pp @stag
           @children.each {|elt| pp.breakable; pp.pp elt }
-          pp.breakable; pp.pp @etag
+          if @etag
+            pp.breakable; pp.pp @etag
+          end
         }
       else
         pp.group(1, '{emptyelem', '}') {
@@ -49,11 +51,13 @@ module HTree
 
   class Name
     def inspect
-      if !@namespace_uri
+      if xmlns?
+        @local_name ? "xmlns:#{@local_name}" : "xmlns"
+      elsif !@namespace_uri
         @local_name
       elsif @namespace_prefix
         "#{@namespace_prefix}{#{@namespace_uri}}#{@local_name}"
-      elsif self.qualified_name
+      elsif @namespace_prefix == false
         "-{#{@namespace_uri}}#{@local_name}"
       else
         "{#{@namespace_uri}}#{@local_name}"
@@ -68,22 +72,7 @@ module HTree
 
         @attributes.each {|n, t|
           pp.breakable
-          if n.xmlns?
-            if n.namespace_prefix
-              pp.text "xmlns:#{n.namespace_prefix}=#{t}"
-            else
-              pp.text "xmlns=#{t}"
-            end
-          else
-            if n.namespace_uri
-              if n.namespace_prefix
-                pp.text "#{n.namespace_prefix}{#{n.namespace_uri}}"
-              else
-                pp.text "{#{n.namespace_uri}}"
-              end
-            end
-            pp.text "#{n.local_name}=#{t.generate_xml_attvalue}"
-          end
+          pp.text "#{n.inspect}=#{t.generate_xml_attvalue}"
         }
       }
     end
@@ -91,7 +80,7 @@ module HTree
 
   class ETag
     def pretty_print(pp)
-      pp.group(1, '<', '>') {
+      pp.group(1, '</', '>') {
         pp.text @qualified_name
       }
     end

@@ -18,7 +18,7 @@ class TestElemNew < Test::Unit::TestCase
     assert_equal([], e.stag.attributes)
     assert_equal({}, e.stag.inherited_namespaces)
     assert_equal([], e.children)
-    assert_equal('a', e.etag.qualified_name)
+    assert_equal(nil, e.etag)
   end
 
   def test_node
