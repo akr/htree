@@ -101,12 +101,12 @@ module HTree
   end
 
   class Doc; def node_test() 'doc()' end end
-  class Elem; def node_test() element_name.qualified_name end end
+  class Elem; alias node_test qualified_name end
   class Text; def node_test() 'text()' end end
   class BogusETag; def node_test() 'bogus-etag()' end end
-  class XMLDecl; def node_test() 'xml-decl()' end end
-  class DocType; def node_test() 'doc-type()' end end
-  class ProcIns; def node_test() 'proc-ins()' end end
+  class XMLDecl; def node_test() 'xml-declaration()' end end
+  class DocType; def node_test() 'doctype()' end end
+  class ProcIns; def node_test() 'processing-instruction()' end end
   class Comment; def node_test() 'comment()' end end
 
   module Node::LocMixin
