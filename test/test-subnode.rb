@@ -9,7 +9,7 @@ class TestSubnode < Test::Unit::TestCase
   end
 
   def test_elem_subst
-    e1 = HTree.parse("<a href=x>abc</a>").root
+    e1 = HTree.parse_xml("<a href=x>abc</a>").root
     e2 = e1.subst_subnode("href"=>"xxx", 0=>"def")
     assert_equal("a", e2.name)
     assert_equal("xxx", e2.fetch_attr("href"))

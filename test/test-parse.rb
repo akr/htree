@@ -4,7 +4,7 @@ require 'htree/equality'
 
 class TestParse < Test::Unit::TestCase
   def test_empty
-    assert_equal(HTree::Doc.new([]), HTree.parse("").eliminate_raw_string)
+    assert_equal(HTree::Doc.new([]), HTree.parse_xml("").eliminate_raw_string)
   end
 
   def test_xmlns_default
@@ -15,7 +15,7 @@ class TestParse < Test::Unit::TestCase
              [HTree::Elem.new!(HTree::STag.new('x2', [],
                                 HTree::DefaultContext.subst_namespaces({nil => 'bb', 'xml'=>'http://www.w3.org/XML/1998/namespace'})), nil)])
          ])
-    t2 = HTree.parse('<x1 xmlns="bb"><x2>')
+    t2 = HTree.parse_xml('<x1 xmlns="bb"><x2>')
     assert_equal(t1, t2)
   end
 
@@ -27,7 +27,7 @@ class TestParse < Test::Unit::TestCase
   end
 
   def test_procins
-    t = HTree.parse("<?x?>").children[0]
+    t = HTree.parse_xml("<?x?>").children[0]
     assert_equal('x', t.target)
     assert_equal(nil, t.content)
   end
@@ -35,13 +35,13 @@ class TestParse < Test::Unit::TestCase
   def test_eol_html
     t1 = HTree::Elem.new('a', "\nb\n")
     s = "<a>\nb\n</a>"
-    t2 = HTree.parse(s).root
+    t2 = HTree.parse_xml(s).root
     assert_equal(t1, t2)
     assert_equal(s, t2.raw_string)
   end
 
   def test_parse_html
-    t1 = HTree.parse_html("<html>a</html>")
+    t1 = HTree.parse("<html>a</html>")
     assert_equal("{http://www.w3.org/1999/xhtml}html", t1.root.name)
   end
 end

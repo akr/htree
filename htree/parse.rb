@@ -9,21 +9,20 @@ require 'htree/context'
 
 module HTree
   def HTree.parse(input)
-    parse_with_context(input, DefaultContext)
+    parse_as(input, HTMLContext, false)
   end
 
-  def HTree.parse_html(input)
-    parse_with_context(input, HTMLContext)
+  def HTree.parse_xml(input)
+    parse_as(input, DefaultContext, true)
   end
 
-  def HTree.parse_with_context(input, context)
+  def HTree.parse_as(input, context, is_xml)
     if input.respond_to? :read # IO, StringIO
       input = input.read
     elsif input.respond_to? :open # Pathname, URI with open-uri
       input = input.open {|f| f.read }
     end
 
-    is_xml = false
     tokens = []
     scan(input) {|token|
       tokens << token
