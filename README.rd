@@ -1,6 +1,6 @@
 = htree - HTML/XML tree library
 
-htree provides a tree data structre which represent HTML and XML data.
+htree provides a tree data structure which represent HTML and XML data.
 
 == Home Page
 
@@ -13,7 +13,7 @@ htree provides a tree data structre which represent HTML and XML data.
 == Feature
 
 * Permissive unified HTML/XML parser
-* byte-to-byte roundtripping unparser
+* byte-to-byte round-tripping unparser
 * XML namespace support
 * Dedicated class for escaped string.  This ease sanitization.
 * XHTML/XML generator
@@ -32,7 +32,7 @@ Following two-line script convert HTML to XHTML.
   require 'htree'
   HTree.parse(STDIN).display_xml
 
-The conversion method to REXML is provides as to_rexml.
+The conversion method to REXML is provided as to_rexml.
 
   HTree.parse(...).to_rexml
 
