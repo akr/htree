@@ -1,5 +1,6 @@
 require 'htree/nodehier'
 require 'htree/tag'
+require 'htree/context'
 
 module HTree
   class Elem
@@ -24,8 +25,12 @@ module HTree
       else
         attrs = []
         children = []
+        context = nil
         args.flatten.each {|arg|
           case arg
+          when Context
+            raise ArgumentError, "multiple context" if context
+            context = arg
           when Hash
             arg.each {|k, v| attrs << [k, v] }
           when *AcceptableChild
@@ -42,9 +47,10 @@ module HTree
             raise HTree::Error, "unexpected argument: #{arg.inspect}"
           end
         }
+        context ||= DefaultContext
         # Since name's prefix may not determined,
         # ETag cannot create.
-        new!(STag.new(name, attrs), children)
+        new!(STag.new(name, attrs, context), children)
       end
     end
 
@@ -53,7 +59,7 @@ module HTree
         raise HTree::Error, "HTree::STag expected: #{stag.inspect}"
       end
       unless !children || children.all? {|c| AcceptableChild.include? c.class }
-        raise HTree::Error, "array of HTree expected: #{children.find_all {|c| !AcceptableChild.include?(c.class) }.inspect}"
+        raise HTree::Error, "Unacceptable child: #{children.find_all {|c| !AcceptableChild.include?(c.class) }.inspect}"
       end
       unless !etag || etag.class == ETag
         raise HTree::Error, "HTree::ETag expected: #{etag.inspect}"

@@ -66,4 +66,13 @@ class TestElemNew < Test::Unit::TestCase
     assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::ETag.new('a')) }
   end
 
+  def test_context
+    context = HTree::Context.new({'p'=>'u'})
+    elem = HTree::Elem.new('p:n', {'p:a'=>'t'}, context)
+    assert_equal('{u}n', elem.name)
+    assert_equal('t', elem.get_attr('{u}a'))
+
+    assert_same(context, elem.stag.inherited_context)
+    assert_raises(ArgumentError) { HTree::Elem.new('e', context, context) }
+  end
 end
