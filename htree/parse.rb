@@ -17,10 +17,18 @@ module HTree
   end
 
   def HTree.parse_as(input, context, is_xml)
+    input_charset = nil
     if input.respond_to? :read # IO, StringIO
       input = input.read
+      input_charset = input.charset if input.respond_to? :charset
     elsif input.respond_to? :open # Pathname, URI with open-uri
-      input = input.open {|f| f.read }
+      input.open {|f|
+        input = f.read
+        input_charset = f.charset if f.respond_to? :charset
+      }
+    end
+    if input_charset && input_charset != Encoder.internal_charset
+      input = Iconv.conv(Encoder.internal_charset, input_charset, input)
     end
 
     tokens = []
