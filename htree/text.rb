@@ -17,7 +17,9 @@ module HTree
       if Text === arg
         new! arg.rcdata, arg.normalized_rcdata
       elsif String === arg
-        new! arg.gsub(/&/, '&amp;')
+        arg2 = arg.gsub(/&/, '&amp;')
+        arg = arg2.freeze if arg != arg2
+        new! arg
       else
         raise TypeError, "cannot initialize Text with #{arg.inspect}"
       end
@@ -25,15 +27,15 @@ module HTree
 
     def initialize(rcdata, normalized_rcdata=internal_normalize(rcdata)) # :notnew:
       init_raw_string
-      @rcdata = rcdata && rcdata.dup
-      @normalized_rcdata = normalized_rcdata
+      @rcdata = rcdata && (rcdata.frozen? ? rcdata : rcdata.dup.freeze)
+      @normalized_rcdata = @rcdata == normalized_rcdata ? @rcdata : normalized_rcdata
     end
     attr_reader :rcdata, :normalized_rcdata
 
     def internal_normalize(rcdata)
       # - character references are decoded as much as possible.
       # - undecodable character references are converted to decimal numeric character refereces.
-      rcdata.gsub(/&(?:#([0-9]+)|#x([0-9a-fA-F]+)|([A-Za-z][A-Za-z0-9]*));/o) {|s|
+      result = rcdata.gsub(/&(?:#([0-9]+)|#x([0-9a-fA-F]+)|([A-Za-z][A-Za-z0-9]*));/o) {|s|
         u = nil
         if $1
           u = $1.to_i
@@ -56,6 +58,11 @@ module HTree
           end
         end
       }
+      if rcdata == result && rcdata.frozen?
+        rcdata
+      else
+        result.freeze
+      end
     end
     private :internal_normalize
 
@@ -81,7 +88,12 @@ module HTree
       rcdata = @normalized_rcdata.dup
       rcdata.sub!(/\A(?:\s|&nbsp;)+/, '')
       rcdata.sub!(/(?:\s|&nbsp;)+\z/, '')
-      Text.new!(rcdata, rcdata)
+      if rcdata == @normalized_rcdata
+        self
+      else
+        rcdata.freeze
+        Text.new!(rcdata, rcdata)
+      end
     end
 
     # HTree::Text.concat returns a text which is concatenation of arguments.

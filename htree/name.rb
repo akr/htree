@@ -48,15 +48,13 @@ n=                              nil     ''      'n'
       end
     end
 
-    class << Name
-      NameCache = {}
-      def new(namespace_prefix, namespace_uri, local_name)
-        key = [namespace_prefix, namespace_uri, local_name, self]
-        NameCache.fetch(key) {
-          0.upto(2) {|i| key[i] = key[i].dup.freeze if key[i] }
-          NameCache[key] = super(key[0], key[1], key[2])
-        }
-      end
+    NameCache = {}
+    def Name.new(namespace_prefix, namespace_uri, local_name)
+      key = [namespace_prefix, namespace_uri, local_name, self]
+      NameCache.fetch(key) {
+        0.upto(2) {|i| key[i] = key[i].dup.freeze if key[i] }
+        NameCache[key] = super(key[0], key[1], key[2])
+      }
     end
 
     def initialize(namespace_prefix, namespace_uri, local_name)

@@ -46,6 +46,16 @@ module HTree
       result << @raw_string
     end
   end
+
+  class Text
+    def raw_string=(arg)
+      if arg == @rcdata then
+        @raw_string = @rcdata
+      else
+        super
+      end
+    end
+  end
   # :startdoc:
 
   module Node

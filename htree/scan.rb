@@ -77,21 +77,21 @@ module HTree
         if $5 && str[Pat::Name] == cdata_content
           text_end = match.begin(0)
           if text_start < text_end
-            yield [:text_cdata_content, input[text_start...text_end]]
+            yield [:text_cdata_content, input[text_start...text_end].freeze]
             text_start = match.end(0)
           end
-          yield [:etag, str]
+          yield [:etag, str.freeze]
           cdata_content = nil
         end
       else
         str = match[0]
         text_end = match.begin(0)
         if text_start < text_end
-          yield [:text_pcdata, input[text_start...text_end]]
+          yield [:text_pcdata, input[text_start...text_end].freeze]
         end
         text_start = match.end(0)
         if match.begin(1)
-          yield [:xmldecl, str]
+          yield [:xmldecl, str.freeze]
           is_xml = true
         elsif match.begin(2)
           Pat::DocType_C =~ str
@@ -100,11 +100,11 @@ module HTree
           system_identifier = $4 || $5
           is_html = true if /\Ahtml\z/i =~ root_element_name
           is_xml = true if public_identifier && %r{\A-//W3C//DTD XHTML } =~ public_identifier
-          yield [:doctype, str]
+          yield [:doctype, str.freeze]
         elsif match.begin(3)
-          yield [:procins, str]
+          yield [:procins, str.freeze]
         elsif match.begin(4)
-          yield stag = [:stag, str]
+          yield stag = [:stag, str.freeze]
           tagname = str[Pat::Name]
           if first_element
             if /\A(?:html|head|title|isindex|base|script|style|meta|link|object)\z/i =~ tagname
@@ -118,15 +118,15 @@ module HTree
             cdata_content = tagname
           end
         elsif match.begin(5)
-          yield [:etag, str]
+          yield [:etag, str.freeze]
         elsif match.begin(6)
-          yield [:emptytag, str]
+          yield [:emptytag, str.freeze]
           first_element = false
           #is_xml = true
         elsif match.begin(7)
-          yield [:comment, str]
+          yield [:comment, str.freeze]
         elsif match.begin(8)
-          yield [:text_cdata_section, str]
+          yield [:text_cdata_section, str.freeze]
         else
           raise Exception, "unknown match [bug]"
         end
@@ -135,9 +135,9 @@ module HTree
     text_end = input.length
     if text_start < text_end
       if cdata_content
-        yield [:text_cdata_content, input[text_start...text_end]]
+        yield [:text_cdata_content, input[text_start...text_end].freeze]
       else
-        yield [:text_pcdata, input[text_start...text_end]]
+        yield [:text_pcdata, input[text_start...text_end].freeze]
       end
     end
     return is_xml, is_html

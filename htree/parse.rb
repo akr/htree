@@ -319,7 +319,8 @@ module HTree
         end
       end
     }
-    result = new!(fixed)
+    fixed = raw_string if fixed == raw_string
+    result = Text.new!(fixed)
     result.raw_string = raw_string
     result
   end
