@@ -7,6 +7,7 @@ htree provides a tree data structre which represent HTML and XML data.
 * Unified HTML/XML parser
 * byte-to-byte roundtripping unparser
 * XML namespace support
+* Dedicated class for escaped string.  This ease sanitization.
 #* XHTML/XML generator
 #* converter to REXML document
 #* template engine
@@ -17,6 +18,10 @@ htree provides a tree data structre which represent HTML and XML data.
 #
 #  require 'htree'
 #  puts HTree.parse(STDIN).to_xhtml
+
+== License
+
+Ruby's
 
 == Author
 Tanaka Akira <akr@m17n.org>
