@@ -27,7 +27,7 @@ module HTree
       alias new! new
     end
 
-    AcceptableChild = [HTree::Text, HTree::ProcIns, HTree::Comment, HTree::Elem]
+    AcceptableChild = [HTree::Text, HTree::ProcIns, HTree::Comment, HTree::Elem, HTree::BogusETag]
     def Elem.new(name, *args)
       if args.empty?
         new!(STag.new(name))
@@ -63,7 +63,7 @@ module HTree
         raise Elem::Error, "HTree::STag expected: #{stag.inspect}"
       end
       unless !children || children.all? {|c| AcceptableChild.include? c.class }
-        raise Elem::Error, "HTree array expected: #{children.inspect}"
+        raise Elem::Error, "array of HTree expected: #{children.find_all {|c| !AcceptableChild.include?(c.class) }.inspect}"
       end
       unless !etag || etag.class == ETag
         raise Elem::Error, "HTree::ETag expected: #{etag.inspect}"

@@ -21,7 +21,7 @@ module HTree
       xmldecl_seen = true if token[0] == :xmldecl
     }
     structure_list = parse_pairs(tokens)
-    structure_list = fix_structure_list(structure_list)
+    structure_list = fix_structure_list(structure_list, xmldecl_seen)
     nodes = structure_list.map {|s| build_node(s, xmldecl_seen) }
     Doc.new(nodes)
   end
@@ -66,13 +66,13 @@ module HTree
     stack[0][2]
   end
 
-  def HTree.fix_structure_list(structure_list)
+  def HTree.fix_structure_list(structure_list, xmldecl_seen)
     result = []
     rest = structure_list.dup
     until rest.empty?
       structure = rest.shift
       if structure[0] == :elem
-        elem, rest2 = fix_element(structure, [], [])
+        elem, rest2 = fix_element(structure, [], [], xmldecl_seen)
         result << elem
         rest = rest2 + rest
       else
@@ -82,13 +82,14 @@ module HTree
     result
   end
 
-  def HTree.fix_element(elem, excluded_tags, included_tags)
+  def HTree.fix_element(elem, excluded_tags, included_tags, xmldecl_seen)
     stag_raw_string = elem[1]
     children = elem[2]
     if etag_raw_string = elem[3]
-      return [:elem, stag_raw_string, fix_structure_list(children), etag_raw_string], []
+      return [:elem, stag_raw_string, fix_structure_list(children, xmldecl_seen), etag_raw_string], []
     else
       tagname = stag_raw_string[Pat::Name]
+      tagname = tagname.downcase if !xmldecl_seen
       if ElementContent[tagname] == :EMPTY
         return [:elem, stag_raw_string, []], children
       else
@@ -119,7 +120,7 @@ module HTree
               rest.unshift elem
               break
             else
-              fixed_elem, rest2 = fix_element(elem, excluded_tags, included_tags)
+              fixed_elem, rest2 = fix_element(elem, excluded_tags, included_tags, xmldecl_seen)
               fixed_children << fixed_elem
               rest = rest2 + rest
             end
@@ -246,7 +247,7 @@ module HTree
         when '&'
           '&amp;'
         else 
-          if Pat::NamedCharacters =~ name
+          if NamedCharactersPattern =~ name
             "&#{name};"
           else
             "&amp;#{name}"
@@ -307,12 +308,8 @@ module HTree
       end
 
       root_element_name = $1
-      if system_identifier = $2 || $3
-        public_identifier = nil
-      else
-        public_identifier = $4 || $5
-        system_identifier = $6 || $7
-      end
+      public_identifier = $2 || $3
+      system_identifier = $4 || $5
 
       result = DocType.new(root_element_name, public_identifier, system_identifier)
       result.raw_string = raw_string

@@ -50,20 +50,21 @@ module HTree
 
     def generate_xml(out='')
       out << "<!DOCTYPE #{@root_element_name}"
-      if public_identifier
-        out << "PUBLIC \"#{@public_identifier}\""
+      if @public_identifier
+        out << " PUBLIC \"#{@public_identifier}\""
       else
-        out << "SYSTEM"
+        out << " SYSTEM"
       end
       # Although a system identifier is not omissible in XML,
       # we cannot output it if it is not given.
-      if system_identifier
-        if /"/ !~ system_identifier
+      if @system_identifier
+        if /"/ !~ @system_identifier
           out << " \"#{@system_identifier}\""
         else
           out << " '#{@system_identifier}'"
         end
       end
+      out << ">"
       out
     end
   end
