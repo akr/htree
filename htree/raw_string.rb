@@ -1,13 +1,13 @@
 require 'htree/nodehier'
 
 module HTree
-  class Doc < Container
+  class Doc
     def raw_string
       @children ? @children.map {|n| n.raw_string }.join('') : ''
     end
   end
 
-  class Elem < Container
+  class Elem
     def raw_string
       result = @stag.raw_string
       @children.each {|n| result << n.raw_string } if @children

@@ -12,13 +12,13 @@ module HTree
     end
   end
 
-  class Text < Leaf
+  class Text
     def extract_text
       self
     end
   end
   
-  class Markup < Leaf
+  class Markup
     def extract_text
       Text.new('')
     end

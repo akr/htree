@@ -5,14 +5,14 @@ require 'htree/tag'
 require 'htree/raw_string'
 
 module HTree
-  class Doc < Container
+  class Doc
     def pretty_print(pp)
       pp.object_group(self) { @children.each {|elt| pp.breakable; pp.pp elt } }
     end
     alias inspect pretty_print_inspect
   end
 
-  class Elem < Container
+  class Elem
     def pretty_print(pp)
       if @children
         pp.group(1, "{elem", "}") {
@@ -61,7 +61,7 @@ module HTree
     end
   end
 
-  class STag < Markup
+  class STag
     def pretty_print(pp)
       pp.group(1, '<', '>') {
         pp.text @name.inspect

@@ -2,7 +2,7 @@ require 'htree/nodehier'
 require 'htree/raw_string'
 
 module HTree
-  class XMLDecl < Markup
+  class XMLDecl
     def initialize(version, encoding=nil, standalone=nil)
       init_raw_string
       if /\A[a-zA-Z0-9_.:-]+\z/ !~ version
@@ -32,7 +32,7 @@ module HTree
     end
   end
 
-  class DocType < Markup
+  class DocType
     def initialize(root_element_name, public_identifier=nil, system_identifier=nil)
       init_raw_string
       if public_identifier && /\A[ \x0d\x0aa-zA-Z0-9\-'()+,.\/:=?;!*\#@$_%]*\z/ !~ public_identifier
@@ -68,7 +68,7 @@ module HTree
     end
   end
 
-  class ProcIns < Markup
+  class ProcIns
     class << self
       alias new! new
     end
@@ -93,7 +93,7 @@ module HTree
     end
   end
 
-  class Comment < Markup
+  class Comment
     class << self
       alias new! new
     end

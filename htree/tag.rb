@@ -98,7 +98,7 @@ n=                              nil     nil     n
     end
   end
 
-  class STag < Markup
+  class STag
     def initialize(name, attributes=[], inherited_namespaces={})
       init_raw_string
       # normalize xml declaration name and attribute value.
@@ -217,7 +217,7 @@ n=                              nil     nil     n
 
   end
 
-  class ETag < Markup
+  class ETag
     def initialize(qualified_name)
       init_raw_string
       @qualified_name = qualified_name
@@ -229,7 +229,7 @@ n=                              nil     nil     n
     end
   end
 
-  class BogusETag < ETag
+  class BogusETag
     def to_xml
       ""
     end

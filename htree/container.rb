@@ -1,7 +1,8 @@
 require 'htree/nodehier'
+require 'htree/tag'
 
 module HTree
-  class Doc < Container
+  class Doc
     def initialize(children=nil)
       @children = children
     end 
@@ -13,7 +14,7 @@ module HTree
 
   end 
   
-  class Elem < Container 
+  class Elem
     class << self
       alias new! new
     end

@@ -165,7 +165,7 @@ module HTree
     end
   end
 
-  class STag < Markup
+  class STag
     def STag.parse(raw_string, case_sensitive=false, inherited_namespaces={})
       if /\A(?:#{Pat::StartTag}|#{Pat::EmptyTag})\z/o !~ raw_string
         raise "cannot recognize as start tag: #{raw_string.inspect}"
@@ -215,7 +215,7 @@ module HTree
     end
   end
 
-  class ETag < Markup
+  class ETag
     def ETag.parse(raw_string, case_sensitive=false)
       unless /\A#{Pat::EndTag_C}\z/o =~ raw_string
         raise "cannot recognize as end tag: #{raw_string.inspect}"
@@ -230,7 +230,7 @@ module HTree
     end
   end
 
-  class Text < Leaf
+  class Text
     def Text.parse_pcdata(raw_string)
       fixed = raw_string.gsub(/&(?:(?:#[0-9]+|#x[0-9a-fA-F]+|([A-Za-z][A-Za-z0-9]*));?)?/o) {|s|
         name = $1
@@ -273,7 +273,7 @@ module HTree
     end
   end
 
-  class XMLDecl < Markup
+  class XMLDecl
     def XMLDecl.parse(raw_string)
       unless /\A#{Pat::XmlDecl_C}\z/o =~ raw_string
         raise "cannot recognize as XML declaration: #{raw_string.inspect}"
@@ -296,7 +296,7 @@ module HTree
     end
   end
 
-  class DocType < Markup
+  class DocType
     def DocType.parse(raw_string)
       unless /\A#{Pat::DocType_C}\z/o =~ raw_string
         raise "cannot recognize as XML declaration: #{raw_string.inspect}"
@@ -316,7 +316,7 @@ module HTree
     end
   end
 
-  class ProcIns < Markup
+  class ProcIns
     def ProcIns.parse(raw_string)
       unless /\A#{Pat::XmlProcIns_C}\z/o =~ raw_string
         raise "cannot recognize as processing instruction: #{raw_string.inspect}"
@@ -331,7 +331,7 @@ module HTree
     end
   end
 
-  class Comment < Markup
+  class Comment
     def Comment.parse(raw_string)
       unless /\A#{Pat::Comment_C}\z/o =~ raw_string
         raise "cannot recognize as comment: #{raw_string.inspect}"
