@@ -15,31 +15,31 @@ module HTree
       input = input.open {|f| f.read }
     end
 
-    xmldecl_seen = false
+    is_xml = false
     tokens = []
     scan(input) {|token|
       tokens << token
-      xmldecl_seen = true if token[0] == :xmldecl
+      is_xml = true if token[0] == :xmldecl
     }
-    structure_list = parse_pairs(tokens, xmldecl_seen)
-    structure_list = fix_structure_list(structure_list, xmldecl_seen)
-    nodes = structure_list.map {|s| build_node(s, xmldecl_seen) }
+    structure_list = parse_pairs(tokens, is_xml)
+    structure_list = fix_structure_list(structure_list, is_xml)
+    nodes = structure_list.map {|s| build_node(s, is_xml) }
     Doc.new(nodes)
   end
 
-  def HTree.parse_pairs(tokens, xmldecl_seen)
+  def HTree.parse_pairs(tokens, is_xml)
     stack = [[nil, nil, []]]
     tokens.each {|token|
       case token[0]
       when :stag
         stag_raw_string = token[1]
         stagname = stag_raw_string[Pat::Name]
-        stagname = stagname.downcase if !xmldecl_seen
+        stagname = stagname.downcase if !is_xml
         stack << [stagname, stag_raw_string, []]
       when :etag
         etag_raw_string = token[1]
         etagname = etag_raw_string[Pat::Name]
-        etagname = etagname.downcase if !xmldecl_seen
+        etagname = etagname.downcase if !is_xml
         matched_elem = nil
         stack.reverse_each {|elem|
           stagname, _, _ = elem
@@ -70,13 +70,13 @@ module HTree
     stack[0][2]
   end
 
-  def HTree.fix_structure_list(structure_list, xmldecl_seen)
+  def HTree.fix_structure_list(structure_list, is_xml)
     result = []
     rest = structure_list.dup
     until rest.empty?
       structure = rest.shift
       if structure[0] == :elem
-        elem, rest2 = fix_element(structure, [], [], xmldecl_seen)
+        elem, rest2 = fix_element(structure, [], [], is_xml)
         result << elem
         rest = rest2 + rest
       else
@@ -86,14 +86,14 @@ module HTree
     result
   end
 
-  def HTree.fix_element(elem, excluded_tags, included_tags, xmldecl_seen)
+  def HTree.fix_element(elem, excluded_tags, included_tags, is_xml)
     stag_raw_string = elem[1]
     children = elem[2]
     if etag_raw_string = elem[3]
-      return [:elem, stag_raw_string, fix_structure_list(children, xmldecl_seen), etag_raw_string], []
+      return [:elem, stag_raw_string, fix_structure_list(children, is_xml), etag_raw_string], []
     else
       tagname = stag_raw_string[Pat::Name]
-      tagname = tagname.downcase if !xmldecl_seen
+      tagname = tagname.downcase if !is_xml
       if ElementContent[tagname] == :EMPTY
         return [:elem, stag_raw_string, []], children
       else
@@ -120,12 +120,12 @@ module HTree
           if rest[0][0] == :elem
             elem = rest.shift
             elem_tagname = elem[1][Pat::Name]
-            elem_tagname = elem_tagname.downcase if !xmldecl_seen
+            elem_tagname = elem_tagname.downcase if !is_xml
             if uncontainable_tags.include? elem_tagname
               rest.unshift elem
               break
             else
-              fixed_elem, rest2 = fix_element(elem, excluded_tags, included_tags, xmldecl_seen)
+              fixed_elem, rest2 = fix_element(elem, excluded_tags, included_tags, is_xml)
               fixed_children << fixed_elem
               rest = rest2 + rest
             end
@@ -138,27 +138,27 @@ module HTree
     end
   end
 
-  def HTree.build_node(structure, xmldecl_seen, inherited_context=DefaultContext)
+  def HTree.build_node(structure, is_xml, inherited_context=DefaultContext)
     case structure[0]
     when :elem
       _, stag_rawstring, children, etag_rawstring = structure
-      stag = STag.parse(stag_rawstring, xmldecl_seen, inherited_context)
-      etag = etag_rawstring && ETag.parse(etag_rawstring, xmldecl_seen)
+      stag = STag.parse(stag_rawstring, is_xml, inherited_context)
+      etag = etag_rawstring && ETag.parse(etag_rawstring, is_xml)
       if !children.empty? || etag
         Elem.new!(stag,
-                  children.map {|c| build_node(c, xmldecl_seen, stag.context) },
+                  children.map {|c| build_node(c, is_xml, stag.context) },
                   etag)
       else
         Elem.new!(stag)
       end
     when :emptytag
-      Elem.new!(STag.parse(structure[1], xmldecl_seen, inherited_context))
+      Elem.new!(STag.parse(structure[1], is_xml, inherited_context))
     when :bogus_etag
       BogusETag.parse(structure[1])
     when :xmldecl
       XMLDecl.parse(structure[1])
     when :doctype
-      DocType.parse(structure[1], xmldecl_seen)
+      DocType.parse(structure[1], is_xml)
     when :procins
       ProcIns.parse(structure[1])
     when :comment
@@ -306,7 +306,7 @@ module HTree
   end
 
   class DocType
-    def DocType.parse(raw_string, xmldecl_seen)
+    def DocType.parse(raw_string, is_xml)
       unless /\A#{Pat::DocType_C}\z/o =~ raw_string
         raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
       end
@@ -315,7 +315,7 @@ module HTree
       public_identifier = $2 || $3
       system_identifier = $4 || $5
 
-      root_element_name = root_element_name.downcase if !xmldecl_seen
+      root_element_name = root_element_name.downcase if !is_xml
 
       result = DocType.new(root_element_name, public_identifier, system_identifier)
       result.raw_string = raw_string

@@ -58,7 +58,7 @@ module HTree
   end
 
   def HTree.scan(str)
-    xmldecl_seen = false
+    is_xml = false
     cdata_content = false
     text = nil
     str.scan(/(#{Pat::XmlDecl})
@@ -90,14 +90,14 @@ module HTree
         end
         if $1
           yield [:xmldecl, $&]
-          xmldecl_seen = true
+          is_xml = true
         elsif $2
           yield [:doctype, $&]
         elsif $3
           yield [:procins, $&]
         elsif $4
           yield stag = [:stag, $&]
-          if !xmldecl_seen && ElementContent[tagname = $&[Pat::Name]] == :CDATA
+          if !is_xml && ElementContent[tagname = $&[Pat::Name]] == :CDATA
             cdata_content = tagname
           end
         elsif $5
