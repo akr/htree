@@ -35,7 +35,7 @@ module HTree
     def pretty_print(q)
       q.group(1, '{', '}') {
         q.text self.class.name.sub(/.*::/,'').downcase
-        if rs = self.raw_string
+        if rs = @raw_string
           rs.scan(/[^\r\n]*(?:\r\n?|\n|[^\r\n]\z)/) {|line|
             q.breakable
             q.pp line
@@ -90,7 +90,7 @@ module HTree
     def pretty_print(q)
       q.group(1, '{', '}') {
         q.text self.class.name.sub(/.*::/,'').downcase
-        if rs = self.raw_string
+        if rs = @raw_string
           q.breakable
           q.text rs
         else
