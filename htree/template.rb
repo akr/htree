@@ -427,12 +427,12 @@ End
   class HTree::GenCode
     def output_dynamic_text(expr)
       flush_buffer
-      @code << "#{@outvar}.output_dynamic_text(#{expr})\n"
+      @code << "#{@outvar}.output_dynamic_text((#{expr}))\n"
     end
 
     def output_dynamic_attvalue(expr)
       flush_buffer
-      @code << "#{@outvar}.output_dynamic_attvalue(#{expr})\n"
+      @code << "#{@outvar}.output_dynamic_attvalue((#{expr}))\n"
     end
 
     def output_logic_line(line)
