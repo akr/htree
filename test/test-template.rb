@@ -75,9 +75,8 @@ End
   end
 
   def test_whitespace
-    assert_xhtml("<x\n></x\n>",
-      '<x> </x>')
-    assert_xhtml("<pre\n> </pre\n>",
-      '<pre> </pre>')
+    assert_xhtml("<x\n></x\n>", '<x> </x>')
+    assert_xhtml("<x\n>&#32;</x\n>", '<x>&#32;</x>')
+    assert_xhtml("<pre\n> </pre\n>", '<pre> </pre>')
   end
 end
