@@ -56,8 +56,14 @@ module HTree
         end
         char = $&
         rest = $'
-        ucode = Iconv.conv("UTF-8", @internal_encoding, char).unpack("U")[0]
-        output_string "&##{ucode};"
+        begin
+          ucode = Iconv.conv("UTF-8", @internal_encoding, char).unpack("U")[0]
+          char = "&##{ucode};"
+        rescue Iconv::IllegalSequence, Iconv::InvalidCharacter
+          # xxx: shoule be configulable?
+          char = '?'
+        end
+        output_string char
         string = rest
         retry
       end
