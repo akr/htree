@@ -158,11 +158,14 @@ module HTree
   end
 
   # misc
-  class Doc
+  module Container
     def find_element(*names)
       traverse_element(*names) {|e| return e }
       nil
     end
+  end
+
+  class Doc
 
     def title
       e = find_element('title',

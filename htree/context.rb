@@ -22,6 +22,7 @@ module HTree
       namespaces = namespaces.dup.freeze unless namespaces.frozen?
       @namespaces = namespaces
     end
+    attr_reader :namespaces
 
     def namespace_uri(prefix)
       @namespaces[prefix]

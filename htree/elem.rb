@@ -8,17 +8,6 @@ module HTree
       alias new! new
     end
 
-    AcceptableChild = [
-      HTree::Text,
-      HTree::ProcIns,
-      HTree::Comment,
-      HTree::Elem,
-      # Following XMLDecl, XMLDecl and BogusETag is invalid as a child of Elem.
-      # So their `output' method generates empty string.
-      HTree::XMLDecl,
-      HTree::DocType,
-      HTree::BogusETag,
-    ]
     def Elem.new(name, *args)
       attrs = []
       children = []
@@ -30,14 +19,14 @@ module HTree
           context = arg
         when Hash
           arg.each {|k, v| attrs << [k, v] }
-        when *AcceptableChild
-          children << arg
         when HTree::Doc
           arg.children.each {|c|
             next if HTree::XMLDecl === c
             next if HTree::DocType === c
             children << c
           }
+        when HTree::Node
+          children << arg
         when String
           children << Text.new(arg)
         else
@@ -55,8 +44,8 @@ module HTree
       unless stag.class == STag
         raise TypeError, "HTree::STag expected: #{stag.inspect}"
       end
-      unless !children || children.all? {|c| AcceptableChild.include? c.class }
-        unacceptable = children.reject {|c| AcceptableChild.include?(c.class) }
+      unless !children || children.all? {|c| c.kind_of?(HTree::Node) and !c.kind_of?(HTree::Doc) }
+        unacceptable = children.reject {|c| c.kind_of?(HTree::Node) and !c.kind_of?(HTree::Doc) }
         unacceptable = unacceptable.map {|uc| uc.inspect }.join(', ')
         raise TypeError, "Unacceptable element child: #{unacceptable}"
       end

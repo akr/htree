@@ -49,6 +49,25 @@ module HTree
       end
     end
 
+    TextChRef = {
+      '&' => '&amp;',
+      '<' => '&lt;',
+      '>' => '&gt;',
+    }
+    def output_dynamic_text(string)
+      output_text(string.to_s.gsub(/[&<>]/) { TextChRef[$&] })
+    end
+
+    AttrChRef = {
+      '&' => '&amp;',
+      '<' => '&lt;',
+      '>' => '&gt;',
+      '"' => '&gt;',
+    }
+    def output_dynamic_attvalue(string)
+      output_text(string.to_s.gsub(/[&<>"]/) { AttrChRef[$&] })
+    end
+
     def finish
       external_str = @ic.close
       @buf << external_str
@@ -60,6 +79,13 @@ module HTree
         end
       }
       @buf
+    end
+
+    def finish_with_xmldecl
+      content = finish
+      xmldecl = Iconv.conv(@output_encoding, 'US-ASCII',
+        "<?xml version=\"1.0\" encoding=\"#{minimal_charset}\"?>")
+      xmldecl + content
     end
 
     def minimal_charset

@@ -3,26 +3,26 @@ require 'htree/output'
 
 module HTree
   module Node
-    def generate_xml_output_code
+    def generate_xml_output_code(outvar='out', contextvar='top_context')
       namespaces = HTree::Context::DefaultNamespaces.dup
       namespaces.default = nil
       context = Context.new(namespaces)
-      gen = HTree::GenCode.new
+      gen = HTree::GenCode.new(outvar, contextvar)
       output(gen, context)
       gen.finish
     end
   end
 
   class GenCode
-    def initialize(internal_encoding=Encoder.internal_charset)
+    def initialize(outvar, contextvar, internal_encoding=Encoder.internal_charset)
+      @outvar = outvar
+      @contextvar = contextvar
       @state = :none
       @buffer = ''
       @internal_encoding = internal_encoding
-      @code = <<"End"
-lambda {|out, top_context|
-top_context ||= HTree::DefaultContext
-End
+      @code = ''
     end
+    attr_reader :outvar, :contextvar
 
     def output_string(str)
       return if str.empty?
@@ -65,7 +65,7 @@ End
             ks = "nil"
             aname = "xmlns"
           end
-          @code << "if top_context.namespace_uri(#{ks}) != #{v.dump}\n"
+          @code << "if #{@contextvar}.namespace_uri(#{ks}) != #{v.dump}\n"
           output_string " #{aname}=\""
           output_text v.gsub(/[&<>"]/) {|s| ChRef[s] }
           output_string '"'
@@ -76,19 +76,19 @@ End
     end
 
     def flush_buffer
+      return if @buffer.empty?
       case @state
       when :string
-        @code << "out.output_string #{@buffer.dump}\n"
+        @code << "#{@outvar}.output_string #{@buffer.dump}\n"
         @buffer = ''
       when :text
-        @code << "out.output_text #{@buffer.dump}\n"
+        @code << "#{@outvar}.output_text #{@buffer.dump}\n"
         @buffer = ''
       end
     end
 
     def finish
       flush_buffer
-      @code << "}\n"
       @code
     end
   end
