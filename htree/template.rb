@@ -18,6 +18,15 @@ def HTree.expand_template(encoding=HTree::Encoder.internal_charset, out=STDOUT, 
   HTree::TemplateCompiler.new.expand_template(template, encoding, out, block)
 end
 
+def HTree(arg=nil, &block)
+  if block_given?
+    template = block.call
+    HTree.parse(HTree::TemplateCompiler.new.expand_fragment_template(template, HTree::Encoder.internal_charset, '', block))
+  else
+    HTree.parse(arg)
+  end
+end
+
 class HTree::TemplateCompiler
   IGNORABLE_ELEMENTS = {
     'span' => true,
@@ -39,12 +48,26 @@ class HTree::TemplateCompiler
     template = HTree.parse(template)
     outvar = gensym('out')
     contextvar = gensym('top_context')
-
     code = <<"End"
 #{outvar} = HTree::Encoder.new(#{encoding.dump})
 #{contextvar} = HTree::DefaultContext
 #{compile_template_body(outvar, contextvar, template, false)}\
 #{outvar}.finish_with_xmldecl
+End
+    result = eval(code, binding)
+    out << result
+    out
+  end
+
+  def expand_fragment_template(template, encoding, out, binding)
+    template = HTree.parse(template)
+    outvar = gensym('out')
+    contextvar = gensym('top_context')
+    code = <<"End"
+#{outvar} = HTree::Encoder.new(#{encoding.dump})
+#{contextvar} = HTree::DefaultContext
+#{compile_template_body(outvar, contextvar, template, false)}\
+#{outvar}.finish
 End
     result = eval(code, binding)
     out << result
