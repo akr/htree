@@ -106,7 +106,9 @@ module HTree
          cmp_with_nil(n1.namespace_uri, n2.namespace_uri).nonzero? ||
          cmp_with_nil(n1.local_name, n2.local_name)
         },
-        @inherited_namespaces.keys.sort.map {|prefix| [prefix, @inherited_namespaces[prefix]] }
+        @inherited_namespaces.keys.sort {|prefix1, prefix2|
+          cmp_with_nil(prefix1, prefix2)
+        }.map {|prefix| [prefix, @inherited_namespaces[prefix]] }
       ]
     end
 

@@ -46,4 +46,10 @@ EOT
     assert(!HTree::Elem.new('n', {'p1{u}a'=>'v'}).exact_equal?(HTree::Elem.new('n', {'p2{u}a'=>'v'})))
   end
 
+  def test_tag_namespaces
+    assert_nothing_raised {
+      HTree::STag.new("n", [], {nil=>"u1", "p"=>"u2"}).make_exact_equal_object
+    }
+  end
+
 end
