@@ -1,4 +1,5 @@
 require 'htree/nodehier'
+require 'htree/raw_string'
 require 'htree/htmlinfo'
 
 module HTree
@@ -12,6 +13,7 @@ module HTree
     end
 
     def initialize(rcdata)
+      init_raw_string
       @rcdata = rcdata
     end
     attr_reader :rcdata
