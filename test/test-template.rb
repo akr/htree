@@ -90,4 +90,10 @@ End
   def test_template_in_attr
     assert_xhtml("<a x=\"1\"\n></a\n>", '<a _attr_x=1><b _template=m></b></a>')
   end
+
+  def test_empty_element
+    assert_xhtml("<elem\n/>", '<elem />') # 2004-06-10: reported by Takuo KITAME
+    assert_xhtml("<elem x=\"1\"\n/>", '<elem _attr_x=1 />')
+  end
+
 end

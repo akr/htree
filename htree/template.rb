@@ -552,7 +552,11 @@ End
       ht_vals =  ht_attrs.map {|htname, text| text.to_s }
       case ht_names
       when []
-        generate_logic_node([:tag, [:content]], node, local_templates)
+        if node.empty_element?
+          generate_logic_node([:tag, nil], node, local_templates)
+        else
+          generate_logic_node([:tag, [:content]], node, local_templates)
+        end
       when ['_text'] # <n _text="expr" />
         generate_logic_node(compile_dynamic_text(ignore_tag, ht_vals[0]), node, local_templates)
       when ['_if'] # <n _if="expr" >...</n>
@@ -682,7 +686,8 @@ End
   def generate_logic_node(logic, node, local_templates)
     # logic ::= [:if, expr, then_logic, else_logic]
     #         | [:iter, call, fargs, logic]
-    #         | [:tag, logic]
+    #         | [:tag, logic]   # non-empty element
+    #         | [:tag, nil]     # empty element
     #         | [:text, expr]
     #         | [:call, expr, meth, args]
     #         | [:content]
@@ -726,10 +731,14 @@ End
       TemplateNode.new(lambda {|out, context| out.output_dynamic_text expr })
     when :tag
       _, rest_logic = logic
-      subst = {}
-      node.children.each_index {|i| subst[i] = nil }
-      subst[0] = TemplateNode.new(generate_logic_node(rest_logic, node, local_templates))
-      node.subst_subnode(subst)
+      if rest_logic || !node.empty_element?
+        subst = {}
+        node.children.each_index {|i| subst[i] = nil }
+        subst[0] = TemplateNode.new(generate_logic_node(rest_logic, node, local_templates))
+        node.subst_subnode(subst)
+      else
+        node
+      end
     when :if
       _, expr, then_logic, else_logic = logic
       children = [
