@@ -3,6 +3,7 @@ require 'htree/text'
 require 'htree/scan' # for Pat::Name and Pat::Nmtoken
 require 'htree/context'
 require 'htree/name'
+require 'htree/fstr'
 
 module HTree
   # :stopdoc:
@@ -103,7 +104,7 @@ module HTree
   class ETag
     def initialize(qualified_name)
       init_raw_string
-      @qualified_name = qualified_name.dup.freeze
+      @qualified_name = HTree.frozen_string(qualified_name)
     end
     attr_reader :qualified_name
   end

@@ -79,6 +79,7 @@ module HTree
         }
       }
     end
+    alias inspect pretty_print_inspect
   end
 
   class ETag
@@ -87,6 +88,7 @@ module HTree
         q.text @qualified_name
       }
     end
+    alias inspect pretty_print_inspect
   end
 
   class BogusETag

@@ -1,4 +1,5 @@
 require 'htree/modules'
+require 'htree/fstr'
 
 module HTree
   module Node
@@ -31,7 +32,7 @@ module HTree
 
   module Tag
     def init_raw_string() @raw_string = nil end
-    def raw_string=(arg) @raw_string = arg.dup.freeze end
+    def raw_string=(arg) @raw_string = HTree.frozen_string(arg) end
     def raw_string_internal(result)
       throw :raw_string_tag if !@raw_string
       result << @raw_string
@@ -40,7 +41,7 @@ module HTree
 
   module Leaf
     def init_raw_string() @raw_string = nil end
-    def raw_string=(arg) @raw_string = arg.dup.freeze end
+    def raw_string=(arg) @raw_string = HTree.frozen_string(arg) end
     def raw_string_internal(result)
       throw :raw_string_tag if !@raw_string
       result << @raw_string

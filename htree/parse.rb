@@ -8,6 +8,7 @@ require 'htree/elem'
 require 'htree/raw_string'
 require 'htree/context'
 require 'htree/encoder'
+require 'htree/fstr'
 
 module HTree
   # HTree.parse parses <i>input</i> and return a document tree.
@@ -31,7 +32,9 @@ module HTree
   # compatible to $KCODE.
   # Note that the charset method is provided by URI::HTTP with open-uri.
   def HTree.parse(input)
-    parse_as(input, false)
+    HTree.with_frozen_string_hash {
+      parse_as(input, false)
+    }
   end
 
   # HTree.parse_xml parses <i>input</i> as XML and
@@ -43,7 +46,9 @@ module HTree
   # * doesn't downcase element name.
   # * The content of <script> and <style> element is PCDATA, not CDATA.
   def HTree.parse_xml(input)
-    parse_as(input, true)
+    HTree.with_frozen_string_hash {
+      parse_as(input, true)
+    }
   end
 
   # :stopdoc:
@@ -85,11 +90,13 @@ module HTree
         stag_raw_string = token[1]
         stagname = stag_raw_string[Pat::Name]
         stagname = stagname.downcase if !is_xml && is_html
+        stagname = HTree.frozen_string(stagname)
         stack << [stagname, stag_raw_string, []]
       when :etag
         etag_raw_string = token[1]
         etagname = etag_raw_string[Pat::Name]
         etagname = etagname.downcase if !is_xml && is_html
+        etagname = HTree.frozen_string(etagname)
         matched_elem = nil
         stack.reverse_each {|elem|
           stagname, _, _ = elem
