@@ -34,11 +34,11 @@ htree provides a tree data structure which represent HTML and XML data.
 Following two-line script convert HTML to XHTML.
 
   require 'htree'
-  HTree.parse(STDIN).display_xml
+  HTree(STDIN).display_xml
 
 The conversion method to REXML is provided as to_rexml.
 
-  HTree.parse(...).to_rexml
+  HTree(...).to_rexml
 
 == License
 

@@ -199,6 +199,14 @@ module HTree
     alias usual_equal_object content
   end
 
+  class BogusETag
+    def make_exact_equal_object
+      [@etag]
+    end
+
+    alias usual_equal_object make_exact_equal_object
+  end
+
   class Location
     def make_exact_equal_object
       [@parent, @index, @node]

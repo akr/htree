@@ -7,12 +7,29 @@
 #
 # == Features
 #
-# - Template Engine: link:files/htree/template_rb.html
-# - REXML Tree Generator: link:files/htree/rexml_rb.html
+# - Permissive unified HTML/XML parser
+# - byte-to-byte round-tripping unparser
+# - XML namespace support
+# - Dedicated class for escaped string.  This ease sanitization.
+# - XHTML/XML generator
+# - template engine: link:files/htree/template_rb.html
+# - recursive template expansion
+# - REXML tree generator: link:files/htree/rexml_rb.html
 #
 # == Example
 #
-#   % ruby -rhtree -e 'pp HTree.parse(ARGF)' html-file
+# The following one-liner prints parsed tree object.
+#
+#   % ruby -rhtree -e 'pp HTree(ARGF)' html-file
+#
+# The following two-line script convert HTML to XHTML.
+#
+#   require 'htree'
+#   HTree(STDIN).display_xml
+#
+# The conversion method to REXML is provided as to_rexml.
+#
+#     HTree(...).to_rexml
 #
 # == Module/Class Hierarchy
 #

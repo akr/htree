@@ -92,4 +92,9 @@ class TestParse < Test::Unit::TestCase
     assert_equal('RDF', HTree.parse('<?xml version="1.0"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>').children[1].element_name.local_name)
   end
 
+  def test_script_etag
+    assert_equal(HTree::Doc.new(HTree::Elem.new('{http://www.w3.org/1999/xhtml}script', [])),
+      HTree.parse('<script></script>'))
+  end
+
 end

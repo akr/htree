@@ -2,6 +2,7 @@ require 'htree/doc'
 require 'htree/elem'
 require 'htree/loc'
 require 'htree/extract_text'
+require 'uri'
 
 module HTree
   module Traverse
@@ -81,6 +82,98 @@ module HTree
         traverse_some_element(name_set, &block)
       end
       nil
+    end
+
+    def each_hyperlink_attribute
+      traverse_element(
+          '{http://www.w3.org/1999/xhtml}a',
+          '{http://www.w3.org/1999/xhtml}area',
+          '{http://www.w3.org/1999/xhtml}link',
+          '{http://www.w3.org/1999/xhtml}img',
+          '{http://www.w3.org/1999/xhtml}object',
+          '{http://www.w3.org/1999/xhtml}q',
+          '{http://www.w3.org/1999/xhtml}blockquote',
+          '{http://www.w3.org/1999/xhtml}ins',
+          '{http://www.w3.org/1999/xhtml}del',
+          '{http://www.w3.org/1999/xhtml}form',
+          '{http://www.w3.org/1999/xhtml}input',
+          '{http://www.w3.org/1999/xhtml}head',
+          '{http://www.w3.org/1999/xhtml}base',
+          '{http://www.w3.org/1999/xhtml}script') {|elem|
+        case elem.name
+        when %r{\{http://www.w3.org/1999/xhtml\}(?:base|a|area|link)\z}i
+          attrs = ['href']
+        when %r{\{http://www.w3.org/1999/xhtml\}(?:img)\z}i
+          attrs = ['src', 'longdesc', 'usemap']
+        when %r{\{http://www.w3.org/1999/xhtml\}(?:object)\z}i
+          attrs = ['classid', 'codebase', 'data', 'usemap']
+        when %r{\{http://www.w3.org/1999/xhtml\}(?:q|blockquote|ins|del)\z}i
+          attrs = ['cite']
+        when %r{\{http://www.w3.org/1999/xhtml\}(?:form)\z}i
+          attrs = ['action']
+        when %r{\{http://www.w3.org/1999/xhtml\}(?:input)\z}i
+          attrs = ['src', 'usemap']
+        when %r{\{http://www.w3.org/1999/xhtml\}(?:head)\z}i
+          attrs = ['profile']
+        when %r{\{http://www.w3.org/1999/xhtml\}(?:script)\z}i
+          attrs = ['src', 'for']
+        end
+        attrs.each {|attr|
+          if hyperlink = elem.get_attribute(attr)
+            yield elem, attr, hyperlink
+          end
+        }
+      }
+    end
+    private :each_hyperlink_attribute
+
+    # +each_hyperlink_uri+ traverses hyperlinks such as HTML href attribute
+    # of A element.
+    #
+    # It yields HTree::Text (or HTree::Loc) and URI for each hyperlink.
+    #
+    # The URI objects are created with a base URI which is given by
+    # HTML BASE element or the argument ((|base_uri|)).
+    # +each_hyperlink_uri+ doesn't yields href of the BASE element.
+    def each_hyperlink_uri(base_uri=nil) # :yields: hyperlink, uri
+      base_uri = URI.parse(base_uri) if String === base_uri
+      links = []
+      each_hyperlink_attribute {|elem, attr, hyperlink|
+        if %r{\{http://www.w3.org/1999/xhtml\}(?:base)\z}i =~ elem.name
+          base_uri = URI.parse(hyperlink.to_s)
+        else
+          links << hyperlink
+        end
+      }
+      if base_uri
+        links.each {|hyperlink| yield hyperlink, base_uri + hyperlink.to_s }
+      else
+        links.each {|hyperlink| yield hyperlink, URI.parse(hyperlink.to_s) }
+      end
+    end
+
+    # +each_hyperlink+ traverses hyperlinks such as HTML href attribute
+    # of A element.
+    #
+    # It yields HTree::Text or HTree::Loc.
+    #
+    # Note that +each_hyperlink+ yields HTML href attribute of BASE element.
+    def each_hyperlink # :yields: text
+      links = []
+      each_hyperlink_attribute {|elem, attr, hyperlink|
+        yields hyperlink
+      }
+    end
+
+    # +each_uri+ traverses hyperlinks such as HTML href attribute
+    # of A element.
+    #
+    # It yields URI for each hyperlink.
+    #
+    # The URI objects are created with a base URI which is given by
+    # HTML BASE element or the argument ((|base_uri|)).
+    def each_uri(base_uri=nil) # :yields: URI
+      each_hyperlink_uri(base_uri) {|hyperlink, uri| yield uri }
     end
   end
 

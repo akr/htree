@@ -78,9 +78,9 @@ module HTree
           text_end = match.begin(0)
           if text_start < text_end
             yield [:text_cdata_content, input[text_start...text_end].freeze]
-            text_start = match.end(0)
           end
           yield [:etag, str.freeze]
+          text_start = match.end(0)
           cdata_content = nil
         end
       else
