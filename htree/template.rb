@@ -10,7 +10,7 @@
 # - <elem _if="expr" _else="expr.meth(args)">then-content</elem>
 # - <elem _call="expr.name(args)">dummy</elem>
 # - <elem _iter="expr.meth(args)//fargs" >content</elem>
-# - <elem _iter_children="expr.meth(args)//vars" >content</elem>
+# - <elem _iter_content="expr.meth(args)//vars" >content</elem>
 #
 # - <elem _attr_name="expr">content</elem>
 #
@@ -284,8 +284,8 @@ End
         generate_logic_node(compile_call(ignore_tag, ht_vals[0]), node, local_templates)
       when ['_iter'] # <n _iter="expr.meth(args)//fargs" >...</n>
         generate_logic_node(compile_iter(ignore_tag, ht_vals[0]), node, local_templates)
-      when ['_iter_children'] # <n _iter_children="expr.meth(args)//fargs" >...</n>
-        generate_logic_node(compile_iter_children(ignore_tag, ht_vals[0]), node, local_templates)
+      when ['_iter_content'] # <n _iter_content="expr.meth(args)//fargs" >...</n>
+        generate_logic_node(compile_iter_content(ignore_tag, ht_vals[0]), node, local_templates)
       else
         raise HTree::Error, "unexpected template attributes: #{ht_attrs.inspect}"
       end
@@ -325,7 +325,7 @@ End
 
   def compile_if(ignore_tag, expr, else_call)
     check_syntax(expr)
-    then_logic = [:children]
+    then_logic = [:content]
     unless ignore_tag
       then_logic = [:tag, then_logic]
     end
@@ -384,15 +384,15 @@ End
     call = $`.strip
     fargs = $1.strip || ''
     check_syntax("#{call} {|#{fargs}| }")
-    logic = [:children]
+    logic = [:content]
     unless ignore_tag
       logic = [:tag, logic]
     end
     [:iter, call, fargs, logic]
   end
 
-  def compile_iter_children(ignore_tag, spec)
-    # spec: <n _iter_children="expr.meth[(args)]//fargs" >...</n>
+  def compile_iter_content(ignore_tag, spec)
+    # spec: <n _iter_content="expr.meth[(args)]//fargs" >...</n>
     spec = spec.strip
     unless %r{\s*//\s*(#{ID_PAT}\s*(?:,\s*#{ID_PAT}\s*)*)?\z}o =~ spec
       raise HTree::Error, "invalid block arguments for _iter: #{meth_args}"
@@ -400,7 +400,7 @@ End
     call = $`.strip
     fargs = $1.strip || ''
     check_syntax("#{call} {|#{fargs}| }")
-    logic = [:children]
+    logic = [:content]
     logic = [:iter, call, fargs, logic]
     unless ignore_tag
       logic = [:tag, logic]
@@ -414,12 +414,12 @@ End
     #         | [:tag, logic]
     #         | [:text, expr]
     #         | [:call, expr, meth, args]
-    #         | [:children]
+    #         | [:content]
     #         | [:empty]
     case logic.first
     when :empty
       nil
-    when :children
+    when :content
       TemplateNode.new(node.children.map {|n| compile_body(n, local_templates) })
     when :text
       _, expr = logic
