@@ -99,6 +99,7 @@ module HTree
     
     def name; @stag.universal_name end
     def qualified_name; @stag.qualified_name end
+    def element_name; @stag.element_name end
 
     def each_attribute(&block); @stag.each_attribute(&block) end
     def each_attr(&block); @stag.each_attr(&block) end

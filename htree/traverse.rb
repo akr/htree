@@ -1,6 +1,12 @@
 require 'htree/container'
 
 module HTree
+  module Container
+    def each_child
+      @children.each {|c| yield c }
+    end
+  end
+
   # traverse_element
   module Container
     def traverse_element(*names, &block)

@@ -87,6 +87,20 @@ n=                              nil     nil     n
       end
     end
 
+    def to_s
+      if @namespace_uri
+        if @namespace_prefix
+          "#{@namespace_prefix}{#{@namespace_uri}}#{@local_name}"
+        else
+          "{#{@namespace_uri}}#{@local_name}"
+        end
+      elsif @local_name
+        @local_name.dup
+      else
+        "xmlns"
+      end
+    end
+
     def generate_xml(out='')
       if xmlns?
         if @local_name
