@@ -15,8 +15,8 @@ EOT
       HTree::STag.new('{u}n'),
       HTree::STag.new('p1{u}n'),
       HTree::STag.new('p2{u}n'),
-      HTree::STag.new('p1:n', [], HTree::Context.new({'p1'=>'u'})),
-      HTree::STag.new('p2:n', [], HTree::Context.new({'p2'=>'u'})),
+      HTree::STag.new('p1:n', [], HTree::DefaultContext.subst_namespaces({'p1'=>'u'})),
+      HTree::STag.new('p2:n', [], HTree::DefaultContext.subst_namespaces({'p2'=>'u'})),
     ]
     tags.each {|t1|
       tags.each {|t2|
@@ -29,8 +29,8 @@ EOT
     tags = [
       HTree::STag.new('n', [['p1{u}a', 'v']]),
       HTree::STag.new('n', [['p2{u}a', 'v']]),
-      HTree::STag.new('n', [['p1:a', 'v']], HTree::Context.new({'p1'=>'u'})),
-      HTree::STag.new('n', [['p2:a', 'v']], HTree::Context.new({'p2'=>'u'})),
+      HTree::STag.new('n', [['p1:a', 'v']], HTree::DefaultContext.subst_namespaces({'p1'=>'u'})),
+      HTree::STag.new('n', [['p2:a', 'v']], HTree::DefaultContext.subst_namespaces({'p2'=>'u'})),
     ]
     tags.each {|t1|
       tags.each {|t2|
@@ -48,7 +48,7 @@ EOT
 
   def test_tag_namespaces
     assert_nothing_raised {
-      HTree::STag.new("n", [], HTree::Context.new({nil=>"u1", "p"=>"u2"})).make_exact_equal_object
+      HTree::STag.new("n", [], HTree::DefaultContext.subst_namespaces({nil=>"u1", "p"=>"u2"})).make_exact_equal_object
     }
   end
 

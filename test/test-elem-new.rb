@@ -78,7 +78,7 @@ class TestElemNew < Test::Unit::TestCase
   end
 
   def test_context
-    context = HTree::Context.new({'p'=>'u'})
+    context = HTree::DefaultContext.subst_namespaces({'p'=>'u'})
     elem = HTree::Elem.new('p:n', {'p:a'=>'t'}, context)
     assert_equal('{u}n', elem.name)
     assert_equal('t', elem.get_attr('{u}a'))

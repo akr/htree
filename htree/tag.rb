@@ -23,7 +23,8 @@ module HTree
       @inherited_context = inherited_context
       @xmlns_decls = {}
 
-      if Name === name && name.namespace_uri
+      # validate namespace consistency of given Name objects.
+      if Name === name
         @xmlns_decls[name.namespace_prefix] = name.namespace_uri
       end
       attributes.each {|aname, text|
@@ -48,11 +49,11 @@ module HTree
           @xmlns_decls[aname.local_name] = text.to_s
         else
           uri = text.to_s
-          @xmlns_decls[nil] = uri.empty? ? nil : uri
+          @xmlns_decls[nil] = uri
         end
       }
 
-      @context = make_context
+      @context = make_context(@inherited_context)
 
       if Name === name
         @name = name
@@ -62,7 +63,8 @@ module HTree
 
       @attributes = attributes.map {|aname, text|
         aname = Name.parse_attribute_name(aname, @context) unless Name === aname
-        if !aname.namespace_prefix && aname.namespace_uri
+        if !aname.namespace_prefix && !aname.namespace_uri.empty?
+          # xxx: should recover error?
           raise HTree::Error, "global attribute without namespace prefix: #{aname.inspect}"
         end
         [aname, text]
@@ -85,7 +87,7 @@ module HTree
     def universal_name() @name.universal_name end
     def qualified_name() @name.qualified_name end
 
-    def make_context(inherited_context=@inherited_context)
+    def make_context(inherited_context)
       inherited_context.subst_namespaces(@xmlns_decls)
     end
 

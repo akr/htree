@@ -7,13 +7,13 @@ module HTree
 element name                    prefix  uri     localname
 {u}n, n with xmlns=u            nil     u       n
 p{u}n, p:n with xmlns:p=u       p       u       n
-n with xmlns=''                 nil     nil     n
+n with xmlns=''                 nil     ''      n
 
 attribute name
 xmlns=                          xmlns   nil     nil
 xmlns:n=                        xmlns   nil     n
 p{u}n=, p:n= with xmlns:p=u     p       u       n
-n=                              nil     nil     n
+n=                              nil     ''      n
 =end
     def Name.parse_element_name(name, context)
       if /\{(.*)\}/ =~ name
@@ -21,12 +21,12 @@ n=                              nil     nil     n
         # "{u}n" means "use default namespace",
         # "p{u}n" means "use the specified prefix p" and
         $` == '' ? Name.new(nil, $1, $') : Name.new($`, $1, $')
-      elsif /:/ =~ name && context.namespace_uri($`)
+      elsif /:/ =~ name && !context.namespace_uri($`).empty?
         Name.new($`, context.namespace_uri($`), $')
-      elsif context.namespace_uri(nil)
+      elsif !context.namespace_uri(nil).empty?
         Name.new(nil, context.namespace_uri(nil), name)
       else
-        Name.new(nil, nil, name)
+        Name.new(nil, '', name)
       end
     end
 
@@ -40,10 +40,10 @@ n=                              nil     nil     n
         when ''; Name.new(nil, $1, $')
         else Name.new($`, $1, $')
         end
-      elsif /:/ =~ name && context.namespace_uri($`)
+      elsif /:/ =~ name && !context.namespace_uri($`).empty?
         Name.new($`, context.namespace_uri($`), $')
       else
-        Name.new(nil, nil, name)
+        Name.new(nil, '', name)
       end
     end
 
@@ -57,6 +57,15 @@ n=                              nil     nil     n
       if @local_name && /\A#{Pat::Nmtoken}\z/ !~ @local_name
         raise HTree::Error, "invalid local name: #{@local_name.inspect}"
       end
+      if @namespace_prefix == 'xmlns'
+        unless @namespace_uri == nil
+          raise HTree::Error, "Name object for xmlns:* must not have namespace URI: #{@namespace_uri.inspect}"
+        end
+      else
+        unless String === @namespace_uri 
+          raise HTree::Error, "invalid namespace URI: #{@namespace_uri.inspect}"
+        end
+      end
     end
     attr_reader :namespace_prefix, :namespace_uri, :local_name
 
@@ -65,7 +74,7 @@ n=                              nil     nil     n
     end
 
     def universal_name
-      if @namespace_uri
+      if @namespace_uri && !@namespace_uri.empty?
         "{#{@namespace_uri}}#{@local_name}"
       else
         @local_name.dup
@@ -73,7 +82,7 @@ n=                              nil     nil     n
     end
 
     def qualified_name
-      if @namespace_uri
+      if @namespace_uri && !@namespace_uri.empty?
         if @namespace_prefix
           "#{@namespace_prefix}:#{@local_name}"
         else
@@ -87,7 +96,7 @@ n=                              nil     nil     n
     end
 
     def to_s
-      if @namespace_uri
+      if @namespace_uri && !@namespace_uri.empty?
         if @namespace_prefix
           "#{@namespace_prefix}{#{@namespace_uri}}#{@local_name}"
         else

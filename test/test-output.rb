@@ -27,7 +27,7 @@ class TestOutput < Test::Unit::TestCase
     assert_equal('abc', gen(HTree::Name.parse_element_name('abc', HTree::DefaultContext)))
     assert_equal('n', gen(HTree::Name.new(nil, 'u', 'n')))
     assert_equal('p:n', gen(HTree::Name.new('p', 'u', 'n')))
-    assert_equal('n', gen(HTree::Name.new(nil, nil, 'n')))
+    assert_equal('n', gen(HTree::Name.new(nil, '', 'n')))
     assert_equal('xmlns', gen(HTree::Name.new('xmlns', nil, nil)))
     assert_equal('xmlns:n', gen(HTree::Name.new('xmlns', nil, 'n')))
   end
