@@ -240,6 +240,10 @@ require 'htree/gencode'
 require 'htree/equality'
 require 'htree/traverse'
 
+# call-seq:
+#   HTree.expand_template(template_pathname, obj=nil, out=$stdout, encoding=internal_encoding) -> out
+#   HTree.expand_template(obj=nil, out=$stdout, encoding=internal_encoding) { template_string } -> out
+#
 # <code>HTree.expand_template</code> expands a template.
 #
 # The arguments should be specified as follows.
@@ -310,6 +314,10 @@ def HTree.expand_template(*args, &block)
   HTree::TemplateCompiler.new.expand_template(template, out, encoding, binding)
 end
 
+# call-seq:
+#   HTree(html_string) -> doc
+#   HTree{template_string} -> doc
+#
 # <code>HTree(<i>html_string</i>)</code> parses <i>html_string</i>.
 # <code>HTree{<i>template_string</i>}</code> parses <i>template_string</i> and expand it as a template.
 # Ruby expressions in <i>template_string</i> is evaluated in the scope of the caller.
@@ -325,6 +333,9 @@ def HTree(html_string=nil, &block)
   end
 end
 
+# call-seq:
+#   HTree.compile_template(template_string) -> module
+#
 # <code>HTree.compile_template(<i>template_string</i>)</code> compiles
 # <i>template_string</i> as a template.
 #
