@@ -93,9 +93,24 @@ module HTree
       end
     end
 
-    def subst_subnode(arg_hash)
+    #   elem.subst_subnode(pairs) -> elem
+    #
+    # The argument _pairs_ should be a hash or an assocs.
+    # Its key should be a string or an integer.
+    # The string means attribute name and the integer means children index.
+    # Its value should be a node.
+    #
+    #   pp HTree('<r><a/><b/><c/><r/>').root.subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})
+    #   # =>
+    #   {elem <r> {emptyelem <x>} {emptyelem <b>} {emptyelem <z>} {emptyelem <r>}}
+    #
+    #   pp HTree('<r><a/><b/><c/></r>').root.subst_subnode([[0,HTree('<x/>')], [2,HTree('<z/>')]])
+    #   # =>
+    #   {elem <r> {emptyelem <x>} {emptyelem <b>} {emptyelem <z>}}
+    #
+    def subst_subnode(pairs)
       hash = {}
-      arg_hash.each_pair {|index, value|
+      pairs.each {|index, value|
         case index
         when Name, Integer
         when String

@@ -225,6 +225,10 @@ module HTree
     def name() element_name.universal_name end
 
     # +qualified_name+ returns the qualified name of the element as a string.
+    #
+    #   p HTree('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>').root.qualified_name
+    #   # =>
+    #   "rdf:RDF"
     def qualified_name() element_name.qualified_name end
 
     # +attributes+ returns attributes as a hash.

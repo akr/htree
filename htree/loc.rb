@@ -99,6 +99,22 @@ module HTree::Location
     self
   end
 
+  # +top+ returns the originator location.
+  #
+  #   t = HTree('<a><b><c><d>')
+  #   l = t.make_loc.get_subnode(0).get_subnode(0).get_subnode(0).get_subnode(0)
+  #   p l, l.top
+  #   # =>
+  #   #<HTree::Location: doc()/a/b/c/d>
+  #   #<HTree::Location: doc()>
+  def top
+    result = self
+    while result.parent
+      result = result.parent
+    end
+    result
+  end
+
   # +get_subnode+ returns a location object which points to a subnode
   # indexed by _index_. 
   def get_subnode(index)
@@ -107,7 +123,58 @@ module HTree::Location
     @subloc[index] = node.class::Loc.new(self, index, node)
   end
 
+  # +subst_itself+ substitutes the node pointed by the location.
+  # It returns the location of substituted node.
+  #
+  #  t1 = HTree('<a><b><c><d>')
+  #  p t1
+  #  l1 = t1.make_loc.get_subnode(0).get_subnode(0).get_subnode(0).get_subnode(0)
+  #  p l1
+  #  l2 = l1.subst_itself(HTree('<z/>'))
+  #  p l2
+  #  t2 = l2.top.to_node
+  #  p t2
+  #  # =>
+  #  #<HTree::Doc {elem <a> {elem <b> {elem <c> {emptyelem <d>}}}}>
+  #  #<HTree::Location: doc()/a/b/c/d>
+  #  #<HTree::Location: doc()/a/b/c/z>
+  #  #<HTree::Doc {elem <a> {elem <b> {elem <c> {emptyelem <z>}}}}>
+  #
+  def subst_itself(node)
+    if @parent
+      @parent.subst_itself(@parent.to_node.subst_subnode({@index=>node})).get_subnode(@index)
+    else
+      node.make_loc
+    end
+  end
+
+  # +subst_subnode+ returns the location which refers the substituted tree.
+  #   loc.subst_subnode(pairs) -> loc
+  #
+  #   t = HTree('<a><b><c>')
+  #   l = t.make_loc.get_subnode(0).get_subnode(0)
+  #   l = l.subst_subnode({0=>HTree('<z/>')})
+  #   pp t, l.top.to_node
+  #   # =>
+  #   #<HTree::Doc {elem <a> {elem <b> {emptyelem <c>}}}>
+  #   #<HTree::Doc {elem <a> {elem <b> {emptyelem <z>}}}>
+  #
+  def subst_subnode(pairs)
+    self.subst_itself(@node.subst_subnode(pairs))
+  end
+
   # +loc_list+ returns an array containing from location's root to itself.
+  #
+  #   t = HTree('<a><b><c>')
+  #   l = t.make_loc.get_subnode(0).get_subnode(0).get_subnode(0)
+  #   pp l, l.loc_list
+  #   # =>
+  #   #<HTree::Location: doc()/a/b/c>
+  #   [#<HTree::Location: doc()>,
+  #    #<HTree::Location: doc()/a>,
+  #    #<HTree::Location: doc()/a/b>,
+  #    #<HTree::Location: doc()/a/b/c>]
+  #
   def loc_list
     loc = self
     result = [self]

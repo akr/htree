@@ -47,8 +47,22 @@ module HTree
       @children[index]
     end
 
-    def subst_subnode(hash)
-      hash.each_pair {|index, value|
+    #   doc.subst_subnode(pairs) -> doc
+    #
+    # The argument _pairs_ should be a hash or an assocs.
+    # Its key should be an integer which means an index for children.
+    # Its value should be a node.
+    #
+    #   pp HTree('<a/><b/><c/>').subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})
+    #   # =>
+    #   #<HTree::Doc {emptyelem <x>} {emptyelem <b>} {emptyelem <z>}>
+    #
+    #   pp HTree('<a/><b/><c/>').subst_subnode([[0,HTree('<x/>')], [2,HTree('<z/>')]]) 
+    #   # =>
+    #   #<HTree::Doc {emptyelem <x>} {emptyelem <b>} {emptyelem <z>}>
+    #
+    def subst_subnode(pairs)
+      pairs.each {|index, value|
         unless Integer === index
           raise TypeError, "invalid index: #{index.inspect}"
         end
@@ -58,7 +72,7 @@ module HTree
       children = @children.dup
       children_right = []
 
-      hash.each_pair {|index, value|
+      pairs.each {|index, value|
         if index < 0
           children_left << value
         elsif children.length <= index
