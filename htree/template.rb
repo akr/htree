@@ -6,8 +6,10 @@
 # A template directive is described as special HTML attribute which name
 # begins with underscore.
 #
-# The htree template engine strips text nodes which consists only whitespaces
+# The htree template engine strips whitespace text nodes
 # except under HTML pre element.
+# Note that the stripping is not applied for character entity references.
+# Only a text node which consists only of raw whitespace characters are stripped.
 #
 # The template directives are listed as follows.
 #
