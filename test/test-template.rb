@@ -20,6 +20,7 @@ class TestTemplate < Test::Unit::TestCase
     assert_xhtml("<e\n>1</e\n>", '<e _text=1>d</e>')
     assert_xhtml('1', '<span _text=1>d</span>')
     assert_xhtml("<span x=\"2\"\n>1</span\n>", '<span x=2 _text=1>d</span>')
+    assert_xhtml("abc", %q{a<span _text="'b'"/>c})
   end
 
   def test_attr

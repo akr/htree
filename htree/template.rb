@@ -608,7 +608,7 @@ End
         generate_logic_node([:tag, [:content]], node, local_templates)
       when ['_text'] # <n _text="expr" /> or <n _text>expr</n>
         if ht_vals[0] != '_text' # xxx: attribute value is really omitted?
-          generate_logic_node(compile_dynamic_text(ignore_tag, ht_vals[0]), node, local_templates)
+          expr = ht_vals[0]
         else
           children = node.children
           if children.length != 1
@@ -617,7 +617,15 @@ End
           if !children[0].text?
             raise HTree::Error, "_text expression is not text: #{children[0].class}"
           end
-          generate_logic_node(compile_dynamic_text(ignore_tag, children[0].to_s), node, local_templates)
+          expr = children[0].to_s
+        end
+        if /\A\s*'((?:[^'\\]|\\[\0-\377])*)'\s*\z/ =~ expr
+          # if expr is just a constant string literal, use it as a literal text.
+          # This saves dynamic evaluation of <span _text="' '"/> 
+          # xxx: handle "..." as well if it has no #{}.
+          HTree::Text.new($1.gsub(/\\([\0-\377])/, '\1'))
+        else
+          generate_logic_node(compile_dynamic_text(ignore_tag, expr), node, local_templates)
         end
       when ['_if'] # <n _if="expr" >...</n>
         generate_logic_node(compile_if(ignore_tag, ht_vals[0], nil), node, local_templates)
