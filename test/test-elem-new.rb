@@ -1,5 +1,6 @@
 require 'test/unit'
-require 'htree/container'
+require 'htree/doc'
+require 'htree/elem'
 require 'htree/equality'
 
 class TestElemNew < Test::Unit::TestCase

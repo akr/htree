@@ -1,4 +1,5 @@
-require 'htree/container'
+require 'htree/doc'
+require 'htree/elem'
 
 module HTree
   module Container

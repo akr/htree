@@ -1,5 +1,6 @@
 require 'pp'
-require 'htree/container'
+require 'htree/doc'
+require 'htree/elem'
 require 'htree/leaf'
 require 'htree/tag'
 require 'htree/raw_string'
