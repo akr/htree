@@ -14,7 +14,7 @@ module HTree
       HTree::Comment,
       HTree::Elem,
       # Following XMLDecl, XMLDecl and BogusETag is invalid as a child of Elem.
-      # So their generate_xml generates empty string.
+      # So their `generate' method generates empty string.
       HTree::XMLDecl,
       HTree::DocType,
       HTree::BogusETag,
@@ -69,6 +69,8 @@ module HTree
       @etag = etag
     end
     attr_reader :children
+
+    def context; @stag.context end
     
     def name; @stag.universal_name end
     def qualified_name; @stag.qualified_name end
@@ -91,17 +93,6 @@ module HTree
 
     def empty_element?
       @empty
-    end
-
-    def generate_xml(out='')
-      if @empty
-        @stag.generate_emptytag_xml(out)
-      else
-        @stag.generate_xml(out)
-        @children.each {|n| n.generate_xml(out) }
-        @stag.generate_etag_xml(out)
-      end
-      out
     end
 
     def get_subnode(index)

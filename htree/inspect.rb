@@ -40,9 +40,9 @@ module HTree
             q.breakable
             q.pp line
           }
-        elsif self.respond_to? :generate_xml
+        elsif self.respond_to? :to_xml
           q.breakable
-          q.text generate_xml
+          q.text to_xml
         end
       }
     end
@@ -72,7 +72,7 @@ module HTree
 
         @attributes.each {|n, t|
           q.breakable
-          q.text "#{n.inspect}=#{t.generate_xml_attvalue}"
+          q.text "#{n.inspect}=#{t.to_attvalue}"
         }
       }
     end

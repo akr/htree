@@ -99,18 +99,5 @@ n=                              nil     nil     n
         "xmlns"
       end
     end
-
-    def generate_xml(out='')
-      if xmlns?
-        if @local_name
-          out << "xmlns:#{@local_name}"
-        else
-          out << "xmlns"
-        end
-      else
-        out << qualified_name
-      end
-      out
-    end
   end
 end

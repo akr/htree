@@ -44,22 +44,6 @@ module HTree
       }
     end
 
-    ChRef = {
-      '>' => '&gt;',
-      '<' => '&lt;',
-      '"' => '&quot;',
-    }
-
-    def generate_xml(out='')
-      out << @rcdata.gsub(/[<>]/) {|s| ChRef[s] }
-      out
-    end
-
-    def generate_xml_attvalue(out='')
-      out << "\"#{@rcdata.gsub(/[<>"]/) {|s| ChRef[s] }}\""
-      out
-    end
-
     def Text.concat(*args)
       rcdata = ''
       args.each {|arg|

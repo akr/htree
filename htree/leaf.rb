@@ -19,22 +19,6 @@ module HTree
       @standalone = standalone
     end
     attr_reader :version, :encoding, :standalone
-
-    def generate_prolog_xmldecl_xml(out='')
-      out << "<?xml version=\"#{@version}\""
-      if @encoding
-        out << " encoding=\"#{@encoding}\""
-      end
-      if @standalone != nil
-        out << " standalone=\"#{@standalone ? 'yes' : 'no'}\""
-      end
-      out << "?>"
-      out
-    end
-
-    def generate_xml(out='')
-      out
-    end
   end
 
   class DocType
@@ -52,30 +36,6 @@ module HTree
       @system_identifier = system_identifier
     end
     attr_reader :root_element_name, :public_identifier, :system_identifier
-
-    def generate_prolog_doctypedecl_xml(out='')
-      out << "<!DOCTYPE #{@root_element_name}"
-      if @public_identifier
-        out << " PUBLIC \"#{@public_identifier}\""
-      else
-        out << " SYSTEM"
-      end
-      # Although a system identifier is not omissible in XML,
-      # we cannot output it if it is not given.
-      if @system_identifier
-        if /"/ !~ @system_identifier
-          out << " \"#{@system_identifier}\""
-        else
-          out << " '#{@system_identifier}'"
-        end
-      end
-      out << ">"
-      out
-    end
-
-    def generate_xml(out='')
-      out
-    end
   end
 
   class ProcIns
@@ -97,13 +57,6 @@ module HTree
       @content = content
     end
     attr_reader :target, :content
-
-    def generate_xml(out='')
-      out << "<?#{@target}"
-      out << " #{@content}" if @content
-      out << "?>"
-      out
-    end
   end
 
   class Comment
@@ -124,10 +77,5 @@ module HTree
       @content = content
     end
     attr_reader :content
-
-    def generate_xml(out='')
-      out << "<!--#{@content}-->"
-      out
-    end
   end
 end

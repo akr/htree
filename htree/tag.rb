@@ -22,9 +22,28 @@ module HTree
 
       @inherited_context = inherited_context
       @xmlns_decls = {}
+
+      if Name === name && name.namespace_uri
+        @xmlns_decls[name.namespace_prefix] = name.namespace_uri
+      end
+      attributes.each {|aname, text|
+        next unless Name === aname
+        next if aname.xmlns?
+        if aname.namespace_prefix && aname.namespace_uri
+          if @xmlns_decls.include? aname.namespace_prefix
+            if @xmlns_decls[aname.namespace_prefix] != aname.namespace_uri
+              raise ArgumentError, "inconsistent namespace use: #{aname.namespace_prefix} is used as #{@xmlns_decls[aname.namespace_prefix]} and #{aname.namespace_uri}"
+            end
+          else
+            @xmlns_decls[aname.namespace_prefix] = aname.namespace_uri
+          end
+        end
+      }
+
       attributes.each {|aname, text|
         next unless Name === aname
         next unless aname.xmlns?
+        next if @xmlns_decls.include? aname.local_name
         if aname.local_name
           @xmlns_decls[aname.local_name] = text.to_s
         else
@@ -32,6 +51,7 @@ module HTree
           @xmlns_decls[nil] = uri.empty? ? nil : uri
         end
       }
+
       @context = make_context
 
       if Name === name
@@ -126,29 +146,6 @@ module HTree
       text = fetch_attribute(universal_name, nil)
       text && text.to_s
     end
-
-    def generate_xml(out='')
-      out << "<#{@name.generate_xml}"
-      @attributes.each {|aname, text|
-        out << " #{aname.generate_xml}=#{text.generate_xml_attvalue}"
-      }
-      out << '>'
-      out
-    end
-
-    def generate_emptytag_xml(out='')
-      out << "<#{@name.generate_xml}"
-      @attributes.each {|aname, text|
-        out << " #{aname.generate_xml}=#{text.generate_xml_attvalue}"
-      }
-      out << ' />'
-      out
-    end
-
-    def generate_etag_xml(out='')
-      out << "</#{@name.generate_xml}>"
-      out
-    end
   end
 
   class ETag
@@ -157,17 +154,5 @@ module HTree
       @qualified_name = qualified_name.dup.freeze
     end
     attr_reader :qualified_name
-
-    def generate_xml(out='')
-      out << "</#{@qualified_name}>"
-      out
-    end
   end
-
-  class BogusETag
-    def generate_xml(out='')
-      out
-    end
-  end
-
 end
