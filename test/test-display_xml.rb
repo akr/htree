@@ -4,10 +4,7 @@ require 'htree/display'
 
 class TestXMLNS < Test::Unit::TestCase
   def assert_xml(expected, node)
-    result = node.display_xml('', 'US-ASCII')
-    assert(/\A<\?xml version=\"1.0\" encoding=\"US-ASCII\"\?>/ =~ result)
-    result = $'
-    assert_equal(expected, result)
+    assert_equal(expected, node.display_xml('', 'US-ASCII'))
   end
 
   def test_update_xmlns_empty
