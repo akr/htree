@@ -257,7 +257,7 @@ module HTree
 
     attrs.map! {|aname, aval|
       if aname
-        aname = (!is_xml && is_html) ? aname : aname.downcase
+        aname = (!is_xml && is_html) ? aname.downcase : aname
         [aname, Text.parse_pcdata(aval)]
       else
         if val2name = OmittedAttrName[qname]

@@ -23,6 +23,8 @@ class TestParse < Test::Unit::TestCase
   def test_doctype_root_element_name
     assert_equal('html',
       HTree.parse('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><html>').children[0].root_element_name)
+
+    # xxx: should be downcased?
     assert_equal('HTML',
       HTree.parse('<?xml version="1.0"?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><HTML>').children[1].root_element_name)
   end
@@ -77,6 +79,17 @@ class TestParse < Test::Unit::TestCase
   def test_downcase
     assert_equal("{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF",
       HTree.parse('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>').root.name)
+  end
+
+  def test_downcase_name
+    # HTML && !XML
+    assert_equal('html', HTree.parse('<HTML>').root.element_name.local_name)
+    assert_equal('html', HTree.parse('<html>').root.element_name.local_name)
+    # HTML && XML
+    assert_equal('html', HTree.parse('<?xml version="1.0"?><html>').root.element_name.local_name)
+    assert_equal('v', HTree.parse('<?xml version="1.0"?><html X:Y=v xmlns:X=u>').root.get_attr('{u}Y'))
+    # !HTML && XML
+    assert_equal('RDF', HTree.parse('<?xml version="1.0"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>').children[1].element_name.local_name)
   end
 
 end
