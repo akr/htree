@@ -1,18 +1,17 @@
-module HTree
-  class Node; end
-    class Leaf < Node; end
-      class Text < Leaf; end
-      class Markup < Leaf; end
-        class STag < Markup; end
-        class ETag < Markup; end
-          class BogusETag < ETag; end
-        class XMLDecl < Markup; end
-        class DocType < Markup; end
-        class ProcIns < Markup; end
-        class Comment < Markup; end
-    class Container < Node; end
-      class Doc < Container; end
-      class Elem < Container; end
+class HTree
+  class Leaf < HTree; end
+    class Text < Leaf; end
+    class Markup < Leaf; end
+      class STag < Markup; end
+      class ETag < Markup; end
+        class BogusETag < ETag; end
+      class XMLDecl < Markup; end
+      class DocType < Markup; end
+      class ProcIns < Markup; end
+      class Comment < Markup; end
+  class Container < HTree; end
+    class Doc < Container; end
+    class Elem < Container; end
 
 
   class Error < StandardError; end

@@ -1,7 +1,7 @@
 require 'htree/htmlinfo'
 require 'htree/regexp-util'
 
-module HTree
+class HTree
   module Pat
     NameChar = /[-A-Za-z0-9._:]/
     Name = /[A-Za-z_:]#{NameChar}*/

@@ -6,7 +6,7 @@ require 'htree/leaf'
 require 'htree/container'
 require 'htree/raw_string'
 
-module HTree
+class HTree
   def HTree.parse(input)
     if input.respond_to? :read # IO, StringIO
       input = input.read

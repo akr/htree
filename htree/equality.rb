@@ -3,30 +3,28 @@ require 'htree/leaf'
 require 'htree/tag'
 require 'htree/raw_string'
 
-module HTree
-  class Node
-    def hash
-      if defined? @hash
-        @hash
-      else
-        @hash = do_hash
-      end
-    end
-
-    def do_hash
-      raise NotImplementedError
-    end
-
-    def ==
-      raise NotImplementedError
-    end
-
-    def eql?(other)
-      self == other
+class HTree
+  def hash
+    if defined? @hash
+      @hash
+    else
+      @hash = do_hash
     end
   end
 
-  class Container < Node
+  def do_hash
+    raise NotImplementedError
+  end
+
+  def ==
+    raise NotImplementedError
+  end
+
+  def eql?(other)
+    self == other
+  end
+
+  class Container < HTree
     def do_hash
       result = 0
       @children.each {|n| result ^= n.hash } if @children
@@ -66,7 +64,7 @@ module HTree
 
   end
 
-  class Leaf < Node
+  class Leaf < HTree
     def do_hash
       self.raw_string.hash
     end

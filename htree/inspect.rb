@@ -4,7 +4,7 @@ require 'htree/leaf'
 require 'htree/tag'
 require 'htree/raw_string'
 
-module HTree
+class HTree
   class Doc < Container
     def pretty_print(pp)
       pp.object_group(self) { @children.each {|elt| pp.breakable; pp.pp elt } }
@@ -29,7 +29,7 @@ module HTree
     alias inspect pretty_print_inspect
   end
 
-  class Leaf < Node
+  class Leaf < HTree
     def pretty_print(pp)
       pp.group(1, '{', '}') {
         pp.text self.class.name.sub(/.*::/,'').downcase

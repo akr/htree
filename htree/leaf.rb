@@ -1,6 +1,6 @@
 require 'htree/nodehier'
 
-module HTree
+class HTree
   class XMLDecl < Markup
     def initialize(version, encoding=nil, standalone=nil)
       if /\A[a-zA-Z0-9_.:-]+\z/ !~ version

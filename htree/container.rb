@@ -1,6 +1,6 @@
 require 'htree/nodehier'
 
-module HTree
+class HTree
   class Doc < Container
     def initialize(children=nil)
       @children = children
@@ -28,7 +28,7 @@ module HTree
           case arg
           when Hash
             arg.each {|k, v| attrs << [k, v] }
-          when Node
+          when HTree
             children << arg
           when String
             children << Text.new(arg)
@@ -44,8 +44,8 @@ module HTree
       unless stag.class == STag
         raise "HTree::STag expected: #{stag.inspect}"
       end
-      unless !children || children.all? {|c| Node === c }
-        raise "HTree::Node array expected: #{children.inspect}"
+      unless !children || children.all? {|c| HTree === c }
+        raise "HTree array expected: #{children.inspect}"
       end
       unless !etag || etag.class == ETag
         raise "HTree::ETag expected: #{etag.inspect}"

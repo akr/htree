@@ -1,6 +1,6 @@
 require 'htree/text'
 
-module HTree
+class HTree
   class STag < Markup
     def initialize(name, attributes=[], inherited_namespaces={})
       @attributes = attributes.map {|aname, val|
