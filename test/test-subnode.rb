@@ -34,6 +34,7 @@ class TestSubnode < Test::Unit::TestCase
 
     doc2 = doc1.subst_subnode(1=>"yy")
     assert_equal(HTree::Text.new("yy"), doc2.children[1])
+    assert_equal([], doc1.subst_subnode(0=>nil, 1=>nil, 2=>nil).children)
   end
 
 end

@@ -86,7 +86,8 @@ module HTree
         end
       }
 
-      Doc.new(children_left, children, children_right)
+      children = [children_left, children, children_right].flatten.compact
+      Doc.new(children)
     end
 
     def root
