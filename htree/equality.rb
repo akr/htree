@@ -108,6 +108,8 @@ module HTree
       }.map {|prefix| [prefix, @namespaces[prefix]] }
     end
 
+    # make_usual_equal_object is not used through STag#make_usual_equal_object
+    # NotImplementedError is suitable?
     alias make_usual_equal_object make_exact_equal_object
   end
 
