@@ -1,6 +1,8 @@
 require 'htree/modules'
 require 'htree/raw_string'
 require 'htree/htmlinfo'
+require 'htree/encoder'
+require 'iconv'
 
 module HTree
   class Text
@@ -49,6 +51,37 @@ module HTree
           end
         end
       }
+    end
+
+    # normalize the text as follows.
+    # - character references are decoded as much as possible.
+    # - undecodable character references are converted to decimal numeric character refereces.
+    # - ambersand (&amp;, &#38;, etc.) is normalized to &amp;.
+    def normalize
+      Text.new!(
+        @rcdata.gsub(/&(?:#([0-9]+)|#x([0-9a-fA-F]+)|([A-Za-z][A-Za-z0-9]*));/o) {|s|
+          u = nil
+          if $1
+            u = $1.to_i
+          elsif $2
+            u = $2.hex
+          elsif $3
+            u = NamedCharacters[$3]
+          end
+          if !u || u < 0 || 0x7fffffff < u
+            '?'
+          elsif u == 0x26 # '&' character.
+            '&amp;'
+          elsif u <= 0x7f
+            [u].pack("C")
+          else
+            begin
+              Iconv.conv(Encoder.internal_charset, 'UTF-8', [u].pack("U"))
+            rescue Iconv::Failure
+              "&##{u};"
+            end
+          end
+        })
     end
 
     def Text.concat(*args)

@@ -16,4 +16,20 @@ class TestText < Test::Unit::TestCase
   end
 =end
 
+  def kcode(kc)
+    old = $KCODE
+    begin
+      $KCODE = kc
+      yield
+    ensure
+      $KCODE = old
+    end
+  end
+
+  def test_normalize
+    kcode('EUC') {
+      assert_equal("<ABC&amp;&amp;&#160;\xa6\xc1",
+        HTree::Text.new!("&lt;&#65;&#x42;C&amp;&#38;&nbsp;&alpha;").normalize.rcdata)
+    }
+  end
 end
