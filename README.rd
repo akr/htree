@@ -18,6 +18,7 @@ htree provides a tree data structre which represent HTML and XML data.
 * Dedicated class for escaped string.  This ease sanitization.
 * XHTML/XML generator
 * template engine
+* recursive template expansion
 #* converter to REXML document
 
 == Reference Manual
