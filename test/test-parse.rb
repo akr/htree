@@ -46,21 +46,21 @@ class TestParse < Test::Unit::TestCase
   end
 
   def test_bare_url
-    t1 = HTree::Elem.new('{http://www.w3.org/1999/xhtml}a', {'href'=>'http://host/'})
+    t1 = HTree::Elem.new('a', {'href'=>'http://host/'})
     s = "<a href=http://host/>"
     t2 = HTree.parse(s).root
     assert_equal(t1, t2)
   end
 
   def test_bare_slash
-    t1 = HTree::Elem.new('{http://www.w3.org/1999/xhtml}n', {'a'=>'v/'}, 'x')
+    t1 = HTree::Elem.new('n', {'a'=>'v/'}, 'x')
     s = "<n a=v/>x"
     t2 = HTree.parse(s).root
     assert_equal(t1, t2)
   end
 
   def test_bare_slash_empty
-    t1 = HTree::Elem.new('{http://www.w3.org/1999/xhtml}n', {'a'=>'v/'})
+    t1 = HTree::Elem.new('n', {'a'=>'v/'})
     s = "<n a=v/>"
     t2 = HTree.parse(s).root
     assert_equal(t1, t2)

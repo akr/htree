@@ -51,13 +51,16 @@ class TestText < Test::Unit::TestCase
   def test_iter_local_template
     assert_xhtml('<o><i>1</i></o><o><i>2</i></o><o><i>3</i></o>',
       '<o _iter=[1,2,3].each//v><i _call=m /><i _template=m _text=v></i></o>')
-    assert_xhtml('d',
-      '<span _template="span()">d</span><e _call="span()"></e>')
   end
 
   def test_call
     assert_xhtml('<f>1</f>',
       '<e _call=m(1) /><f _template=m(v) _text=v></f>')
+  end
+
+  def test_template
+    assert_xhtml('d',
+      '<span _template="span()">d</span><e _call="span()"></e>')
   end
 
   def test_file

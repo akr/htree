@@ -49,16 +49,18 @@ class TestScan < Test::Unit::TestCase
   end
 
   def test_cdata_content
-    s = '<script><a></script><a>'
+    s = '<html><script><a></script><a>'
     assert_equal([
+      [:stag, '<html>'],
       [:stag, '<script>'],
       [:text_cdata_content, '<a>'],
       [:etag, '</script>'],
       [:stag, '<a>'],
     ], scan(s))
 
-    s = '<script><a>'
+    s = '<html><script><a>'
     assert_equal([
+      [:stag, '<html>'],
       [:stag, '<script>'],
       [:text_cdata_content, '<a>'],
     ], scan(s))
@@ -84,8 +86,9 @@ class TestScan < Test::Unit::TestCase
     #
     # But usual browser including mozilla doesn't.
     # So HTree doesn't ignore them and treat as usual text.
-    s = "a\n<e>\nb\n<f>\nc\n</f>\nd\n</e>\ne"
+    s = "<html>a\n<e>\nb\n<f>\nc\n</f>\nd\n</e>\ne"
     assert_equal([
+      [:stag, "<html>"],
       [:text_pcdata, "a\n"],
       [:stag, "<e>"],
       [:text_pcdata, "\nb\n"],
@@ -97,8 +100,9 @@ class TestScan < Test::Unit::TestCase
       [:text_pcdata, "\ne"],
     ], scan(s))
 
-    s = "a\n<e>\nb\n<script>\nc\n</script>\nd\n</e>\ne"
+    s = "<html>a\n<e>\nb\n<script>\nc\n</script>\nd\n</e>\ne"
     assert_equal([
+      [:stag, "<html>"],
       [:text_pcdata, "a\n"],
       [:stag, "<e>"],
       [:text_pcdata, "\nb\n"],
@@ -129,6 +133,11 @@ class TestScan < Test::Unit::TestCase
       [:etag, "</e>"],
       [:text_pcdata, "\ne"],
     ], scan(s))
+  end
+
+  def test_xml_html_detection
+    assert_equal([false, true], HTree.scan("<html></html>") {})
+    assert_equal([true, false], HTree.scan("<rss></rss>") {})
   end
 
 end

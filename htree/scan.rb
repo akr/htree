@@ -57,10 +57,11 @@ module HTree
     #ProcIns = /<\?([^>]*)>/m
   end
 
-  def HTree.scan(input)
-    is_xml = false
+  def HTree.scan(input, is_xml=false)
+    is_html = false
     cdata_content = nil
     text_start = 0
+    first_element = true
     input.scan(/(#{Pat::XmlDecl})
                |(#{Pat::DocType})
                |(#{Pat::XmlProcIns})
@@ -92,18 +93,31 @@ module HTree
           yield [:xmldecl, str]
           is_xml = true
         elsif match.begin(2)
+          Pat::DocType_C =~ str
+          is_html = true if /\Ahtml\z/i =~ $1 
           yield [:doctype, str]
         elsif match.begin(3)
           yield [:procins, str]
         elsif match.begin(4)
           yield stag = [:stag, str]
-          if !is_xml && ElementContent[tagname = str[Pat::Name]] == :CDATA
+          tagname = str[Pat::Name]
+          if first_element
+            if /\A(?:html|head|title|isindex|base|script|style|meta|link|object)\z/i =~ tagname
+              is_html = true
+            else
+              is_xml = true
+            end
+            first_element = false
+          end
+          if !is_xml && ElementContent[tagname] == :CDATA
             cdata_content = tagname
           end
         elsif match.begin(5)
           yield [:etag, str]
         elsif match.begin(6)
           yield [:emptytag, str]
+          first_element = false
+          is_xml = true
         elsif match.begin(7)
           yield [:comment, str]
         elsif match.begin(8)
@@ -121,5 +135,6 @@ module HTree
         yield [:text_pcdata, input[text_start...text_end]]
       end
     end
+    return is_xml, is_html
   end
 end

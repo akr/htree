@@ -23,7 +23,7 @@ module HTree
   # compatible to $KCODE.
   # Note that the charset method is provided by URI::HTTP with open-uri.
   def HTree.parse(input)
-    parse_as(input, HTMLContext, false)
+    parse_as(input, false)
   end
 
   # HTree.parse_xml parses <i>input</i> as XML and
@@ -36,12 +36,12 @@ module HTree
   # * The content of <script> and <style> element is PCDATA, not CDATA.
   # * doesn't assume a default namespace http://www.w3.org/1999/xhtml.
   def HTree.parse_xml(input)
-    parse_as(input, DefaultContext, true)
+    parse_as(input, true)
   end
 
   # :stopdoc:
 
-  def HTree.parse_as(input, context, is_xml) # :nodoc:
+  def HTree.parse_as(input, is_xml) # :nodoc:
     input_charset = nil
     if input.respond_to? :read # IO, StringIO
       input = input.read
@@ -57,10 +57,10 @@ module HTree
     end
 
     tokens = []
-    scan(input) {|token|
+    is_xml, is_html = HTree.scan(input, is_xml) {|token|
       tokens << token
-      is_xml = true if token[0] == :xmldecl
     }
+    context = is_html ? HTMLContext: DefaultContext
     structure_list = parse_pairs(tokens, is_xml)
     structure_list = fix_structure_list(structure_list, is_xml)
     nodes = structure_list.map {|s| build_node(s, is_xml, context) }
