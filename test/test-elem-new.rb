@@ -54,16 +54,16 @@ class TestElemNew < Test::Unit::TestCase
   def test_nest
     t = HTree::Text.new('t')
     b = HTree::BogusETag.new('a')
-    e = HTree::Elem.new('a', [t, t, t, b])
+    x = HTree::Elem.new('e', HTree::XMLDecl.new('1.0'))
+    d = HTree::Elem.new('e', HTree::DocType.new('html'))
+    e = HTree::Elem.new('a', [t, t, t, b, x, d])
     assert_equal([], e.stag.attributes)
-    assert_equal([t, t, t, b], e.children)
+    assert_equal([t, t, t, b, x, d], e.children)
   end
 
   def test_err
     assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::STag.new('a')) }
     assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::ETag.new('a')) }
-    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::XMLDecl.new('1.0')) }
-    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::DocType.new('html')) }
   end
 
 end

@@ -20,7 +20,7 @@ module HTree
     end
     attr_reader :version, :encoding, :standalone
 
-    def generate_xml(out='')
+    def generate_prolog_xmldecl_xml(out='')
       out << "<?xml version=\"#{@version}\""
       if @encoding
         out << " encoding=\"#{@encoding}\""
@@ -29,6 +29,10 @@ module HTree
         out << " standalone=\"#{@standalone ? 'yes' : 'no'}\""
       end
       out << "?>"
+      out
+    end
+
+    def generate_xml(out='')
       out
     end
   end
@@ -49,7 +53,7 @@ module HTree
     end
     attr_reader :root_element_name, :public_identifier, :system_identifier
 
-    def generate_xml(out='')
+    def generate_prolog_doctypedecl_xml(out='')
       out << "<!DOCTYPE #{@root_element_name}"
       if @public_identifier
         out << " PUBLIC \"#{@public_identifier}\""
@@ -66,6 +70,10 @@ module HTree
         end
       end
       out << ">"
+      out
+    end
+
+    def generate_xml(out='')
       out
     end
   end

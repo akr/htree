@@ -9,7 +9,19 @@ module HTree
     attr_reader :children
 
     def generate_xml(out='')
-      @children.each {|n| n.generate_xml(out) }
+      xmldecl = false
+      doctypedecl = false
+      @children.each {|n|
+        if n.respond_to? :generate_prolog_xmldecl_xml
+          n.generate_prolog_xmldecl_xml(out) unless xmldecl
+          xmldecl = true
+        elsif n.respond_to? :generate_prolog_doctypedecl_xml
+          n.generate_prolog_doctypedecl_xml(out) unless doctypedecl
+          doctypedecl = true
+        else
+          n.generate_xml(out)
+        end
+      }
       out
     end
 
@@ -32,11 +44,11 @@ module HTree
       HTree::ProcIns,
       HTree::Comment,
       HTree::Elem,
-      HTree::BogusETag,
-      # However XMLDecl and DocType shouldn't appered under Elem, 
-      # it is permitted for round-tripness.
+      # Following XMLDecl, XMLDecl and BogusETag is invalid as a child of Elem.
+      # So their generate_xml generates empty string.
       HTree::XMLDecl,
       HTree::DocType,
+      HTree::BogusETag,
     ]
     def Elem.new(name, *args)
       if args.empty?
