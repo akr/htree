@@ -25,7 +25,7 @@ EOT
     assert_equal(1, nsattrs.length)
     assert_equal(["ppp", "uuu"], nsattrs.shift)
 
-    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
+    attrs = []; stag.each_attribute {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -49,7 +49,7 @@ EOT
     assert_equal(1, nsattrs.length)
     assert_equal([nil, "uuu"], nsattrs.shift)
 
-    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
+    attrs = []; stag.each_attribute {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -72,7 +72,7 @@ EOT
       assert_equal(1, nsattrs.length)
       assert_equal([nil, nil], nsattrs.shift)
 
-      attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
+      attrs = []; stag.each_attribute {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
       assert_equal(3, attrs.length)
       assert_equal([nil, nil, "a", "x"], attrs.shift)
       assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -95,35 +95,12 @@ EOT
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
 
-    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
+    attrs = []; stag.each_attribute {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
     assert_equal(["uu", "pp", "c", "z"], attrs.shift)
   end
-
-=begin
-  # internally allocated element whose prefix is allocated dynamically
-  def test_universal_name_to_be_prefixed
-    stag = HTree::STag.new("{uuu}nnn",
-      [["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
-      {"q"=>"u"})
-    assert_equal(nil, stag.qualified_name)
-    assert_equal("{uuu}nnn", stag.universal_name)
-    assert_equal("nnn", stag.local_name)
-    assert_equal("uuu", stag.namespace_uri)
-    assert_equal(nil, stag.namespace_prefix)
-
-    nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
-    assert_equal(0, nsattrs.length)
-
-    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
-    assert_equal(3, attrs.length)
-    assert_equal([nil, nil, "a", "x"], attrs.shift)
-    assert_equal(["u", "q", "b", "y"], attrs.shift)
-    assert_equal(["uu", "pp", "c", "z"], attrs.shift)
-  end
-=end
 
   # internally allocated element without prefix
   def test_universal_name_to_be_default_namespace
@@ -139,7 +116,7 @@ EOT
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
 
-    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
+    attrs = []; stag.each_attribute {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(3, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)
@@ -159,7 +136,7 @@ EOT
     nsattrs = []; stag.each_namespace_attribute {|p, u| nsattrs << [p, u] }
     assert_equal(0, nsattrs.length)
 
-    attrs = []; stag.each_attribute_info {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
+    attrs = []; stag.each_attribute {|n,t| attrs << [n.namespace_uri,n.namespace_prefix,n.local_name,t.to_s] }
     assert_equal(4, attrs.length)
     assert_equal([nil, nil, "a", "x"], attrs.shift)
     assert_equal(["u", "q", "b", "y"], attrs.shift)

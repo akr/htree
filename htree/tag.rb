@@ -170,22 +170,23 @@ n=                              nil     nil     n
       }
     end
 
-    def each_attribute_info
+    def each_attribute
       @attributes.each {|name, text|
         next if name.xmlns?
         yield name, text
       }
     end
 
-    def each_attribute_text
-      each_attribute_info {|name, text|
-        yield name.universal_name, text
+    def each_attr
+      @attributes.each {|name, text|
+        next if name.xmlns?
+        yield name.universal_name, text.to_s
       }
     end
 
-    def fetch_attribute_text(universal_name, *rest)
-      each_attribute_text {|uname, text|
-        return text if universal_name == uname
+    def fetch_attribute(universal_name, *rest)
+      each_attribute {|name, text|
+        return text if universal_name == name.universal_name
       }
       if block_given?
         yield
@@ -196,8 +197,13 @@ n=                              nil     nil     n
       end
     end
 
-    def get_attribute_text(universal_name)
-      fetch_attribute_rcdata(universal_name, nil)
+    def get_attribute(universal_name)
+      fetch_attribute(universal_name, nil)
+    end
+
+    def get_attr(universal_name)
+      text = fetch_attribute(universal_name, nil)
+      text && text.to_s
     end
 
     def generate_xml(out='')
