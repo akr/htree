@@ -29,6 +29,7 @@ module HTree
       }
     end
 
+    # :stopdoc:
     def output_string(internal_str, external_str=@ic.iconv(internal_str))
       @buf << external_str
       @subcharset_ic.reject! {|subcharset, ic|
@@ -62,7 +63,7 @@ module HTree
       '&' => '&amp;',
       '<' => '&lt;',
       '>' => '&gt;',
-    } # :nodoc:
+    }
     def output_dynamic_text(string)
       output_text(string.to_s.gsub(/[&<>]/) { TextChRef[$&] })
     end
@@ -72,10 +73,13 @@ module HTree
       '<' => '&lt;',
       '>' => '&gt;',
       '"' => '&gt;',
-    } # :nodoc:
+    }
+
     def output_dynamic_attvalue(string)
       output_text(string.to_s.gsub(/[&<>"]/) { AttrChRef[$&] })
     end
+
+    # :startdoc:
 
     def finish
       external_str = @ic.close

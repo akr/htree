@@ -1,5 +1,5 @@
-# The code below is auto-generated.  Don't edit manually.
 module HTree
+# The code below is auto-generated.  Don't edit manually.
   # :stopdoc:
   NamedCharacters =
 {"AElig"=>198, "Aacute"=>193, "Acirc"=>194, "Agrave"=>192, "Alpha"=>913,
@@ -668,5 +668,5 @@ module HTree
    "right"=>"align", "top"=>"align", "yes"=>"scrolling"}}
 
   # :startdoc:
-end
 # The code above is auto-generated.  Don't edit manually.
+end

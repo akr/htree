@@ -6,15 +6,17 @@ require 'htree/raw_string'
 require 'htree/context'
 
 module HTree
-  def hash
-    return @hash_code if defined? @hash_code
-    @hash_code = usual_equal_object.hash
-  end
-
+  # compare tree structures.
   def ==(other)
     check_equality(self, other, :usual_equal_object)
   end
   alias eql? ==
+
+  # hash value for the tree structure.
+  def hash
+    return @hash_code if defined? @hash_code
+    @hash_code = usual_equal_object.hash
+  end
 
   # :stopdoc:
 
@@ -116,7 +118,6 @@ module HTree
     alias make_usual_equal_object make_exact_equal_object
   end
 
-  # :stopdoc:
   class STag
     def make_exact_equal_object
       [@raw_string,
@@ -149,7 +150,6 @@ module HTree
 
     alias usual_equal_object qualified_name
   end
-  # :startdoc:
 
   class Text
     def make_exact_equal_object

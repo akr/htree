@@ -1,6 +1,17 @@
 require 'htree/modules'
 
 module HTree
+  module Node
+    def raw_string
+      raise NotImplementedError
+    end
+
+    def eliminate_raw_string
+      raise NotImplementedError
+    end
+  end
+
+  # :stopdoc:
   class Doc
     def raw_string
       @children.map {|n| n.raw_string }.join('')
@@ -30,7 +41,6 @@ module HTree
     end
   end
 
-  # eliminate_raw_string
   class Doc
     def eliminate_raw_string
       Doc.new(@children.map {|c| c.eliminate_raw_string })
@@ -52,7 +62,6 @@ module HTree
     end
   end
 
-  # :stopdoc:
   class STag
     def eliminate_raw_string
       STag.new(@qualified_name, @attributes, @inherited_context)
@@ -64,7 +73,6 @@ module HTree
       self.class.new(@qualified_name)
     end
   end
-  # :startdoc:
 
   class XMLDecl
     def eliminate_raw_string
@@ -89,5 +97,5 @@ module HTree
       Comment.new(@content)
     end
   end
-
+  # :startdoc:
 end

@@ -5,6 +5,8 @@ require 'htree/leaf'
 require 'htree/text'
 
 module HTree
+  # :stopdoc:
+
   class Text
     ChRef = {
       '>' => '&gt;',
@@ -79,7 +81,6 @@ module HTree
     end
   end
 
-  # :stopdoc:
   class STag
     def output_attributes(out, context)
       @attributes.each {|aname, text|
@@ -112,7 +113,6 @@ module HTree
       out.output_string "\n>"
     end
   end
-  # :startdoc:
 
   class Context
     def output_namespaces(out, outer_context)
@@ -202,4 +202,6 @@ module HTree
       out.output_string "<!--#{@content}-->"
     end
   end
+
+  # :startdoc:
 end

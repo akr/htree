@@ -39,9 +39,11 @@ module HTree
   end
 
   class ProcIns
+    # :stopdoc:
     class << self
       alias new! new
     end
+    # :startdoc:
 
     def ProcIns.new(target, content)
       content = content.gsub(/\?>/, '? >') if content
@@ -60,9 +62,11 @@ module HTree
   end
 
   class Comment
+    # :stopdoc:
     class << self
       alias new! new
     end
+    # :startdoc:
 
     def Comment.new(content)
       content = content.gsub(/-(-+)/) { '-' + ' -' * $1.length }.sub(/-\z/, '- ')

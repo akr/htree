@@ -2,8 +2,8 @@ require 'htree/modules'
 
 module HTree
   class Loc
-    # Loc.new(target_node) => loc
-    # Loc.new(parent_loc, index) => loc
+    # - Loc.new(target_node) => loc
+    # - Loc.new(parent_loc, index) => loc
     def initialize(base, *rest)
       case base
       when Loc
@@ -47,6 +47,7 @@ module HTree
       result
     end
 
+    # :stopdoc:
     def pretty_print(q)
       q.object_group(self) {
         q.text ':'
@@ -61,8 +62,10 @@ module HTree
         }
       }
     end
+    # :startdoc:
   end
 
+  # :stopdoc:
   module Container
     def find_loc_step(index) # :nodoc:
       if index < 0 || @children.length <= index
@@ -108,6 +111,7 @@ module HTree
   class DocType; def node_test() 'doctype()' end end
   class ProcIns; def node_test() 'processing-instruction()' end end
   class Comment; def node_test() 'comment()' end end
+  # :startdoc:
 
   module Node::LocMixin
   end

@@ -13,5 +13,6 @@ check test:
 
 RB = htree.rb htree
 doc/index.html: $(RB)
+	rm -rf doc
 	rdoc $(RB)
 

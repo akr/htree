@@ -2,6 +2,7 @@ require 'htree/htmlinfo'
 require 'htree/regexp-util'
 
 module HTree
+  # :stopdoc:
   module Pat
     NameChar = /[-A-Za-z0-9._:]/
     Name = /[A-Za-z_:]#{NameChar}*/
@@ -137,4 +138,5 @@ module HTree
     end
     return is_xml, is_html
   end
+  # :startdoc:
 end

@@ -2,9 +2,11 @@ require 'htree/modules'
 
 module HTree
   class Doc
+    # :stopdoc:
     class << self
       alias new! new
     end
+    # :startdoc:
 
     def Doc.new(*args)
       children = []

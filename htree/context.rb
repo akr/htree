@@ -1,8 +1,10 @@
 module HTree
   class Context
+    # :stopdoc:
     DefaultNamespaces = {'xml'=>'http://www.w3.org/XML/1998/namespace'}
     DefaultNamespaces.default = ""
     DefaultNamespaces.freeze
+    # :startdoc:
 
     # The optional argument `namespaces' should be a hash or nil.
     # HTree:DefaultNamespaces is used if nil is specified.
@@ -55,6 +57,8 @@ module HTree
     end
   end
 
+  # :stopdoc:
   DefaultContext = Context.new
   HTMLContext = DefaultContext.subst_namespaces(nil=>"http://www.w3.org/1999/xhtml")
+  # :startdoc:
 end

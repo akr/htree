@@ -4,9 +4,11 @@ require 'htree/context'
 
 module HTree
   class Elem
+    # :stopdoc:
     class << self
       alias new! new
     end
+    # :startdoc:
 
     def Elem.new(name, *args)
       attrs = []

@@ -4,9 +4,11 @@ require 'htree/htmlinfo'
 
 module HTree
   class Text
+    # :stopdoc:
     class << self
       alias new! new
     end
+    # :startdoc:
 
     def Text.new(arg)
       if Text === arg

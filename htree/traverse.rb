@@ -4,7 +4,9 @@ require 'htree/elem'
 module HTree
   module Container
     def each_child
-      @children.each {|c| yield c }
+      @children.each {|child|
+        yield child
+      }
     end
   end
 
@@ -76,21 +78,21 @@ module HTree
         count[node_test] += 1
       }
       pos = {}
-      @children.each {|c|
-        node_test = c.node_test
+      @children.each {|child|
+        node_test = child.node_test
         pos[node_test] ||= 0
         n = pos[node_test] += 1
         child_path = node_test
         child_path += "[#{n}]" unless n == 1 && count[node_test] == 1
         if prefix
-          yield c, "#{prefix}/#{child_path}"
-        else
-          yield c, child_path
+          child_path = "#{prefix}/#{child_path}"
         end
+        yield child, child_path
       }
     end
   end
 
+  # :stopdoc:
   class Elem; alias node_test qualified_name; end
   class XMLDecl; def node_test; 'xml-declaration()' end end
   class DocType; def node_test; 'doctype()' end end
@@ -98,6 +100,7 @@ module HTree
   class Comment; def node_test; 'comment()' end end
   class BogusETag; def node_test; 'bogus-etag()' end end
   class Text; def node_test; 'text()' end end
+  # :startdoc:
 
   # filter_with_path
   class Doc
