@@ -49,9 +49,9 @@ n=                              nil     nil     n
     end
 
     def initialize(namespace_prefix, namespace_uri, local_name)
-      @namespace_prefix = namespace_prefix && namespace_prefix.dup
-      @namespace_uri = namespace_uri && namespace_uri.dup
-      @local_name = local_name && local_name.dup
+      @namespace_prefix = namespace_prefix && namespace_prefix.dup.freeze
+      @namespace_uri = namespace_uri && namespace_uri.dup.freeze
+      @local_name = local_name && local_name.dup.freeze
       if @namespace_prefix && /\A#{Pat::Name}\z/ !~ @namespace_prefix
         raise STag::Error, "invalid namespace prefix: #{@namespace_prefix.inspect}"
       end
@@ -116,7 +116,7 @@ n=                              nil     nil     n
         [aname, val]
       }
 
-      @inherited_namespaces = inherited_namespaces
+      @inherited_namespaces = inherited_namespaces.dup.freeze
       @xmlns_decls = {}
       attributes.each {|aname, text|
         next unless Name === aname
@@ -128,7 +128,7 @@ n=                              nil     nil     n
           @xmlns_decls[nil] = uri.empty? ? nil : uri
         end
       }
-      @namespaces = make_namespaces
+      @namespaces = make_namespaces.freeze
 
       if Name === name
         @name = name
@@ -140,6 +140,7 @@ n=                              nil     nil     n
         aname = Name.parse_attribute_name(aname, @namespaces) unless Name === aname
         [aname, text]
       }
+      @attributes.freeze
     end
     attr_reader :name, :attributes, :inherited_namespaces, :namespaces
 
@@ -230,7 +231,7 @@ n=                              nil     nil     n
   class ETag
     def initialize(qualified_name)
       init_raw_string
-      @qualified_name = qualified_name
+      @qualified_name = qualified_name.dup.freeze
     end
     attr_reader :qualified_name
 

@@ -3,8 +3,8 @@ require 'htree/tag'
 
 module HTree
   class Doc
-    def initialize(children=nil)
-      @children = children
+    def initialize(children=[])
+      @children = children && children.dup.freeze
     end 
     attr_reader :children
 
@@ -69,7 +69,7 @@ module HTree
         raise Elem::Error, "HTree::ETag expected: #{etag.inspect}"
       end
       @stag = stag
-      @children = children
+      @children = children && children.dup.freeze
       @etag = etag
     end
     attr_reader :children, :stag, :etag

@@ -14,7 +14,7 @@ module HTree
 
     def initialize(rcdata)
       init_raw_string
-      @rcdata = rcdata
+      @rcdata = rcdata && rcdata.dup
     end
     attr_reader :rcdata
 
