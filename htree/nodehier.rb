@@ -18,6 +18,8 @@ module HTree
     class Doc; include Container, Node; end
     class Elem; include Container, Node; end
 
+  class Loc; include HTree; end
+
   class Error < StandardError; end
 end
 
