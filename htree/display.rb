@@ -7,7 +7,7 @@ module HTree
     # The first optional argument, <i>out</i>,
     # specifies output target.
     # It should respond to <tt><<</tt>.
-    # If it is not specifies, $stdout is used.
+    # If it is not specified, $stdout is used.
     #
     # The second optional argument, <i>encoding</i>,
     # specifies output MIME charset (character encoding).

@@ -106,8 +106,8 @@ module HTree
   module Container::Trav
     # +filter+ rebuilds the tree without some components.
     #
-    #   node.filter {|descent_node| predicate } -> node
-    #   loc.filter {|descent_loc| predicate } -> node
+    #   node.filter {|descendant_node| predicate } -> node
+    #   loc.filter {|descendant_loc| predicate } -> node
     #
     # +filter+ yields each node except top node.
     # If given block returns false, corresponding node is dropped.
@@ -119,12 +119,12 @@ module HTree
     #
     def filter(&block)
       subst = {}
-      each_child_with_index {|c, i|
-        if yield c
-          if Elem === c.to_node
-            subst[i] = c.filter(&block)
+      each_child_with_index {|descendant, i|
+        if yield descendant
+          if Elem === descendant.to_node
+            subst[i] = descendant.filter(&block)
           else
-            subst[i] = c
+            subst[i] = descendant
           end
         else
           subst[i] = nil
@@ -135,6 +135,13 @@ module HTree
   end
 
   class Doc
+    # +title+ searches title and return it as a string.
+    # It returns nil if not found.
+    #
+    # +title+ searchs following information.
+    #
+    # - <title>...</title> in HTML
+    # - <title>...</title> in RSS
     def title
       e = find_element('title',
         '{http://www.w3.org/1999/xhtml}title',
@@ -143,6 +150,15 @@ module HTree
       e && e.extract_text.to_s
     end
 
+    # +author+ searches author and return it as a string.
+    # It returns nil if not found.
+    #
+    # +author+ searchs following information.
+    #
+    # - <meta name="author" content="author-name"> in HTML
+    # - <link rev="made" title="author-name"> in HTML
+    # - <dc:creator>author-name</dc:creator> in RSS
+    # - <dc:publisher>author-name</dc:publisher> in RSS
     def author
       traverse_element('meta',
         '{http://www.w3.org/1999/xhtml}meta') {|e|

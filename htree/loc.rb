@@ -9,6 +9,7 @@ module HTree
       self.class::Loc.new(nil, nil, self)
     end
 
+    # return self.
     def to_node
       self
     end
@@ -93,6 +94,7 @@ module HTree::Location
   attr_reader :parent, :index, :node
   alias to_node node
 
+  # return self.
   def make_loc
     self
   end
