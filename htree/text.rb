@@ -2,6 +2,7 @@ require 'htree/modules'
 require 'htree/raw_string'
 require 'htree/htmlinfo'
 require 'htree/encoder'
+require 'htree/fstr'
 require 'iconv'
 
 module HTree
@@ -27,7 +28,7 @@ module HTree
 
     def initialize(rcdata, normalized_rcdata=internal_normalize(rcdata)) # :notnew:
       init_raw_string
-      @rcdata = rcdata && (rcdata.frozen? ? rcdata : rcdata.dup.freeze)
+      @rcdata = rcdata && HTree.frozen_string(rcdata)
       @normalized_rcdata = @rcdata == normalized_rcdata ? @rcdata : normalized_rcdata
     end
     attr_reader :rcdata, :normalized_rcdata
@@ -58,11 +59,7 @@ module HTree
           end
         end
       }
-      if rcdata == result && rcdata.frozen?
-        rcdata
-      else
-        result.freeze
-      end
+      HTree.frozen_string(result)
     end
     private :internal_normalize
 
