@@ -36,7 +36,7 @@ module HTree
       pp.group(1, '{', '}') {
         pp.text self.class.name.sub(/.*::/,'').downcase
         if rs = self.raw_string
-          rs.each_line {|line|
+          rs.scan(/[^\r\n]*(?:\r\n?|\n|\z)/) {|line|
             pp.breakable
             pp.pp line
           }
