@@ -14,7 +14,7 @@ module HTree
       HTree::Comment,
       HTree::Elem,
       # Following XMLDecl, XMLDecl and BogusETag is invalid as a child of Elem.
-      # So their `generate' method generates empty string.
+      # So their `output' method generates empty string.
       HTree::XMLDecl,
       HTree::DocType,
       HTree::BogusETag,

@@ -1,9 +1,8 @@
 require 'test/unit'
-require 'htree/generate'
-require 'htree/generate'
+require 'htree/output'
 
-class TestGenerate < Test::Unit::TestCase
-  def gen(t, meth=:generate, *rest)
+class TestOutput < Test::Unit::TestCase
+  def gen(t, meth=:output, *rest)
     encoder = HTree::Encoder.new('US-ASCII', 'US-ASCII')
     t.__send__(meth, *(rest + [encoder, HTree::DefaultContext]))
     encoder.finish
@@ -18,10 +17,10 @@ class TestGenerate < Test::Unit::TestCase
   end
 
   def test_text_attvalue
-    assert_equal('"a&amp;&lt;&gt;&quot;b"', gen(HTree::Text.new('a&<>"b'), :generate_attvalue))
+    assert_equal('"a&amp;&lt;&gt;&quot;b"', gen(HTree::Text.new('a&<>"b'), :output_attvalue))
 
-    assert_equal('"abc"', gen(HTree::Text.new("abc"), :generate_attvalue))
-    assert_equal('"&quot;"', gen(HTree::Text.new('"'), :generate_attvalue))
+    assert_equal('"abc"', gen(HTree::Text.new("abc"), :output_attvalue))
+    assert_equal('"&quot;"', gen(HTree::Text.new('"'), :output_attvalue))
   end
 
   def test_name
@@ -36,7 +35,7 @@ class TestGenerate < Test::Unit::TestCase
   def test_name_attribute
     assert_equal('abc="a&amp;&lt;&gt;&quot;b"',
       gen(HTree::Name.parse_element_name('abc', HTree::DefaultContext),
-          :generate_attribute,
+          :output_attribute,
           HTree::Text.new('a&<>"b')))
   end
 
@@ -68,26 +67,26 @@ class TestGenerate < Test::Unit::TestCase
 
   def test_stag
     assert_equal('<name>',
-      gen(HTree::STag.new("name"), :generate_stag))
+      gen(HTree::STag.new("name"), :output_stag))
     assert_equal('<name />',
-      gen(HTree::STag.new("name"), :generate_emptytag))
+      gen(HTree::STag.new("name"), :output_emptytag))
     assert_equal('</name>',
-      gen(HTree::STag.new("name"), :generate_etag))
+      gen(HTree::STag.new("name"), :output_etag))
       
     assert_equal('<name a="b" />',
-      gen(HTree::STag.new("name", [["a", "b"]]), :generate_emptytag))
+      gen(HTree::STag.new("name", [["a", "b"]]), :output_emptytag))
     assert_equal('<name a="&lt;&quot;\'&gt;" />',
-      gen(HTree::STag.new("name", [['a', '<"\'>']]), :generate_emptytag))
+      gen(HTree::STag.new("name", [['a', '<"\'>']]), :output_emptytag))
       
     assert_equal('<ppp:nnn xmlns="uuu&quot;b" />',
-      gen(HTree::STag.new("ppp:nnn", [["xmlns", "uuu\"b"]]), :generate_emptytag))
+      gen(HTree::STag.new("ppp:nnn", [["xmlns", "uuu\"b"]]), :output_emptytag))
   end
 
   def test_xmldecl
     t = HTree::XMLDecl.new('1.0', 'US-ASCII')
     assert_equal('', gen(t))
     assert_equal('<?xml version="1.0" encoding="US-ASCII"?>',
-      gen(t, :generate_prolog_xmldecl))
+      gen(t, :output_prolog_xmldecl))
   end
 
   def test_doctype
@@ -95,7 +94,7 @@ class TestGenerate < Test::Unit::TestCase
       '-//W3C//DTD HTML 4.01//EN',
       'http://www.w3.org/TR/html4/strict.dtd')
     assert_equal('', gen(t))
-    assert_equal('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">', gen(t, :generate_prolog_doctypedecl))
+    assert_equal('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">', gen(t, :output_prolog_doctypedecl))
   end
 
   def test_procins

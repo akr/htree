@@ -12,7 +12,7 @@ module HTree
       '"' => '&quot;',
     }
 
-    def generate(out, context)
+    def output(out, context)
       out.output_text @rcdata.gsub(/[<>]/) {|s| ChRef[s] }
     end
 
@@ -20,7 +20,7 @@ module HTree
       @rcdata.gsub(/[<>"]/) {|s| ChRef[s] }
     end
 
-    def generate_attvalue(out, context)
+    def output_attvalue(out, context)
       out.output_string '"'
       out.output_text to_attvalue_content
       out.output_string '"'
@@ -28,7 +28,7 @@ module HTree
   end
 
   class Name
-    def generate(out, context)
+    def output(out, context)
       # xxx: validate namespace prefix
       if xmlns?
         if @local_name
@@ -41,78 +41,78 @@ module HTree
       end
     end
 
-    def generate_attribute(text, out, context)
-      generate(out, context)
+    def output_attribute(text, out, context)
+      output(out, context)
       out.output_string '='
-      text.generate_attvalue(out, context)
+      text.output_attvalue(out, context)
     end
   end
 
   class Doc
-    def generate(out, context)
+    def output(out, context)
       xmldecl = false
       doctypedecl = false
       @children.each {|n|
-        if n.respond_to? :generate_prolog_xmldecl
-          n.generate_prolog_xmldecl(out, context) unless xmldecl
+        if n.respond_to? :output_prolog_xmldecl
+          n.output_prolog_xmldecl(out, context) unless xmldecl
           xmldecl = true
-        elsif n.respond_to? :generate_prolog_doctypedecl
-          n.generate_prolog_doctypedecl(out, context) unless doctypedecl
+        elsif n.respond_to? :output_prolog_doctypedecl
+          n.output_prolog_doctypedecl(out, context) unless doctypedecl
           doctypedecl = true
         else
-          n.generate(out, context)
+          n.output(out, context)
         end
       }
     end
   end
 
   class Elem
-    def generate(out, context)
+    def output(out, context)
       if @empty
-        @stag.generate_emptytag(out, context)
+        @stag.output_emptytag(out, context)
       else
-        children_context = @stag.generate_stag(out, context)
-        @children.each {|n| n.generate(out, children_context) }
-        @stag.generate_etag(out, context)
+        children_context = @stag.output_stag(out, context)
+        @children.each {|n| n.output(out, children_context) }
+        @stag.output_etag(out, context)
       end
     end
   end
 
   class STag
-    def generate_attributes(out, context)
+    def output_attributes(out, context)
       @attributes.each {|aname, text|
         next if aname.xmlns?
         out.output_string ' '
-        aname.generate_attribute(text, out, context)
+        aname.output_attribute(text, out, context)
       }
-      @context.generate_namespaces(out, context)
+      @context.output_namespaces(out, context)
     end
 
-    def generate_emptytag(out, context)
+    def output_emptytag(out, context)
       out.output_string '<'
-      @name.generate(out, context)
-      children_context = generate_attributes(out, context)
+      @name.output(out, context)
+      children_context = output_attributes(out, context)
       out.output_string ' />'
       children_context
     end
 
-    def generate_stag(out, context)
+    def output_stag(out, context)
       out.output_string '<'
-      @name.generate(out, context)
-      children_context = generate_attributes(out, context)
+      @name.output(out, context)
+      children_context = output_attributes(out, context)
       out.output_string '>'
       children_context
     end
 
-    def generate_etag(out, context)
+    def output_etag(out, context)
       out.output_string '</'
-      @name.generate(out, context)
+      @name.output(out, context)
       out.output_string '>'
     end
   end
 
   class Context
-    def generate_namespaces(out, context)
+    def output_namespaces(out, context)
       @namespaces.each {|prefix, uri|
         if context.namespace_uri(prefix) != uri
           if prefix
@@ -120,7 +120,7 @@ module HTree
           else
             out.output_string " xmlns="
           end
-          Text.new(uri).generate_attvalue(out, context)
+          Text.new(uri).output_attvalue(out, context)
         end
       }
       context.subst_namespaces(@namespaces)
@@ -128,17 +128,17 @@ module HTree
   end
 
   class BogusETag
-    # don't generate anything.
-    def generate(out, context)
+    # don't output anything.
+    def output(out, context)
     end
   end
 
   class XMLDecl
-    # don't generate anything.
-    def generate(out, context)
+    # don't output anything.
+    def output(out, context)
     end
 
-    def generate_prolog_xmldecl(out, context)
+    def output_prolog_xmldecl(out, context)
       out.output_string "<?xml version=\"#{@version}\""
       if @encoding
         out.output_string " encoding=\"#{@encoding}\""
@@ -151,11 +151,11 @@ module HTree
   end
 
   class DocType
-    # don't generate anything.
-    def generate(out, context)
+    # don't output anything.
+    def output(out, context)
     end
 
-    def generate_prolog_doctypedecl(out, context)
+    def output_prolog_doctypedecl(out, context)
       out.output_string "<!DOCTYPE #{@root_element_name}"
       if @public_identifier
         out.output_string " PUBLIC \"#{@public_identifier}\""
@@ -176,7 +176,7 @@ module HTree
   end
 
   class ProcIns
-    def generate(out, context)
+    def output(out, context)
       out.output_string "<?#{@target}"
       out.output_string " #{@content}" if @content
       out.output_string "?>"
@@ -184,7 +184,7 @@ module HTree
   end
 
   class Comment
-    def generate(out, context)
+    def output(out, context)
       out.output_string "<!--#{@content}-->"
     end
   end
