@@ -11,10 +11,10 @@ module HTree
     # The arguments should be a sequence of follows.
     # [String object] specified string is converted to HTree::Text.
     # [HTree::Node object] used as a child.
-    # [Array of String and HTree::Node] used as children.
     # [HTree::Doc object]
     #   used as children.
     #   It is expanded except HTree::XMLDecl and HTree::DocType objects.
+    # [Array of String, HTree::Node and HTree::Doc] used as children.
     #
     def Doc.new(*args)
       children = []
@@ -22,23 +22,25 @@ module HTree
         arg = arg.to_node if HTree::Location === arg
         case arg
         when Array
-          arg.each {|c|
-            c = c.to_node if HTree::Location === arg
-            case c
+          arg.each {|a|
+            a = a.to_node if HTree::Location === a
+            case a
+            when HTree::Doc
+              children.concat(a.children.reject {|c|
+                HTree::XMLDecl === c || HTree::DocType === c
+              })
             when HTree::Node
-              children << c
+              children << a
             when String
-              children << Text.new(c)
+              children << Text.new(a)
             else
               raise TypeError, "unexpected argument: #{arg.inspect}"
             end
           }
         when HTree::Doc
-          arg.children.each {|c|
-            next if HTree::XMLDecl === c
-            next if HTree::DocType === c
-            children << c
-          }
+          children.concat(arg.children.reject {|c|
+            HTree::XMLDecl === c || HTree::DocType === c
+          })
         when HTree::Node
           children << arg
         when String

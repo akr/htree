@@ -49,4 +49,30 @@ class TestSubnode < Test::Unit::TestCase
     assert_equal([], doc1.subst_subnode(0=>nil, 1=>nil, 2=>nil).children)
   end
 
+  def test_doc_loc
+    d1 = HTree.parse("<r>a</r>")
+    d2 = HTree.parse("<q/>")
+    assert_equal(d2, d1.subst_subnode(0=>d2.make_loc))
+  end
+
+  def test_doc
+    e = HTree.parse("<r>a</r>").root
+    d = HTree.parse("<?xml version='1.0'?><!DOCTYPE q><q/>")
+    r = HTree('<r><q/></r>').root
+    assert_equal(r, e.subst_subnode(0=>d))
+    assert_equal(r, e.subst_subnode(0=>d.make_loc))
+    assert_equal(r, e.subst_subnode(0=>[d]))
+    assert_equal(r, e.subst_subnode(0=>[d.make_loc]))
+  end
+
+  def test_doc2
+    e = HTree.parse("<r>a</r>")
+    d = HTree.parse("<?xml version='1.0'?><!DOCTYPE q><q/>")
+    r = HTree('<q/>')
+    assert_equal(r, e.subst_subnode(0=>d))
+    assert_equal(r, e.subst_subnode(0=>d.make_loc))
+    assert_equal(r, e.subst_subnode(0=>[d]))
+    assert_equal(r, e.subst_subnode(0=>[d.make_loc]))
+  end
+
 end
