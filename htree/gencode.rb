@@ -25,6 +25,7 @@ End
     end
 
     def output_string(str)
+      return if str.empty?
       if @state != :string
         flush_buffer
         @state = :string
@@ -33,6 +34,13 @@ End
     end
 
     def output_text(str)
+      return if str.empty?
+      if /\A[\s\x21-\x7e]+\z/ =~ str && @state == :string
+        # Assumption: external charset can represent white spaces and
+        # ASCII printable.
+        output_string(str)
+        return 
+      end
       if @state != :text
         flush_buffer
         @state = :text
@@ -57,13 +65,12 @@ End
             ks = "nil"
             aname = "xmlns"
           end
-          @code << <<"End"
-if top_context.namespace_uri(#{ks}) != #{v.dump}
-out.output_string ' #{aname}="'
-out.output_text #{v.gsub(/[&<>"]/) {|s| ChRef[s] }.dump}
-out.output_string '"'
-end
-End
+          @code << "if top_context.namespace_uri(#{ks}) != #{v.dump}\n"
+          output_string " #{aname}=\""
+          output_text v.gsub(/[&<>"]/) {|s| ChRef[s] }
+          output_string '"'
+          flush_buffer
+          @code << "end\n"
         }
       end
     end
