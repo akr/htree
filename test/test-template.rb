@@ -51,4 +51,16 @@ class TestText < Test::Unit::TestCase
     assert_xhtml('<f>1</f>',
       '<e _call=m(1) /><f _template=m(v) _text=v></f>')
   end
+
+  def test_file
+    assert_equal(<<'End',
+<?xml version="1.0" encoding="US-ASCII"?><html xmlns="http://www.w3.org/1999/xhtml">
+  <title>aaa</title>
+</html>
+End
+      HTree.expand_template("#{File.dirname __FILE__}/template.html", "aaa",
+        'US-ASCII', ''))
+  end
+
+
 end
