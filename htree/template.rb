@@ -552,11 +552,7 @@ End
       ht_vals =  ht_attrs.map {|htname, text| text.to_s }
       case ht_names
       when []
-        if node.empty_element?
-          generate_logic_node([:tag, nil], node, local_templates)
-        else
-          generate_logic_node([:tag, [:content]], node, local_templates)
-        end
+        generate_logic_node([:tag, [:content]], node, local_templates)
       when ['_text'] # <n _text="expr" />
         generate_logic_node(compile_dynamic_text(ignore_tag, ht_vals[0]), node, local_templates)
       when ['_if'] # <n _if="expr" >...</n>
@@ -657,7 +653,7 @@ End
       raise HTree::Error, "invalid block arguments for _iter: #{spec}"
     end
     call = $`.strip
-    fargs = $1.strip || ''
+    fargs = $1 ? $1.strip : ''
     check_syntax("#{call} {|#{fargs}| }")
     logic = [:content]
     unless ignore_tag
@@ -673,7 +669,7 @@ End
       raise HTree::Error, "invalid block arguments for _iter: #{spec}"
     end
     call = $`.strip
-    fargs = $1.strip || ''
+    fargs = $1 ? $1.strip : ''
     check_syntax("#{call} {|#{fargs}| }")
     logic = [:content]
     logic = [:iter, call, fargs, logic]
@@ -686,8 +682,7 @@ End
   def generate_logic_node(logic, node, local_templates)
     # logic ::= [:if, expr, then_logic, else_logic]
     #         | [:iter, call, fargs, logic]
-    #         | [:tag, logic]   # non-empty element
-    #         | [:tag, nil]     # empty element
+    #         | [:tag, logic]
     #         | [:text, expr]
     #         | [:call, expr, meth, args]
     #         | [:content]
@@ -731,13 +726,13 @@ End
       TemplateNode.new(lambda {|out, context| out.output_dynamic_text expr })
     when :tag
       _, rest_logic = logic
-      if rest_logic || !node.empty_element?
+      if rest_logic == [:content] && node.empty_element?
+        node
+      else
         subst = {}
         node.children.each_index {|i| subst[i] = nil }
         subst[0] = TemplateNode.new(generate_logic_node(rest_logic, node, local_templates))
         node.subst_subnode(subst)
-      else
-        node
       end
     when :if
       _, expr, then_logic, else_logic = logic

@@ -91,9 +91,19 @@ End
     assert_xhtml("<a x=\"1\"\n></a\n>", '<a _attr_x=1><b _template=m></b></a>')
   end
 
+  def test_empty_block_argument
+    assert_xhtml("vv", '<span _iter="2.times//">v</span>')
+  end
+
   def test_empty_element
     assert_xhtml("<elem\n/>", '<elem />') # 2004-06-10: reported by Takuo KITAME
     assert_xhtml("<elem x=\"1\"\n/>", '<elem _attr_x=1 />')
+    assert_xhtml("<elem\n></elem\n>", '<elem _text=\'""\' />')
+    assert_xhtml("<elem\n/>", '<elem _if="true" />')
+    assert_xhtml("", '<elem _if="false" />')
+    assert_xhtml("<foo\n/>", '<elem _if="false" _else="foo"/><foo _template="foo"/>')
+    assert_xhtml("<elem\n/><elem\n/>", '<elem _iter="2.times//" />')
+    assert_xhtml("<elem\n></elem\n>", '<elem _iter_content="2.times//" />')
   end
 
 end
