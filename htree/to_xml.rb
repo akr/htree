@@ -1,17 +1,17 @@
 require 'htree/tag'
 require 'htree/container'
+require 'htree/context'
 
 module HTree
-  DefaultNamespace = {"xml"=>"http://www.w3.org/XML/1998/namespace"}
-
   class Doc
-    def update_xmlns(inherited_namespaces=DefaultNamespace)
-      Doc.new(@children.map {|c| c.update_xmlns(inherited_namespaces) })
+    def update_xmlns(inherited_context=DefaultContext)
+      Doc.new(@children.map {|c| c.update_xmlns(inherited_context) })
     end
   end
 
   class STag
-    def update_xmlns(inherited)
+    def update_xmlns(inherited_context)
+      # xxx: should be validated in STag#initialize.
       used = {}
       [@name, *@attributes.map {|n, v| n }].each {|n|
         next if n.xmlns?
@@ -31,14 +31,14 @@ module HTree
         if n.xmlns?
           prefix = n.local_name
           if used.include?(prefix)
-            if used[prefix] != inherited[prefix]
+            if used[prefix] != inherited_context.namespace_uri(prefix)
               attributes << [n, Text.new(used[prefix])]
             end
             used.delete prefix
           else
             uri = v.to_s
             uri = nil if uri.empty?
-            if uri != inherited[prefix]
+            if uri != inherited_context.namespace_uri(prefix)
               attributes << [n, v]
             end
           end
@@ -47,24 +47,24 @@ module HTree
         end
       }
       used.each {|prefix, uri|
-        if uri != inherited[prefix]
+        if uri != inherited_context.namespace_uri(prefix)
           attributes << [Name.new('xmlns', nil, prefix), Text.new(uri || '')]
         end
       }
 
-      STag.new(@name, attributes, inherited)
+      STag.new(@name, attributes, inherited_context)
     end
   end
 
   class Elem
-    def update_xmlns(inherited_namespaces=DefaultNamespace)
-      stag = @stag.update_xmlns(inherited_namespaces)
-      Elem.new!(stag, @empty ? nil : @children.map {|c| c.update_xmlns(stag.namespaces) })
+    def update_xmlns(inherited_context=DefaultContext)
+      stag = @stag.update_xmlns(inherited_context)
+      Elem.new!(stag, @empty ? nil : @children.map {|c| c.update_xmlns(stag.context) })
     end
   end
 
   module Leaf
-    def update_xmlns(inherited_namespaces=DefaultNamespace)
+    def update_xmlns(inherited_context=DefaultContext)
       self
     end
 

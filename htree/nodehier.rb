@@ -1,5 +1,6 @@
 module HTree
   class Name; include HTree; end
+  class Context; include HTree; end
 
   module Leaf; include HTree; end
     class Text; include Leaf; end

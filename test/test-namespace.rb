@@ -14,7 +14,7 @@ EOT
   def test_prefixed
     stag = HTree::STag.new("ppp:nnn",
       [["xmlns:ppp", "uuu"], ["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
-      {"q"=>"u"})
+      HTree::Context.new({"q"=>"u"}))
     assert_equal("ppp:nnn", stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
     assert_equal("nnn", stag.local_name)
@@ -37,7 +37,7 @@ EOT
     stag = HTree::STag.new("nnn",
       [["xmlns", "uuu"],
       ["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
-      {"q"=>"u"})
+      HTree::Context.new({"q"=>"u"}))
 
     assert_equal("nnn", stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
@@ -58,10 +58,10 @@ EOT
 
   # <nnn xmlns="">
   def test_no_default_ns
-    [{"q"=>"u"}, {""=>"uu", "q"=>"u"}].each {|inh|
+    [{"q"=>"u"}, {nil=>"uu", "q"=>"u"}].each {|inh|
       stag = HTree::STag.new("nnn",
         [["xmlns", ""], ["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
-        inh)
+        HTree::Context.new(inh))
       assert_equal("nnn", stag.qualified_name)
       assert_equal("nnn", stag.universal_name)
       assert_equal("nnn", stag.local_name)
@@ -84,7 +84,7 @@ EOT
   def test_no_ns
     stag = HTree::STag.new("nnn",
       [["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
-      {"q"=>"u"})
+      HTree::Context.new({"q"=>"u"}))
 
     assert_equal("nnn", stag.qualified_name)
     assert_equal("nnn", stag.universal_name)
@@ -106,7 +106,7 @@ EOT
   def test_universal_name_to_be_default_namespace
     stag = HTree::STag.new("{uuu}nnn",
       [["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"]],
-      {"q"=>"u"})
+      HTree::Context.new({"q"=>"u"}))
     assert_equal("nnn", stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
     assert_equal("nnn", stag.local_name)
@@ -126,7 +126,7 @@ EOT
   def test_prefixed_universal_name
     stag = HTree::STag.new("ppp{uuu}nnn",
       [["a", "x"], ["q:b", "y"], ["pp{uu}c", "z"], ["q{uu}d", "w"]],
-      {"q"=>"u"})
+      HTree::Context.new({"q"=>"u"}))
     assert_equal("ppp:nnn", stag.qualified_name)
     assert_equal("{uuu}nnn", stag.universal_name)
     assert_equal("nnn", stag.local_name)

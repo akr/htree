@@ -51,7 +51,7 @@ module HTree
 
   class STag
     def eliminate_raw_string
-      STag.new(@qualified_name, @attributes, @inherited_namespaces)
+      STag.new(@qualified_name, @attributes, @inherited_context)
     end
   end
 

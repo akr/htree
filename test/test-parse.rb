@@ -11,9 +11,9 @@ class TestParse < Test::Unit::TestCase
     t1 = HTree::Doc.new([
            HTree::Elem.new!(
              HTree::STag.new('x1', [['xmlns', 'bb']],
-               {'xml'=>'http://www.w3.org/XML/1998/namespace'}),
+               HTree::Context.new({'xml'=>'http://www.w3.org/XML/1998/namespace'})),
              [HTree::Elem.new!(HTree::STag.new('x2', [],
-                                {nil => 'bb', 'xml'=>'http://www.w3.org/XML/1998/namespace'}), nil)])
+                                HTree::Context.new({nil => 'bb', 'xml'=>'http://www.w3.org/XML/1998/namespace'})), nil)])
          ])
     t2 = HTree.parse('<x1 xmlns="bb"><x2>')
     assert_equal(t1, t2)

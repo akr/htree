@@ -51,60 +51,60 @@ class TestUpdateXMLNS < Test::Unit::TestCase
   def test_update_xmlns_empty
     assert_equal(
       [],
-      HTree::STag.new('n', [], {}).update_xmlns({}).attributes)
+      HTree::STag.new('n', [], HTree::DefaultContext).update_xmlns(HTree::DefaultContext).attributes)
   end
 
   def test_update_xmlns_used
     assert_equal(
       [[HTree::Name.new('xmlns', nil, 'p'), HTree::Text.new('u')]],
-      HTree::STag.new('p:n', [['xmlns:p', 'u']], {}).attributes)
+      HTree::STag.new('p:n', [['xmlns:p', 'u']], HTree::DefaultContext).attributes)
 
     assert_equal(
       [[HTree::Name.new('xmlns', nil, 'p'), HTree::Text.new('u')]],
-      HTree::STag.new('p:n', [['xmlns:p', 'u']], {}).update_xmlns({}).attributes)
+      HTree::STag.new('p:n', [['xmlns:p', 'u']], HTree::DefaultContext).update_xmlns(HTree::DefaultContext).attributes)
 
     assert_equal(
       [],
-      HTree::STag.new('p:n', [['xmlns:p', 'u']], {}).update_xmlns({'p'=>'u'}).attributes)
+      HTree::STag.new('p:n', [['xmlns:p', 'u']], HTree::DefaultContext).update_xmlns(HTree::Context.new({'p'=>'u'})).attributes)
 
     assert_equal(
       [[HTree::Name.new('xmlns', nil, 'p'), HTree::Text.new('u')]],
-      HTree::STag.new('p:n', [['xmlns:p', 'u']], {}).update_xmlns({'p'=>'v'}).attributes)
+      HTree::STag.new('p:n', [['xmlns:p', 'u']], HTree::DefaultContext).update_xmlns(HTree::Context.new({'p'=>'v'})).attributes)
   end
 
   def test_update_xmlns_not_used
     assert_equal(
       [[HTree::Name.new('xmlns', nil, 'p'), HTree::Text.new('u')]],
-      HTree::STag.new('n', [['xmlns:p', 'u']], {}).attributes)
+      HTree::STag.new('n', [['xmlns:p', 'u']], HTree::DefaultContext).attributes)
 
     assert_equal(
       [[HTree::Name.new('xmlns', nil, 'p'), HTree::Text.new('u')]],
-      HTree::STag.new('n', [['xmlns:p', 'u']], {}).update_xmlns({}).attributes)
+      HTree::STag.new('n', [['xmlns:p', 'u']], HTree::DefaultContext).update_xmlns(HTree::DefaultContext).attributes)
 
     assert_equal(
       [],
-      HTree::STag.new('n', [['xmlns:p', 'u']], {}).update_xmlns({'p'=>'u'}).attributes)
+      HTree::STag.new('n', [['xmlns:p', 'u']], HTree::DefaultContext).update_xmlns(HTree::Context.new({'p'=>'u'})).attributes)
 
     assert_equal(
       [[HTree::Name.new('xmlns', nil, 'p'), HTree::Text.new('u')]],
-      HTree::STag.new('n', [['xmlns:p', 'u']], {}).update_xmlns({'p'=>'v'}).attributes)
+      HTree::STag.new('n', [['xmlns:p', 'u']], HTree::DefaultContext).update_xmlns(HTree::Context.new({'p'=>'v'})).attributes)
   end
 
   def test_update_xmlns_extra
     assert_equal(
       [],
-      HTree::STag.new(HTree::Name.new('p', 'u', 'n'), [], {}).attributes)
+      HTree::STag.new(HTree::Name.new('p', 'u', 'n'), [], HTree::DefaultContext).attributes)
 
     assert_equal(
       [[HTree::Name.new('xmlns', nil, 'p'), HTree::Text.new('u')]],
-      HTree::STag.new(HTree::Name.new('p', 'u', 'n'), [], {}).update_xmlns({}).attributes)
+      HTree::STag.new(HTree::Name.new('p', 'u', 'n'), [], HTree::DefaultContext).update_xmlns(HTree::DefaultContext).attributes)
 
     assert_equal(
       [],
-      HTree::STag.new(HTree::Name.new('p', 'u', 'n'), [], {}).update_xmlns({'p'=>'u'}).attributes)
+      HTree::STag.new(HTree::Name.new('p', 'u', 'n'), [], HTree::DefaultContext).update_xmlns(HTree::Context.new({'p'=>'u'})).attributes)
 
     assert_equal(
       [[HTree::Name.new('xmlns', nil, 'p'), HTree::Text.new('u')]],
-      HTree::STag.new(HTree::Name.new('p', 'u', 'n'), [], {}).update_xmlns({'p'=>'v'}).attributes)
+      HTree::STag.new(HTree::Name.new('p', 'u', 'n'), [], HTree::DefaultContext).update_xmlns(HTree::Context.new({'p'=>'v'})).attributes)
   end
 end

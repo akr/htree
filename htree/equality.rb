@@ -2,6 +2,7 @@ require 'htree/container'
 require 'htree/leaf'
 require 'htree/tag'
 require 'htree/raw_string'
+require 'htree/context'
 
 module HTree
   def hash
@@ -81,7 +82,8 @@ module HTree
     end
   end
 
-  class STag
+  module Util
+    module_function
     def cmp_with_nil(a, b)
       if a == nil
         if b == nil
@@ -97,27 +99,37 @@ module HTree
         end
       end
     end
+  end
 
+  class Context
+    def make_exact_equal_object
+      @namespaces.keys.sort {|prefix1, prefix2|
+        Util.cmp_with_nil(prefix1, prefix2)
+      }.map {|prefix| [prefix, @namespaces[prefix]] }
+    end
+
+    alias make_usual_equal_object make_exact_equal_object
+  end
+
+  class STag
     def make_exact_equal_object
       [@raw_string,
        @name,
        @attributes.sort {|(n1,t1), (n2, t2)|
-         cmp_with_nil(n1.namespace_prefix, n2.namespace_prefix).nonzero? ||
-         cmp_with_nil(n1.namespace_uri, n2.namespace_uri).nonzero? ||
-         cmp_with_nil(n1.local_name, n2.local_name)
+         Util.cmp_with_nil(n1.namespace_prefix, n2.namespace_prefix).nonzero? ||
+         Util.cmp_with_nil(n1.namespace_uri, n2.namespace_uri).nonzero? ||
+         Util.cmp_with_nil(n1.local_name, n2.local_name)
         },
-        @inherited_namespaces.keys.sort {|prefix1, prefix2|
-          cmp_with_nil(prefix1, prefix2)
-        }.map {|prefix| [prefix, @inherited_namespaces[prefix]] }
+        @inherited_context
       ]
     end
 
     def make_usual_equal_object
       [@name,
        @attributes.find_all {|n,t| !n.xmlns? }.sort {|(n1,t1), (n2, t2)|
-         cmp_with_nil(n1.namespace_prefix, n2.namespace_prefix).nonzero? ||
-         cmp_with_nil(n1.namespace_uri, n2.namespace_uri).nonzero? ||
-         cmp_with_nil(n1.local_name, n2.local_name)
+         Util.cmp_with_nil(n1.namespace_prefix, n2.namespace_prefix).nonzero? ||
+         Util.cmp_with_nil(n1.namespace_uri, n2.namespace_uri).nonzero? ||
+         Util.cmp_with_nil(n1.local_name, n2.local_name)
         }
       ]
     end

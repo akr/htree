@@ -3,7 +3,7 @@ require 'htree/tag'
 
 class TestAttr < Test::Unit::TestCase
   def test_each_attribute
-    t = HTree::STag.new('ename', [['p:n', 'a&b']], {'p'=>'u'})
+    t = HTree::STag.new('ename', [['p:n', 'a&b']], HTree::Context.new({'p'=>'u'}))
     t.each_attribute {|n, v|
       assert_instance_of(HTree::Name, n)
       assert_instance_of(HTree::Text, v)
@@ -13,7 +13,7 @@ class TestAttr < Test::Unit::TestCase
   end
 
   def test_each_attr
-    t = HTree::STag.new('ename', [['p:n', 'a&b']], {'p'=>'u'})
+    t = HTree::STag.new('ename', [['p:n', 'a&b']], HTree::Context.new({'p'=>'u'}))
     t.each_attr {|n, v|
       assert_instance_of(String, n)
       assert_instance_of(String, v)
@@ -23,7 +23,7 @@ class TestAttr < Test::Unit::TestCase
   end
 
   def test_fetch_attribute
-    t = HTree::STag.new('ename', [['p:n', 'a&b']], {'p'=>'u'})
+    t = HTree::STag.new('ename', [['p:n', 'a&b']], HTree::Context.new({'p'=>'u'}))
     v = t.fetch_attribute('{u}n')
     assert_instance_of(HTree::Text, v)
     assert_equal('a&amp;b', v.rcdata)
@@ -32,7 +32,7 @@ class TestAttr < Test::Unit::TestCase
   end
 
   def test_get_attribute
-    t = HTree::STag.new('ename', [['p:n', 'a&b']], {'p'=>'u'})
+    t = HTree::STag.new('ename', [['p:n', 'a&b']], HTree::Context.new({'p'=>'u'}))
     v = t.get_attribute('{u}n')
     assert_instance_of(HTree::Text, v)
     assert_equal('a&amp;b', v.rcdata)
@@ -40,7 +40,7 @@ class TestAttr < Test::Unit::TestCase
   end
 
   def test_get_attr
-    t = HTree::STag.new('ename', [['p:n', 'a&b']], {'p'=>'u'})
+    t = HTree::STag.new('ename', [['p:n', 'a&b']], HTree::Context.new({'p'=>'u'}))
     v = t.get_attr('{u}n')
     assert_instance_of(String, v)
     assert_equal('a&b', v)

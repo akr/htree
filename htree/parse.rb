@@ -5,6 +5,7 @@ require 'htree/tag'
 require 'htree/leaf'
 require 'htree/container'
 require 'htree/raw_string'
+require 'htree/context'
 
 module HTree
   def HTree.parse(input)
@@ -137,22 +138,21 @@ module HTree
     end
   end
 
-  def HTree.build_node(structure, xmldecl_seen,
-      inherited_namespaces={'xml'=>'http://www.w3.org/XML/1998/namespace'})
+  def HTree.build_node(structure, xmldecl_seen, inherited_context=DefaultContext)
     case structure[0]
     when :elem
       _, stag_rawstring, children, etag_rawstring = structure
-      stag = STag.parse(stag_rawstring, xmldecl_seen, inherited_namespaces)
+      stag = STag.parse(stag_rawstring, xmldecl_seen, inherited_context)
       etag = etag_rawstring && ETag.parse(etag_rawstring, xmldecl_seen)
       if !children.empty? || etag
         Elem.new!(stag,
-                  children.map {|c| build_node(c, xmldecl_seen, stag.namespaces) },
+                  children.map {|c| build_node(c, xmldecl_seen, stag.context) },
                   etag)
       else
         Elem.new!(stag)
       end
     when :emptytag
-      Elem.new!(STag.parse(structure[1], xmldecl_seen, inherited_namespaces))
+      Elem.new!(STag.parse(structure[1], xmldecl_seen, inherited_context))
     when :bogus_etag
       BogusETag.parse(structure[1])
     when :xmldecl
@@ -175,7 +175,7 @@ module HTree
   end
 
   class STag
-    def STag.parse(raw_string, case_sensitive=false, inherited_namespaces={})
+    def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext)
       if /\A(?:#{Pat::StartTag}|#{Pat::EmptyTag})\z/o !~ raw_string
         raise "cannot recognize as start tag: #{raw_string.inspect}"
       end
@@ -218,7 +218,7 @@ module HTree
         end
       }
 
-      result = STag.new(qname, attrs, inherited_namespaces)
+      result = STag.new(qname, attrs, inherited_context)
       result.raw_string = raw_string
       result
     end

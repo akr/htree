@@ -1,6 +1,7 @@
 require 'htree/raw_string'
 require 'htree/text'
 require 'htree/scan' # for Pat::Name and Pat::Nmtoken
+require 'htree/context'
 
 module HTree
   class Name
@@ -16,22 +17,22 @@ xmlns:n=                        xmlns   nil     n
 p{u}n=, p:n= with xmlns:p=u     p       u       n
 n=                              nil     nil     n
 =end
-    def Name.parse_element_name(name, namespaces)
+    def Name.parse_element_name(name, context)
       if /\{(.*)\}/ =~ name
         # In to_xml, 
         # "{u}n" means "use default namespace",
         # "p{u}n" means "use the specified prefix p" and
         $` == '' ? Name.new(nil, $1, $') : Name.new($`, $1, $')
-      elsif /:/ =~ name && namespaces.include?($`)
-        Name.new($`, namespaces[$`], $')
-      elsif namespaces.include?(nil)
-        Name.new(nil, namespaces[nil], name)
+      elsif /:/ =~ name && context.namespace_uri($`)
+        Name.new($`, context.namespace_uri($`), $')
+      elsif context.namespace_uri(nil)
+        Name.new(nil, context.namespace_uri(nil), name)
       else
         Name.new(nil, nil, name)
       end
     end
 
-    def Name.parse_attribute_name(name, namespaces)
+    def Name.parse_attribute_name(name, context)
       if name == 'xmlns'
         Name.new('xmlns', nil, nil)
       elsif /\Axmlns:/ =~ name
@@ -41,8 +42,8 @@ n=                              nil     nil     n
         when ''; Name.new(nil, $1, $')
         else Name.new($`, $1, $')
         end
-      elsif /:/ =~ name && namespaces.include?($`)
-        Name.new($`, namespaces[$`], $')
+      elsif /:/ =~ name && context.namespace_uri($`)
+        Name.new($`, context.namespace_uri($`), $')
       else
         Name.new(nil, nil, name)
       end
@@ -116,7 +117,7 @@ n=                              nil     nil     n
   end
 
   class STag
-    def initialize(name, attributes=[], inherited_namespaces={})
+    def initialize(name, attributes=[], inherited_context=DefaultContext)
       init_raw_string
       # normalize xml declaration name and attribute value.
       attributes = attributes.map {|aname, val|
@@ -130,7 +131,7 @@ n=                              nil     nil     n
         [aname, val]
       }
 
-      @inherited_namespaces = inherited_namespaces.dup.freeze
+      @inherited_context = inherited_context
       @xmlns_decls = {}
       attributes.each {|aname, text|
         next unless Name === aname
@@ -142,16 +143,16 @@ n=                              nil     nil     n
           @xmlns_decls[nil] = uri.empty? ? nil : uri
         end
       }
-      @namespaces = make_namespaces.freeze
+      @context = make_context
 
       if Name === name
         @name = name
       else
-        @name = Name.parse_element_name(name, @namespaces)
+        @name = Name.parse_element_name(name, @context)
       end
 
       @attributes = attributes.map {|aname, text|
-        aname = Name.parse_attribute_name(aname, @namespaces) unless Name === aname
+        aname = Name.parse_attribute_name(aname, @context) unless Name === aname
         if !aname.namespace_prefix && aname.namespace_uri
           raise HTree::Error, "global attribute without namespace prefix: #{aname.inspect}"
         end
@@ -159,7 +160,7 @@ n=                              nil     nil     n
       }
       @attributes.freeze
     end
-    attr_reader :attributes, :inherited_namespaces, :namespaces
+    attr_reader :attributes, :inherited_context, :context
 
     def element_name
       @name
@@ -175,18 +176,8 @@ n=                              nil     nil     n
     def universal_name() @name.universal_name end
     def qualified_name() @name.qualified_name end
 
-    def make_namespaces(inherited_namespaces=@inherited_namespaces)
-      namespaces = inherited_namespaces.dup
-      @xmlns_decls.each {|prefix, uri|
-        if prefix
-          namespaces[prefix] = uri
-        elsif uri
-          namespaces[nil] = uri
-        else
-          namespaces.delete nil
-        end
-      }
-      namespaces
+    def make_context(inherited_context=@inherited_context)
+      inherited_context.subst_namespaces(@xmlns_decls)
     end
 
     def each_namespace_attribute
