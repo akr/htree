@@ -149,8 +149,8 @@ module HTree
     case structure[0]
     when :elem
       _, stag_rawstring, children, etag_rawstring = structure
-      stag = STag.parse(stag_rawstring, is_xml, inherited_context)
       etag = etag_rawstring && ETag.parse(etag_rawstring, is_xml)
+      stag = STag.parse(stag_rawstring, is_xml, inherited_context, children.empty? && !etag)
       if !children.empty? || etag
         Elem.new!(stag,
                   children.map {|c| build_node(c, is_xml, stag.context) },
@@ -182,19 +182,20 @@ module HTree
   end
 
   class STag
-    def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext)
-      if /\A(?:#{Pat::StartTag}|#{Pat::EmptyTag})\z/o !~ raw_string
+    def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext, may_empty=true)
+      unless /\A#{Pat::StartTag}\z/o =~ raw_string || (may_empty && /\A#{Pat::EmptyTag}\z/o =~ raw_string)
         raise HTree::Error, "cannot recognize as start tag: #{raw_string.inspect}"
       end
 
       attrs = []
-      case raw_string
-      when /\A#{Pat::ValidStartTag_C}\z/o, /\A#{Pat::ValidEmptyTag_C}\z/o
+      if /\A#{Pat::ValidStartTag_C}\z/o =~ raw_string ||
+         (may_empty && /\A#{Pat::ValidEmptyTag_C}\z/o =~ raw_string)
         qname = $1
         $2.scan(Pat::ValidAttr_C) {
           attrs << ($5 ? [nil, $5] : [$1, $2 || $3 || $4])
         }
-      when /\A#{Pat::InvalidStartTag_C}\z/o, /\A#{Pat::InvalidEmptyTag_C}\z/o
+      elsif /\A#{Pat::InvalidStartTag_C}\z/o =~ raw_string ||
+            (may_empty && /\A#{Pat::InvalidEmptyTag_C}\z/o =~ raw_string)
         qname = $1
         last_attr = $3
         $2.scan(Pat::InvalidAttr1_C) {

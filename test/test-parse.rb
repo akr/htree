@@ -44,4 +44,19 @@ class TestParse < Test::Unit::TestCase
     t1 = HTree.parse("<html>a</html>")
     assert_equal("{http://www.w3.org/1999/xhtml}html", t1.root.name)
   end
+
+  def test_bare_url
+    t1 = HTree::Elem.new('{http://www.w3.org/1999/xhtml}a', {'href'=>'http://host/'})
+    s = "<a href=http://host/>"
+    t2 = HTree.parse(s).root
+    assert_equal(t1, t2)
+  end
+
+  def test_bare_slash
+    t1 = HTree::Elem.new('{http://www.w3.org/1999/xhtml}n', {'a'=>'v/'}, 'x')
+    s = "<n a=v/>x"
+    t2 = HTree.parse(s).root
+    assert_equal(t1, t2)
+  end
+
 end

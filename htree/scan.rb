@@ -14,9 +14,9 @@ module HTree
 
     ValidAttr_C = /(#{Name})\s*=\s*(?:"([^"]*)"|'([^']*)'|(#{NameChar}*))|(#{Nmtoken})/
     ValidAttr = ValidAttr_C.disable_capture
-    InvalidAttr1_C = %r{(#{Name})\s*=\s*(?:'([^'<>]*)'|"([^"<>]*)"|([^\s<>"'/]*))|(#{Nmtoken})}
+    InvalidAttr1_C = /(#{Name})\s*=\s*(?:'([^'<>]*)'|"([^"<>]*)"|([^\s<>"']*))|(#{Nmtoken})/
     InvalidAttr1 = InvalidAttr1_C.disable_capture
-    InvalidAttr1End_C = %r{(#{Name})(?:\s*=\s*(?:'([^'<>/]*)|"([^"<>/]*)))}
+    InvalidAttr1End_C =   /(#{Name})(?:\s*=\s*(?:'([^'<>]*)|"([^"<>]*)))/
     InvalidAttr1End = InvalidAttr1End_C.disable_capture
 
     ValidStartTag_C = /<(#{Name})((?:\s+#{ValidAttr})*)\s*>/
