@@ -20,15 +20,15 @@ module HTree
     end
     attr_reader :version, :encoding, :standalone
 
-    def generate_xml
-      result = "<?xml version=\"#{@version}\""
+    def generate_xml(out='')
+      out << "<?xml version=\"#{@version}\""
       if @encoding
-        result << " encoding=\"#{@encoding}\""
+        out << " encoding=\"#{@encoding}\""
       end
       if @standalone != nil
-        result << " standalone=\"#{@standalone ? 'yes' : 'no'}\""
+        out << " standalone=\"#{@standalone ? 'yes' : 'no'}\""
       end
-      result
+      out
     end
   end
 
@@ -48,23 +48,23 @@ module HTree
     end
     attr_reader :root_element_name, :public_identifier, :system_identifier
 
-    def generate_xml
-      result = "<!DOCTYPE #{@root_element_name}"
+    def generate_xml(out='')
+      out << "<!DOCTYPE #{@root_element_name}"
       if public_identifier
-        result << "PUBLIC \"#{@public_identifier}\""
+        out << "PUBLIC \"#{@public_identifier}\""
       else
-        result << "SYSTEM"
+        out << "SYSTEM"
       end
       # Although a system identifier is not omissible in XML,
       # we cannot output it if it is not given.
       if system_identifier
         if /"/ !~ system_identifier
-          result << " \"#{@system_identifier}\""
+          out << " \"#{@system_identifier}\""
         else
-          result << " '#{@system_identifier}'"
+          out << " '#{@system_identifier}'"
         end
       end
-      result
+      out
     end
   end
 
@@ -88,8 +88,9 @@ module HTree
     end
     attr_reader :target, :content
 
-    def generate_xml
-      "<?#{@target} #{@content}?>"
+    def generate_xml(out='')
+      out << "<?#{@target} #{@content}?>"
+      out
     end
   end
 
@@ -112,8 +113,9 @@ module HTree
     end
     attr_reader :content
 
-    def generate_xml
-      "<!--#{@content}-->"
+    def generate_xml(out='')
+      out << "<!--#{@content}-->"
+      out
     end
   end
 end

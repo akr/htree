@@ -42,12 +42,14 @@ module HTree
       '"' => '&quot;',
     }
 
-    def generate_xml
-      @rcdata.gsub(/[<>]/) {|s| ChRef[s] }
+    def generate_xml(out='')
+      out << @rcdata.gsub(/[<>]/) {|s| ChRef[s] }
+      out
     end
 
-    def generate_xml_attvalue
-      "\"#{@rcdata.gsub(/[<>"]/) {|s| ChRef[s] }}\""
+    def generate_xml_attvalue(out=''
+      out << "\"#{@rcdata.gsub(/[<>"]/) {|s| ChRef[s] }}\""
+      out
     end
   end
 end

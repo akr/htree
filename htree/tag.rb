@@ -97,18 +97,19 @@ n=                              nil     nil     n
       end
     end
 
-    def generate_xml
+    def generate_xml(out='')
       if xmlns?
         if @local_name
-          "xmlns:#{@local_name}"
+          out << "xmlns:#{@local_name}"
         else
-          "xmlns"
+          out << "xmlns"
         end
       elsif qname = qualified_name
-        qname
+        out << qname
       else
         raise Name::Error, "prefix not determined for #{universal_name}"
       end
+      out
     end
   end
 
@@ -209,24 +210,27 @@ n=                              nil     nil     n
     #def prepare_xmlns(inherited_namespaces)
     #end
 
-    def generate_xml
-      result = "<#{@name.generate_xml}"
+    def generate_xml(out='')
+      out << "<#{@name.generate_xml}"
       @attributes.each {|aname, text|
-        result << " #{aname.generate_xml}=#{text.generate_xml_attvalue}"
+        out << " #{aname.generate_xml}=#{text.generate_xml_attvalue}"
       }
-      result << '>'
+      out << '>'
+      out
     end
 
-    def generate_emptytag_xml
-      result = "<#{@name.generate_xml}"
+    def generate_emptytag_xml(out='')
+      out << "<#{@name.generate_xml}"
       @attributes.each {|aname, text|
-        result << " #{aname.generate_xml}=#{text.generate_xml_attvalue}"
+        out << " #{aname.generate_xml}=#{text.generate_xml_attvalue}"
       }
-      result << ' />'
+      out << ' />'
+      out
     end
 
-    def generate_etag_xml
-      "</#{@name.generate_xml}>"
+    def generate_etag_xml(out='')
+      out << "</#{@name.generate_xml}>"
+      out
     end
 
   end
@@ -238,14 +242,15 @@ n=                              nil     nil     n
     end
     attr_reader :qualified_name
 
-    def generate_xml
-      "</#{@qualified_name}>"
+    def generate_xml(out='')
+      out << "</#{@qualified_name}>"
+      out
     end
   end
 
   class BogusETag
-    def generate_xml
-      ""
+    def generate_xml(out='')
+      out
     end
   end
 
