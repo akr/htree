@@ -31,7 +31,7 @@ module HTree
     alias inspect pretty_print_inspect
   end
 
-  class Leaf
+  module Leaf
     def pretty_print(pp)
       pp.group(1, '{', '}') {
         pp.text self.class.name.sub(/.*::/,'').downcase
@@ -40,9 +40,9 @@ module HTree
             pp.breakable
             pp.pp line
           }
-        else
+        elsif self.respond_to? :generate_xml
           pp.breakable
-          pp.text generate_xml # xxx: may raise
+          pp.text generate_xml
         end
       }
     end

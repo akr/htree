@@ -2,7 +2,7 @@ require 'htree/text'
 require 'htree/container'
 
 module HTree
-  class Container
+  module Container
     def extract_text
       if @children
         Text.concat(*@children.map {|n| n.extract_text })
@@ -18,7 +18,7 @@ module HTree
     end
   end
   
-  class Markup
+  module Markup
     def extract_text
       Text.new('')
     end

@@ -16,7 +16,7 @@ module HTree
     end
   end
 
-  class Leaf
+  module Leaf
     def init_raw_string
       @raw_string = nil
     end

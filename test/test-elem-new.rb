@@ -51,20 +51,17 @@ class TestElemNew < Test::Unit::TestCase
 
   def test_nest
     t = HTree::Text.new('t')
-    e = HTree::Elem.new('a', [t, t, t])
+    b = HTree::BogusETag.new('a')
+    e = HTree::Elem.new('a', [t, t, t, b])
     assert_equal([], e.stag.attributes)
-    assert_equal([t, t, t], e.children)
+    assert_equal([t, t, t, b], e.children)
   end
 
   def test_err
-    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::Leaf.new) }
-    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::Markup.new) }
     assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::STag.new('a')) }
     assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::ETag.new('a')) }
-    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::BogusETag.new('a')) }
     assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::XMLDecl.new('1.0')) }
     assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::DocType.new('html')) }
-    assert_raises(HTree::Elem::Error) { HTree::Elem.new('e', HTree::Container.new) }
   end
 
 end

@@ -63,7 +63,7 @@ module HTree
     end
   end
 
-  class Leaf
+  module Leaf
     def update_xmlns(inherited_namespaces=DefaultNamespace)
       self
     end
@@ -73,7 +73,7 @@ module HTree
     end
   end
 
-  class Container
+  module Container
     def to_xml
       update_xmlns.generate_xml
     end

@@ -13,7 +13,7 @@ class TestParse < Test::Unit::TestCase
              HTree::STag.new('x1', [['xmlns', 'bb']],
                {'xml'=>'http://www.w3.org/XML/1998/namespace'}),
              [HTree::Elem.new!(HTree::STag.new('x2', [],
-                                {nil => 'bb', 'xml'=>'http://www.w3.org/XML/1998/namespace'}), [])])
+                                {nil => 'bb', 'xml'=>'http://www.w3.org/XML/1998/namespace'}), nil)])
          ])
     t2 = HTree.parse('<x1 xmlns="bb"><x2>')
     assert_equal(t1, t2)
