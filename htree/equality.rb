@@ -37,6 +37,12 @@ module HTree
       other.class == self.class &&
       @children == other.children
     end
+
+    def ===(other)
+      other.class == self.class &&
+      @children.length == other.children.length &&
+      (0...@children.length).all? {|i| @children[i] === other.children[i] }
+    end
   end
 
   class Elem < Container
@@ -50,6 +56,14 @@ module HTree
       @etag == other.etag &&
       @children == other.children
     end
+
+    def ===(other)
+      other.class == Elem &&
+      @stag === other.stag &&
+      (@children && @children.length) == (other.children && other.children.length) &&
+      (!@children || (0...@children.length).all? {|i| @children[i] === other.children[i] })
+    end
+
   end
 
   class Leaf < Node
@@ -74,10 +88,27 @@ module HTree
       other.class == STag &&
       equal_raw_string(other) &&
       @qualified_name == other.qualified_name &&
+      @universal_name == other.universal_name &&
       @attributes.sort == other.attributes.sort &&
       @inherited_namespaces.map {|k,v| [k||"",v]}.sort ==
       other.inherited_namespaces.map {|k,v| [k||"",v]}.sort
     end
+
+    def ===(other)
+      unless other.class == STag &&
+             @universal_name == other.universal_name
+        return false
+      end
+
+      attrs = {}
+      self.each_attribute_text {|uname, text| attrs[uname] = text }
+      other.each_attribute_text {|uname, text|
+        return false unless attrs[uname] === text
+        attrs.delete uname
+      }
+      attrs.empty?
+    end
+
   end
 
   class ETag < Markup
@@ -102,6 +133,12 @@ module HTree
       equal_raw_string(other) &&
       @rcdata == other.rcdata
     end
+
+    def ===(other)
+      other.class == Text &&
+      @rcdata == other.rcdata #xxx: should normalize
+    end
+
   end
 
   class XMLDecl < Markup
@@ -112,6 +149,12 @@ module HTree
     def ==(other)
       other.class == XMLDecl &&
       equal_raw_string(other) &&
+      @encoding == other.encoding &&
+      @standalone == other.standalone
+    end
+
+    def ===(other)
+      other.class == XMLDecl &&
       @encoding == other.encoding &&
       @standalone == other.standalone
     end
@@ -132,6 +175,13 @@ module HTree
       @system_identifier == other.system_identifier &&
       @public_identifier == other.public_identifier
     end
+
+    def ===(other)
+      other.class == DocType &&
+      @root_element_name == other.root_element_name &&
+      @system_identifier == other.system_identifier &&
+      @public_identifier == other.public_identifier
+    end
   end
 
   class ProcIns < Markup
@@ -147,6 +197,12 @@ module HTree
       @target == other.target &&
       @content == other.content
     end
+
+    def ===(other)
+      other.class == ProcIns &&
+      @target == other.target &&
+      @content == other.content
+    end
   end
 
   class Comment < Markup
@@ -159,5 +215,11 @@ module HTree
       equal_raw_string(other) &&
       @content == other.content
     end
+
+    def ===(other)
+      other.class == Comment &&
+      @content == other.content
+    end
+
   end
 end
