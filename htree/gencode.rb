@@ -19,11 +19,8 @@ module HTree
       @buffer = ''
       @internal_encoding = internal_encoding
       @code = <<"End"
-lambda {|*args|
-user_object = args[0] || nil
-output_encoding = args[1] || HTree::Encoder.internal_charset
-top_context = args[2] || HTree::DefaultContext
-out = HTree::Encoder.new(output_encoding, #{@internal_encoding.dump})
+lambda {|out, top_context|
+top_context ||= HTree::DefaultContext
 End
     end
 
@@ -84,7 +81,6 @@ End
 
     def finish
       flush_buffer
-      @code << "out.finish\n"
       @code << "}\n"
       @code
     end
