@@ -21,6 +21,7 @@
 #   REXML should be used if you need modification.
 #
 require 'htree/modules'
+require 'htree/output' # HTree::DocType#generate_content
 
 module HTree
   module Node
