@@ -13,6 +13,13 @@ module HTree
       out
     end
 
+    def root
+      es = []
+      @children.each {|c| es << c if Elem === c }
+      raise Doc::Error, "no element" if es.empty?
+      raise Doc::Error, "multiple elements" if 1 < es.length
+      es[0]
+    end
   end 
   
   class Elem
