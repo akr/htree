@@ -117,7 +117,7 @@ module HTree
         elsif match.begin(6)
           yield [:emptytag, str]
           first_element = false
-          is_xml = true
+          #is_xml = true
         elsif match.begin(7)
           yield [:comment, str]
         elsif match.begin(8)
