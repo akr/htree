@@ -422,23 +422,7 @@ End
   end
 
   def compile_body(outvar, contextvar, node, is_toplevel, local_templates={})
-    code = ''
-    subtemplates = []
-    body = extract_templates(node, subtemplates, is_toplevel)
-    unless subtemplates.empty?
-      local_templates = local_templates.dup
-      subtemplates.each {|sub_name_args, sub_node|
-        sub_name = sub_name_args[ID_PAT]
-        local_templates[sub_name] = sub_name
-        code << "#{sub_name} = "
-      }
-      code << "nil\n"
-      subtemplates.each {|sub_name_args, sub_node|
-        code << compile_local_template(sub_name_args, sub_node, local_templates)
-      }
-    end
-    code << compile_node(body, local_templates).generate_xml_output_code(outvar, contextvar)
-    code
+    generate_logic_node([:content], TemplateNode.new(node), local_templates).generate_xml_output_code(outvar, contextvar)
   end
 
   def compile_node(node, local_templates)
@@ -730,6 +714,7 @@ End
     def initialize(*children)
       @children = children.flatten.compact
     end
+    attr_reader :children
 
     def output(out, context)
       @children.each {|c|
