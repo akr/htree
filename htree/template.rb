@@ -679,8 +679,11 @@ End
     else
       raise HTree::Error, "invalid _call: #{spec}"
     end
-    check_syntax(recv)
-    check_syntax("#{recv}(#{args})")
+    if recv
+      check_syntax(recv)
+      check_syntax("#{recv}.#{meth}(#{args})")
+    end
+    check_syntax("#{meth}(#{args})")
     [:call, recv, meth, args]
   end
 
