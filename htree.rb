@@ -11,12 +11,14 @@
 #
 #   % ruby -rhtree -e 'pp HTree.parse(ARGF)' html-file
 #
-# == Method summary
+# == Method Summary
 #
 # HTree provides following methods.
 #
 # - HTree.parse(input) -> HTree::Doc
 # - HTree.parse_xml(input) -> HTree::Doc
+#
+# - HTree::Node#to_xml([encoding]) -> String
 #
 
 require 'htree/parse'
