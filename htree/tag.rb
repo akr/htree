@@ -12,7 +12,7 @@ module HTree
       init_raw_string
       # normalize xml declaration name and attribute value.
       attributes = attributes.map {|aname, val|
-        if !(Name === aname) && /\A(?:#{Pat::Name}?\{.*\})?#{Pat::Nmtoken}\z/ !~ aname
+        if !(Name === aname) && /\A(?:#{Pat::Name}?\{.*\})?#{Pat::Nmtoken}\z/o !~ aname
           raise HTree::Error, "invalid attribute name: #{aname.inspect}"
         end
         if !(Name === aname) && /\Axmlns(?:\z|:)/ =~ aname
