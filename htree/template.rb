@@ -294,7 +294,7 @@ class HTree::TemplateCompiler
     code = <<"End"
 #{outvar} = HTree::Encoder.new(#{encoding.dump})
 #{contextvar} = HTree::DefaultContext
-#{compile_template_body(outvar, contextvar, template, false)}\
+#{compile_body(outvar, contextvar, template, false)}\
 #{outvar}.finish_with_xmldecl
 End
     result = eval(code, binding)
@@ -309,7 +309,7 @@ End
     code = <<"End"
 #{outvar} = HTree::Encoder.new(#{encoding.dump})
 #{contextvar} = HTree::DefaultContext
-#{compile_template_body(outvar, contextvar, template, false)}\
+#{compile_body(outvar, contextvar, template, false)}\
 #{outvar}.finish
 End
     result = eval(code, binding)
@@ -398,7 +398,7 @@ _ht_#{name}(#{args2.join(',')})
 #{outvar}.finish
 end
 def _ht_#{name}(#{args2.join(',')})
-#{compile_template_body(outvar, contextvar, node, false)}\
+#{compile_body(outvar, contextvar, node, false)}\
 end
 End
   end
@@ -416,12 +416,12 @@ End
 
     <<"End"
 #{name} = lambda {|#{args2.join(',')}|
-#{compile_template_body(outvar, contextvar, node, false, local_templates)}\
+#{compile_body(outvar, contextvar, node, false, local_templates)}\
 }
 End
   end
 
-  def compile_template_body(outvar, contextvar, node, is_toplevel, local_templates={})
+  def compile_body(outvar, contextvar, node, is_toplevel, local_templates={})
     code = ''
     subtemplates = []
     body = extract_templates(node, subtemplates, is_toplevel)
@@ -437,14 +437,14 @@ End
         code << compile_local_template(sub_name_args, sub_node, local_templates)
       }
     end
-    code << compile_body(body, local_templates).generate_xml_output_code(outvar, contextvar)
+    code << compile_node(body, local_templates).generate_xml_output_code(outvar, contextvar)
     code
   end
 
-  def compile_body(node, local_templates)
+  def compile_node(node, local_templates)
     case node
     when HTree::Doc
-      TemplateNode.new(node.children.map {|n| compile_body(n, local_templates) })
+      TemplateNode.new(node.children.map {|n| compile_node(n, local_templates) })
     when HTree::Elem
       ht_attrs = node.attributes.find_all {|name, text| template_attribute? name }
       ht_attrs = ht_attrs.sort_by {|htname, text| htname.universal_name }
@@ -489,7 +489,7 @@ End
   def compile_literal_elem(node, local_templates)
     subst = {}
     node.children.each_with_index {|n, i|
-      subst[i] = compile_body(n, local_templates)
+      subst[i] = compile_node(n, local_templates)
     }
     node.subst_subnode(subst)
   end
@@ -612,7 +612,7 @@ End
     when :empty
       nil
     when :content
-      TemplateNode.new(node.children.map {|n| compile_body(n, local_templates) })
+      TemplateNode.new(node.children.map {|n| compile_node(n, local_templates) })
     when :text
       _, expr = logic
       TemplateNode.new(lambda {|out, context| out.output_dynamic_text expr })
