@@ -1,4 +1,4 @@
-require 'htree/nodehier'
+require 'htree/modules'
 
 module HTree
   class Doc

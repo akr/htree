@@ -1,4 +1,4 @@
-require 'htree/nodehier'
+require 'htree/modules'
 require 'htree/tag'
 require 'htree/context'
 
