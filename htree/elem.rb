@@ -10,11 +10,32 @@ module HTree
     end
     # :startdoc:
 
+    # The first argument _name_ should be an instance of String or HTree::Name.
+    #
+    # The rest of arguments should be a sequence of follows.
+    # [Hash object] used as attributes.
+    # [String object] specified string is converted to HTree::Text.
+    # [HTree::Node object] used as a child.
+    # [Array of String and HTree::Node] used as children.
+    # [HTree::Doc object]
+    #   used as children.
+    #   It is expanded except HTree::XMLDecl and HTree::DocType objects.
+    # [HTree::Context object]
+    #   used as as context which represents XML namespaces.
+    #   This should apper once at most.
+    #
+    # HTree::Location object is accepted just as HTree::Node.
+    #
+    # If the rest arguments consists only
+    # Hash and HTree::Context, empty element is created.
+    #
+    #   p HTree::Elem.new("e").empty_element?     # => true
+    #   p HTree::Elem.new("e", []).empty_element? # => false
     def Elem.new(name, *args)
       attrs = []
       children = []
       context = nil
-      args.flatten.each {|arg|
+      args.each {|arg|
         arg = arg.to_node if HTree::Location === arg
         case arg
         when Context
@@ -22,6 +43,18 @@ module HTree
           context = arg
         when Hash
           arg.each {|k, v| attrs << [k, v] }
+        when Array
+          arg.each {|c|
+            c = c.to_node if HTree::Location === arg
+            case c
+            when HTree::Node
+              children << c
+            when String
+              children << Text.new(c)
+            else
+              raise TypeError, "unexpected argument: #{arg.inspect}"
+            end
+          }
         when HTree::Doc
           arg.children.each {|c|
             next if HTree::XMLDecl === c
@@ -96,9 +129,16 @@ module HTree
     #   elem.subst_subnode(pairs) -> elem
     #
     # The argument _pairs_ should be a hash or an assocs.
-    # Its key should be a string or an integer.
-    # The string means attribute name and the integer means children index.
-    # Its value should be a node.
+    #
+    # The key of pairs should be one of following.
+    # [HTree::Name or String object] attribute name.
+    # [Integer object] child index.
+    #
+    # The value of pairs should be one of follows.
+    # [HTree::Node object] specified object is used as is.
+    # [String object] specified string is converted to HTree::Text
+    # [Array of above] specified HTree::Node and String is used in that order.
+    # [nil] delete corresponding node.
     #
     #   pp HTree('<r><a/><b/><c/><r/>').root.subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})
     #   # =>
@@ -118,55 +158,84 @@ module HTree
         else
           raise TypeError, "invalid index: #{index.inspect}"
         end
-        if hash.include? index
-          raise ArgumentError, "duplicate index: #{index.inspect}"
+        case value
+        when Node
+          value = [value]
+        when String
+          value = [value]
+        when Array
+          value = value.dup
+        when nil
+          value = []
+        else
+          raise TypeError, "invalid value: #{value.inspect}"
         end
-        hash[index] = value
+        value.map! {|v|
+          case v
+          when Node
+            v
+          when String
+            Text.new(v)
+          else
+            raise TypeError, "invalid value: #{v.inspect}"
+          end
+        }
+        if !hash.include?(index)
+          hash[index] = []
+        end
+        hash[index].concat value
       }
 
-      attrs = {}
+      attrs = []
       @stag.attributes.each {|k, v|
-        attrs[k] = v
+        if hash.include? k
+          v = hash[k]
+          if !v.empty?
+            attrs << {k=>Text.concat(*v)}
+          end
+          hash.delete k
+        else
+          attrs << {k=>v}
+        end
+      }
+      hash.keys.each {|k|
+        if Name === k
+          v = hash[k]
+          if !v.empty?
+            attrs << {k=>Text.concat(*v)}
+          end
+          hash.delete k
+        end
       }
 
       children_left = []
       children = @children.dup
       children_right = []
 
-      hash.each_pair {|index, value|
-        case index
-        when Name
-          if value
-            attrs[index] = value
-          else
-            attrs.delete(index) {
-              raise ArgumentError, "nonexist index: #{index.inspect}"
-            }
-          end
-        when Integer
-          if index < 0
-            children_left << value
-          elsif children.length <= index
-            children_right << value
-          else
-            children[index] = value
-          end
+      hash.keys.sort.each {|index|
+        value = hash[index]
+        if index < 0
+          children_left << value
+        elsif children.length <= index
+          children_right << value
+        else
+          children[index] = value
         end
       }
 
-      children = [children_left, children, children_right].flatten.compact
+      children = [children_left, children, children_right].flatten
 
       if children.empty? && @empty
         Elem.new(
           @stag.element_name,
-          attrs,
-          @stag.context)
+          @stag.context,
+          *attrs)
       else 
         Elem.new(
           @stag.element_name,
-          attrs,
+          @stag.context,
           children,
-          @stag.context)
+          *attrs)
       end
     end
   end 

@@ -24,10 +24,16 @@ class TestSubnode < Test::Unit::TestCase
     assert_equal(false, e1.subst_subnode(0=>"xxx").empty_element?)
   end
 
-  def test_elem_subst_fail
-    assert_raise(ArgumentError) {
-      HTree::Elem.new("a").subst_subnode("b"=>"c", HTree::Name.new(nil, "", "b")=>"d")
-    }
+  def test_elem_multiple_attr_value
+    h = {"b"=>"c", HTree::Name.new(nil, "", "b")=>"d"}
+    assert_match(/\A(cd|dc)\z/,
+      HTree::Elem.new("a").subst_subnode(h).get_subnode('b').to_s)
+
+    a = [["b","c"], [HTree::Name.new(nil, "", "b"),"d"]]
+    assert_equal('cd',
+      HTree::Elem.new("a").subst_subnode(a).get_subnode('b').to_s)
+    assert_equal('dc',
+      HTree::Elem.new("a").subst_subnode(a.reverse).get_subnode('b').to_s)
   end
 
   def test_doc_get

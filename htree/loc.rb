@@ -148,21 +148,6 @@ module HTree::Location
     end
   end
 
-  # +subst_subnode+ returns the location which refers the substituted tree.
-  #   loc.subst_subnode(pairs) -> loc
-  #
-  #   t = HTree('<a><b><c>')
-  #   l = t.make_loc.get_subnode(0).get_subnode(0)
-  #   l = l.subst_subnode({0=>HTree('<z/>')})
-  #   pp t, l.top.to_node
-  #   # =>
-  #   #<HTree::Doc {elem <a> {elem <b> {emptyelem <c>}}}>
-  #   #<HTree::Doc {elem <a> {elem <b> {emptyelem <z>}}}>
-  #
-  def subst_subnode(pairs)
-    self.subst_itself(@node.subst_subnode(pairs))
-  end
-
   # +loc_list+ returns an array containing from location's root to itself.
   #
   #   t = HTree('<a><b><c>')
@@ -223,6 +208,21 @@ module HTree::Location
 end
 
 module HTree::Container::Loc
+  # +subst_subnode+ returns the location which refers the substituted tree.
+  #   loc.subst_subnode(pairs) -> loc
+  #
+  #   t = HTree('<a><b><c>')
+  #   l = t.make_loc.get_subnode(0).get_subnode(0)
+  #   l = l.subst_subnode({0=>HTree('<z/>')})
+  #   pp t, l.top.to_node
+  #   # =>
+  #   #<HTree::Doc {elem <a> {elem <b> {emptyelem <c>}}}>
+  #   #<HTree::Doc {elem <a> {elem <b> {emptyelem <z>}}}>
+  #
+  def subst_subnode(pairs)
+    self.subst_itself(@node.subst_subnode(pairs))
+  end
+
   # +children+ returns an array of child locations.
   def children
     (0...@node.children.length).map {|i| get_subnode(i) }
