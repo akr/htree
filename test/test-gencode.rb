@@ -10,5 +10,13 @@ class TestGenCode < Test::Unit::TestCase
     assert_equal('<p:m xmlns:p="z">bb</p:m>', procedure.call(nil, "US-ASCII", HTree::DefaultContext))
     assert_equal('<p:m>bb</p:m>', procedure.call(nil, "US-ASCII", HTree::DefaultContext.subst_namespaces("p"=>"z")))
   end
+
+  def test_xmlns_chref
+    t = HTree.parse('<p:n xmlns:p="a&amp;<>&quot;b">').root
+    code = t.generate_xml_output_code
+    procedure = eval(code)
+    assert_equal('<p:n xmlns:p="a&amp;&lt;&gt;&quot;b" />', procedure.call(nil, "US-ASCII", HTree::DefaultContext))
+  end
+
 end
 

@@ -43,17 +43,30 @@ End
       @buffer << str
     end
 
+    ChRef = {
+      '&' => '&amp;',
+      '>' => '&gt;',
+      '<' => '&lt;',
+      '"' => '&quot;',
+    }
     def output_xmlns(namespaces)
       unless namespaces.empty?
         flush_buffer
         namespaces.each {|k, v|
           if k
-            decl = " xmlns:#{k}=#{v.dump}"
-            @code << "out.output_string #{decl.dump} if top_context.namespace_uri(#{k.dump}) != #{v.dump}\n"
+            ks = k.dump
+            aname = "xmlns:#{k}"
           else
-            decl = " xmlns=#{v.dump}"
-            @code << "out.output_string #{decl.dump} if top_context.namespace_uri(nil) != #{v.dump}\n"
+            ks = "nil"
+            aname = "xmlns"
           end
+          @code << <<"End"
+if top_context.namespace_uri(#{ks}) != #{v.dump}
+out.output_string ' #{aname}="'
+out.output_text #{v.gsub(/[&<>"]/) {|s| ChRef[s] }.dump}
+out.output_string '"'
+end
+End
         }
       end
     end
