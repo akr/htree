@@ -78,6 +78,11 @@ class TestScan < Test::Unit::TestCase
   end
 
   def test_eol_html
+    # In SGML, a line break just after start tag and
+    # a line break just before end tag is ignored.
+    # http://www.w3.org/TR/REC-html40/appendix/notes.html#notes-line-breaks
+    #
+    # HTree.scan handles such ignored line breaks as part of a tag.
     s = "a\n<e>\nb\n<f>\nc\n</f>\nd\n</e>\ne"
     assert_equal([
       [:text_pcdata, "a\n"],
@@ -107,6 +112,9 @@ class TestScan < Test::Unit::TestCase
   end
 
   def test_eol_xml
+    # In XML, line breaks are handled as part of content.
+    # It's because KEEPRSRE is yes in XML.
+    # http://www.satoshii.org/markup/websgml/valid-xml#keeprsre
     s = "<?xml version='1.0'?>a\n<e>\nb\n<f>\nc\n</f>\nd\n</e>\ne"
     assert_equal([
       [:xmldecl, "<?xml version='1.0'?>"],
