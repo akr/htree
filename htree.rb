@@ -39,10 +39,11 @@
 #   - HTree(<i>html_string</i>) -> HTree::Doc
 #   - HTree.parse(<i>input</i>) -> HTree::Doc
 #
-# - Genrating Methods
+# - Generation Methods
 #   - HTree::Node#display_xml -> STDOUT
 #   - HTree::Node#display_xml(<i>out</i>) -> <i>out</i>
 #   - HTree::Node#display_xml(<i>out</i>, <i>encoding</i>) -> <i>out</i>
+#   - HTree::Text#to_s -> String
 #
 # - Template Methods
 #   - HTree.expand_template{<i>template_string</i>} -> STDOUT

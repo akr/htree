@@ -59,9 +59,9 @@ module HTree
     end
     private :internal_normalize
 
-    # HTree::Text#to_s converts the text to a String.
+    # HTree::Text#to_s converts the text to a string.
     # - character references are decoded as much as possible.
-    # - undecodable character reference are converted to '?' character.
+    # - undecodable character reference are converted to `?' character.
     def to_s
       @normalized_rcdata.gsub(/&(?:#([0-9]+));/o) {|s|
         u = $1.to_i
@@ -73,6 +73,7 @@ module HTree
       }
     end
 
+    # HTree::Text.concat returns a text which is concatenation of arguments.
     def Text.concat(*args)
       rcdata = ''
       args.each {|arg|

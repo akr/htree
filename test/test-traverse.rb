@@ -13,10 +13,42 @@ class TestTraverse < Test::Unit::TestCase
   def test_title
     t = HTree.parse('<html><title>aaa</title>')
     assert_equal('aaa', t.title)
+    t = HTree.parse(<<'End')
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns="http://purl.org/rss/1.0/">
+  <channel>
+    <title>aaa</title>
+  </channel>
+</rdf:RDF>
+End
+    assert_equal('aaa', t.title)
   end
 
   def test_author
     t = HTree.parse('<html><meta name=author content=xxx>')
+    assert_equal('xxx', t.author)
+    t = HTree.parse('<html><link rev=made title=xxx>')
+    assert_equal('xxx', t.author)
+    t = HTree.parse(<<'End')
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns="http://purl.org/rss/1.0/">
+  <channel>
+    <dc:creator>xxx</dc:creator>
+  </channel>
+</rdf:RDF>
+End
+    assert_equal('xxx', t.author)
+    t = HTree.parse(<<'End')
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns="http://purl.org/rss/1.0/">
+  <channel>
+    <dc:publisher>xxx</dc:publisher>
+  </channel>
+</rdf:RDF>
+End
     assert_equal('xxx', t.author)
   end
 end

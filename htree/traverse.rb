@@ -153,7 +153,7 @@ module HTree
     end
   end
 
-  class Doc
+  module Doc::Trav
     # +title+ searches title and return it as a string.
     # It returns nil if not found.
     #

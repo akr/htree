@@ -9,6 +9,12 @@ module HTree
     end
   end
 
+  class Location
+    def extract_text
+      to_node.extract_text
+    end
+  end
+
   # :stopdoc:
   module Container
     def extract_text
