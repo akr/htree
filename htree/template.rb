@@ -1,25 +1,64 @@
+# = Template Engine
+#
+# == Method Summary
+#
+# - HTree.expand_template{<i>template_string</i>}
+# - HTree.expand_template(<i>encoding</i>){<i>template_string</i>}
+# - HTree.expand_template(<i>encoding</i>, <i>out</i>){<i>template_string</i>} -> <i>out</i>
+# - HTree.compile_template(<i>template_string</i>) -> Module
+# - HTree{<i>template_string</i>} -> HTree::Doc
+# - HTree(<i>html_string</i>) -> HTree::Doc
+
 require 'htree/gencode'
 
+# <code>HTree.expand_template{<i>template_string</i>}</code> expands <i>template_string</i> as a template.
+# The generated result is encoded as <i>encoding</i> and sent to <i>out</i> using <tt><<</tt> method.
+#
+# The return value is <i>out</i>.
 def HTree.expand_template(encoding=HTree::Encoder.internal_charset, out=STDOUT, &block)
   template = block.call
   HTree::TemplateCompiler.new.expand_template(template, encoding, out, block)
 end
 
-def HTree(arg=nil, &block)
+# <code>HTree(<i>html_string</i>)</code> parses <i>template_string</i>.
+# <code>HTree{<i>template_string</i>}</code> parses <i>template_string</i> and expand it as a template.
+#
+# <code>HTree()</code> and <code>HTree{}</code> returns a tree as an instance of HTree::Doc.
+def HTree(html_string=nil, &block)
   if block_given?
+    raise ArgumentError, "both argument and block given." if html_string
     template = block.call
     HTree.parse(HTree::TemplateCompiler.new.expand_fragment_template(template, HTree::Encoder.internal_charset, '', block))
   else
-    HTree.parse(arg)
+    HTree.parse(html_string)
   end
 end
 
-def HTree.compile_template(template)
-  code = HTree::TemplateCompiler.new.compile_template(template)
+# <code>HTree.compile_template(<i>template_string</i>)</code> compiles
+# <i>template_string</i> as a template.
+#
+# HTree.compile_template returns a module.
+# The module has module functions for each templates defined in
+# <i>template_string</i>.
+# The returned module can be used for <tt>include</tt>.
+#
+#  M = HTree.compile_template(<<'End')
+#  <p _template=birthday(subj,t)
+#    ><span _text=subj
+#          />'s birthday is <span _text="t.strftime('%B %dth %Y')"/>.</p>
+#  End
+#  puts M.birthday('Ruby', Time.utc(1993, 2, 24)).to_xml
+#  # <p xmlns="http://www.w3.org/1999/xhtml">Ruby's birthday is February 24th 1993.</p>
+#
+# The module function takes arguments specifies by a <code>_template</code>
+# attribute and returns a tree represented as HTree::Node.
+#
+def HTree.compile_template(template_string)
+  code = HTree::TemplateCompiler.new.compile_template(template_string)
   eval(code)
 end
 
-class HTree::TemplateCompiler
+class HTree::TemplateCompiler # :nodoc:
   IGNORABLE_ELEMENTS = {
     'span' => true,
     #'div' => true,
@@ -424,7 +463,7 @@ End
     end
   end
 
-  class HTree::GenCode
+  class HTree::GenCode # :nodoc:
     def output_dynamic_text(expr)
       flush_buffer
       @code << "#{@outvar}.output_dynamic_text((#{expr}))\n"
