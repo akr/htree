@@ -5,16 +5,47 @@
 # The template engine in htree uses special HTML attributes which begins with
 # a underscore for template directives.
 #
-# - <elem _text="expr">dummy</elem>
-# - <elem _if="expr">then-content</elem>
-# - <elem _if="expr" _else="expr.meth(args)">then-content</elem>
-# - <elem _call="expr.name(args)">dummy</elem>
-# - <elem _iter="expr.meth(args)//fargs" >content</elem>
-# - <elem _iter_content="expr.meth(args)//vars" >content</elem>
+# - <elem \_attr_<i>name</i>="<i>expr</i>">content</elem>
 #
-# - <elem _attr_name="expr">content</elem>
+#   \_attr_<i>name</i> is used for a dynamic attribute.
 #
-# - <elem _template="name(vars)">body</elem>
+#   It is expanded to <i>name</i>="content".
+#   The content is escaped form of a value of _expr_.
+#
+# - <elem _text="<i>expr</i>">dummy-content</elem>
+#
+#   _text substitutes content of the element by the string
+#   evaluated from _expr_.
+#   If the element is span and there is no other attributes,
+#   no tags are produced.
+#
+# - <elem _if="<i>expr</i>">then-content</elem>
+# - <elem _if="<i>expr</i>" _else="<i>name(args)</i>">then-content</elem>
+#
+#   _if is used for conditional.
+#
+#   It is expanded to <elem>then-content</elem> if _expr_ is evaluated to
+#   a true value.
+#   Otherwise, it is replaced by other template specified by _else attribute.
+#   If _else attribute is not given, it just replaced by empty.
+#
+# - <elem _iter="<i>expr.meth(args)//vars</i>" >content</elem>
+# - <elem _iter_content="<i>expr.meth(args)//vars</i>" >content</elem>
+#
+#   _iter and _iter_content is used for iteration.
+#
+# - <elem _call="<i>name(args)</i>">dummy-content</elem>
+# - <elem _call="<i>mod.name(args)</i>">dummy-content</elem>
+#   
+#   _call is used to expand template function.
+#
+# - <elem _template="<i>name(vars)</i>">body</elem>
+#
+#   _template defines a template function which is usable by _call.
+#
+#   When a template is compiled to a module by HTree.compile_template,
+#   the module have a module function for each template function
+#   defined by outermost _template attribute.
 #
 # == Method Summary
 #
@@ -379,7 +410,7 @@ End
     # spec: <n _iter="expr.meth[(args)]//fargs" >...</n>
     spec = spec.strip
     unless %r{\s*//\s*(#{ID_PAT}\s*(?:,\s*#{ID_PAT}\s*)*)?\z}o =~ spec
-      raise HTree::Error, "invalid block arguments for _iter: #{meth_args}"
+      raise HTree::Error, "invalid block arguments for _iter: #{spec}"
     end
     call = $`.strip
     fargs = $1.strip || ''
@@ -395,7 +426,7 @@ End
     # spec: <n _iter_content="expr.meth[(args)]//fargs" >...</n>
     spec = spec.strip
     unless %r{\s*//\s*(#{ID_PAT}\s*(?:,\s*#{ID_PAT}\s*)*)?\z}o =~ spec
-      raise HTree::Error, "invalid block arguments for _iter: #{meth_args}"
+      raise HTree::Error, "invalid block arguments for _iter: #{spec}"
     end
     call = $`.strip
     fargs = $1.strip || ''
