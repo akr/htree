@@ -8,8 +8,12 @@ module HTree
       alias new! new
     end
 
-    def Text.new(str)
-      new! str.gsub(/&/, '&amp;')
+    def Text.new(arg)
+      if Text === arg
+        new! arg.rcdata
+      else
+        new! arg.gsub(/&/, '&amp;')
+      end
     end
 
     def initialize(rcdata)
@@ -52,6 +56,18 @@ module HTree
     def generate_xml_attvalue(out='')
       out << "\"#{@rcdata.gsub(/[<>"]/) {|s| ChRef[s] }}\""
       out
+    end
+
+    def Text.concat(*args)
+      rcdata = ''
+      args.each {|arg|
+        if Text === arg
+          rcdata << arg.rcdata
+        else
+          rcdata << arg.gsub(/&/, '&amp;')
+        end
+      }
+      new! rcdata
     end
   end
 end
