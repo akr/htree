@@ -10,7 +10,7 @@ class TestText < Test::Unit::TestCase
       '<html xmlns="http://www.w3.org/1999/xhtml">' +
       expected +
       '</html>',
-      HTree.expand_template('US-ASCII', ''){"<html>#{template}</html>"},
+      HTree.expand_template(''){"<html>#{template}</html>"},
       message)
   end
 
@@ -63,7 +63,6 @@ class TestText < Test::Unit::TestCase
   <title>aaa</title>
 </html>
 End
-      HTree.expand_template("#{File.dirname __FILE__}/template.html", "aaa",
-        'US-ASCII', ''))
+      HTree.expand_template("#{File.dirname __FILE__}/template.html", "aaa", ''))
   end
 end

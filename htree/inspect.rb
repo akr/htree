@@ -42,7 +42,7 @@ module HTree
           }
         elsif self.respond_to? :display_xml
           q.breakable
-          q.text self.display_xml(HTree::Encoder.internal_charset, '')
+          q.text self.display_xml('')
         end
       }
     end

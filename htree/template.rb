@@ -145,14 +145,14 @@
 #
 # == Method Summary
 #
-# - HTree.expand_template(<i>pathname</i>) -> STDOUT
-# - HTree.expand_template(<i>pathname</i>, <i>obj</i>) -> STDOUT
-# - HTree.expand_template(<i>pathname</i>, <i>obj</i>, <i>encoding</i>) -> STDOUT
-# - HTree.expand_template(<i>pathname</i>, <i>obj</i>, <i>encoding</i>, <i>out</i>) -> <i>out</i>
+# - HTree.expand_template(<i>template_pathname</i>) -> STDOUT
+# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>) -> STDOUT
+# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>, <i>out</i>) -> <i>out</i>
+# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>, <i>out</i>, <i>encoding</i>) -> <i>out</i>
 #
 # - HTree.expand_template{<i>template_string</i>} -> STDOUT
-# - HTree.expand_template(<i>encoding</i>){<i>template_string</i>} -> STDOUT
-# - HTree.expand_template(<i>encoding</i>, <i>out</i>){<i>template_string</i>} -> <i>out</i>
+# - HTree.expand_template(<i>out</i>) {<i>template_string</i>} -> <i>out</i>
+# - HTree.expand_template(<i>out</i>, <i>encoding</i>) {<i>template_string</i>} -> <i>out</i>
 #
 # - HTree.compile_template(<i>template_string</i>) -> Module
 # - HTree{<i>template_string</i>} -> HTree::Doc
@@ -167,8 +167,8 @@ require 'htree/equality'
 # The arguments should be specified as follows.
 # All argument except <i>pathname</i> are optional.
 #
-# - HTree.expand_template(<i>pathname</i>, <i>obj</i>, <i>encoding</i>, <i>out</i>) -> <i>out</i>
-# - HTree.expand_template(<i>encoding</i>, <i>out</i>) {<i>template_string</i>} -> <i>out</i>
+# - HTree.expand_template(<i>pathname</i>, <i>obj</i>, <i>out</i>, <i>encoding</i>) -> <i>out</i>
+# - HTree.expand_template(<i>out</i>, <i>encoding</i>) {<i>template_string</i>} -> <i>out</i>
 #
 # The template is specified by a file or a string.
 # If a block is not given, the first argument represent a template pathname.
@@ -191,15 +191,15 @@ require 'htree/equality'
 # I.e. they can access local variables etc.
 #
 # HTree.expand_template has two more optional arguments:
-# <i>encoding</i>, <i>out</i>.
-#
-# <i>encoding</i> specifies output character encoding.
-# If it is not specified, internal encoding is used.
+# <i>out</i>, <i>encoding</i>.
 #
 # <i>out</i> specifies output target.
 # It should have <tt><<</tt> method: IO and String for example.
 # If it is not specified, STDOUT is used.
 # 
+# <i>encoding</i> specifies output character encoding.
+# If it is not specified, internal encoding is used.
+#
 # HTree.expand_template returns <i>out</i> or STDOUT if <i>out</i> is not
 # specified.
 #
@@ -221,12 +221,12 @@ def HTree.expand_template(*args, &block)
     binding = eval("lambda {|context_object| context_object.instance_eval 'binding'}", TOPLEVEL_BINDING).call(obj)
   end
 
-  encoding = args.shift || HTree::Encoder.internal_charset
   out = args.shift || STDOUT
+  encoding = args.shift || HTree::Encoder.internal_charset
   if !args.empty?
     raise ArgumentError, "wrong number of arguments" 
   end
-  HTree::TemplateCompiler.new.expand_template(template, encoding, out, binding)
+  HTree::TemplateCompiler.new.expand_template(template, out, encoding, binding)
 end
 
 # <code>HTree(<i>html_string</i>)</code> parses <i>html_string</i>.
@@ -238,7 +238,7 @@ def HTree(html_string=nil, &block)
   if block_given?
     raise ArgumentError, "both argument and block given." if html_string
     template = block.call
-    HTree.parse(HTree::TemplateCompiler.new.expand_fragment_template(template, HTree::Encoder.internal_charset, '', block))
+    HTree.parse(HTree::TemplateCompiler.new.expand_fragment_template(template, '', HTree::Encoder.internal_charset, block))
   else
     HTree.parse(html_string)
   end
@@ -287,7 +287,7 @@ class HTree::TemplateCompiler
     "g#{@gensym_id}#{suffix}"
   end
 
-  def expand_template(template, encoding, out, binding)
+  def expand_template(template, out, encoding, binding)
     template = HTree.parse(template)
     outvar = gensym('out')
     contextvar = gensym('top_context')
@@ -302,7 +302,7 @@ End
     out
   end
 
-  def expand_fragment_template(template, encoding, out, binding)
+  def expand_fragment_template(template, out, encoding, binding)
     template = HTree.parse(template)
     outvar = gensym('out')
     contextvar = gensym('top_context')
