@@ -209,7 +209,15 @@ n=                              nil     nil     n
     end
 
     def fetch_attr(universal_name, *rest)
-      text = fetch_attribute(universal_name, *rest) { return yield }
+      text = fetch_attribute(universal_name) {
+        if block_given?
+          return yield
+        elsif !rest.empty?
+          return rest[0]
+        else
+          raise IndexError, "attribute not found: #{universal_name.inspect}"
+        end
+      }
       text.to_s
     end
 
