@@ -204,4 +204,93 @@ module HTree
 
   end
 
+  module Elem::Trav
+
+    # +name+ returns the universal name of the element as a string.
+    def name() element_name.universal_name end
+
+    # +qualified_name+ returns the qualified name of the element as a string.
+    def qualified_name() element_name.qualified_name end
+
+    def attributes
+      result = {}
+      each_attribute {|name, text|
+        result[name] = text
+      }
+      result
+    end
+
+    def each_attr
+      each_attribute {|name, text|
+        uname = name.universal_name
+        str = text.to_s
+        yield uname, str
+      }
+    end
+
+    def update_attribute_hash # :nodoc:
+      if defined?(@attribute_hash)
+        @attribute_hash
+      else
+        h = {}
+        each_attribute {|name, text|
+          h[name.universal_name] = text
+        }
+        @attribute_hash = h
+      end
+    end
+
+    def fetch_attribute(uname, *rest, &block)
+      if 1 < rest.length
+        raise ArgumentError, "wrong number of arguments (#{1+rest.length} for 2)"
+      end
+      if !rest.empty? && block_given?
+        raise ArgumentError, "block supersedes default value argument"
+      end
+      uname = uname.universal_name if uname.respond_to? :universal_name
+      return update_attribute_hash.fetch(uname) {
+        if block_given?
+          return yield(uname)
+        elsif !rest.empty?
+          return rest[0]
+        else
+          raise IndexError, "attribute not found: #{uname.inspect}"
+        end
+      }
+    end
+
+    def fetch_attr(uname, *rest, &block)
+      if 1 < rest.length
+        raise ArgumentError, "wrong number of arguments (#{1+rest.length} for 2)"
+      end
+      if !rest.empty? && block_given?
+        raise ArgumentError, "block supersedes default value argument"
+      end
+      uname = uname.universal_name if uname.respond_to? :universal_name
+      return update_attribute_hash.fetch(uname) {
+        if block_given?
+          return yield(uname)
+        elsif !rest.empty?
+          return rest[0]
+        else
+          raise IndexError, "attribute not found: #{uname.inspect}"
+        end
+      }.to_s
+    end
+
+    def get_attribute(uname)
+      uname = uname.universal_name if uname.respond_to? :universal_name
+      update_attribute_hash[uname]
+    end 
+
+    def get_attr(uname)
+      if text = update_attribute_hash[uname]
+        text.to_s
+      else
+        nil 
+      end
+    end
+
+  end
+
 end

@@ -2,6 +2,7 @@ require 'test/unit'
 require 'htree/doc'
 require 'htree/elem'
 require 'htree/equality'
+require 'htree/traverse'
 
 class TestElemNew < Test::Unit::TestCase
   def test_empty

@@ -79,16 +79,6 @@ module HTree
       @name
     end
 
-    def name
-      @name.universal_name
-    end
-
-    def namespace_prefix() @name.namespace_prefix end
-    def namespace_uri() @name.namespace_uri end
-    def local_name() @name.local_name end
-    def universal_name() @name.universal_name end
-    def qualified_name() @name.qualified_name end
-
     def make_context(inherited_context)
       inherited_context.subst_namespaces(@xmlns_decls)
     end
@@ -106,49 +96,6 @@ module HTree
         yield name, text
       }
       nil
-    end
-
-    def each_attr
-      @attributes.each {|name, text|
-        next if name.xmlns?
-        yield name.universal_name, text.to_s
-      }
-      nil
-    end
-
-    def fetch_attribute(universal_name, *rest)
-      each_attribute {|name, text|
-        return text if universal_name == name.universal_name
-      }
-      if block_given?
-        yield
-      elsif !rest.empty?
-        rest[0]
-      else
-        raise IndexError, "attribute not found: #{universal_name.inspect}"
-      end
-    end
-
-    def fetch_attr(universal_name, *rest)
-      text = fetch_attribute(universal_name) {
-        if block_given?
-          return yield
-        elsif !rest.empty?
-          return rest[0]
-        else
-          raise IndexError, "attribute not found: #{universal_name.inspect}"
-        end
-      }
-      text.to_s
-    end
-
-    def get_attribute(universal_name)
-      fetch_attribute(universal_name, nil)
-    end
-
-    def get_attr(universal_name)
-      text = fetch_attribute(universal_name, nil)
-      text && text.to_s
     end
   end
 

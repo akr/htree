@@ -60,41 +60,32 @@ module HTree
       @empty = children == nil && etag == nil
       @etag = etag
     end
-    attr_reader :children
 
-    def context; @stag.context end
-    
-    # +name+ returns universal name of the element as a string.
-    def name; @stag.universal_name end
-    def qualified_name; @stag.qualified_name end
-    def element_name; @stag.element_name end
-
-    def attributes
-      result = {}
-      @stag.each_attribute {|name, text|
-        result[name] = text
-      }
-      result
+    # +children+ returns children nodes as an array.
+    def children
+      @children.dup
     end
 
-    def each_attribute(&block); @stag.each_attribute(&block) end
-    def each_attr(&block); @stag.each_attr(&block) end
-    def fetch_attribute(uname, *rest, &block); @stag.fetch_attribute(uname, *rest, &block) end
-    def fetch_attr(uname, *rest, &block); @stag.fetch_attr(uname, *rest, &block) end
-    def get_attribute(uname, *rest, &block); @stag.get_attribute(uname, *rest, &block) end
-    def get_attr(uname, *rest, &block); @stag.get_attr(uname, *rest, &block) end
+    def context; @stag.context end
+
+    # +element_name+ returns the name of the element name as a Name object.
+    def element_name() @stag.element_name end
 
     def empty_element?
       @empty
+    end
+
+    def each_attribute(&block) # :yields: attr_name, attr_text
+      @stag.each_attribute(&block)
     end
 
     def get_subnode(index)
       case index
       when String
         name = Name.parse_attribute_name(index, DefaultContext)
-        @stag.get_attribute(name.universal_name)
+        get_attribute(name.universal_name) # xxx: defined in traverse.rb
       when Name
-        @stag.get_attribute(index.universal_name)
+        get_attribute(index.universal_name)
       when Integer
         @children[index]
       else

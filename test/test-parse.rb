@@ -1,6 +1,7 @@
 require 'test/unit'
 require 'htree/parse'
 require 'htree/equality'
+require 'htree/traverse'
 
 class TestParse < Test::Unit::TestCase
   def test_empty

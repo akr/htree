@@ -17,7 +17,7 @@ module HTree
 
   # :stopdoc:
   class Doc; def node_test_string() 'doc()' end end
-  class Elem; alias node_test_string qualified_name end
+  class Elem; def node_test_string() @stag.element_name.qualified_name end end
   class Text; def node_test_string() 'text()' end end
   class BogusETag; def node_test_string() 'bogus-etag()' end end
   class XMLDecl; def node_test_string() 'xml-declaration()' end end
@@ -163,10 +163,12 @@ module HTree::Container::Loc
 end
 
 class HTree::Elem::Loc
-  # +name+ returns universal name of the element as a string.
-  def name
-    @node.name
-  end
+  def context() @node.context end
+
+  # +element_name+ returns the name of the element name as a Name object.
+  def element_name() @node.element_name end
+
+  def empty_element?() @node.empty_element? end
 
   # +each_attribute+ iterates over each attributes.
   def each_attribute

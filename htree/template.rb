@@ -227,6 +227,7 @@
 require 'htree/parse'
 require 'htree/gencode'
 require 'htree/equality'
+require 'htree/traverse'
 
 # <code>HTree.expand_template</code> expands a template.
 #
