@@ -161,7 +161,7 @@ module HTree
     def each_hyperlink # :yields: text
       links = []
       each_hyperlink_attribute {|elem, attr, hyperlink|
-        yields hyperlink
+        yield hyperlink
       }
     end
 
