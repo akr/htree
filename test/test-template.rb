@@ -47,6 +47,11 @@ class TestText < Test::Unit::TestCase
       '<span _iter_content=[1,2,3].each//v><i _text=v /></span>')
   end
 
+  def test_iter_local_template
+    assert_xhtml('<o><i>1</i></o><o><i>2</i></o><o><i>3</i></o>',
+      '<o _iter=[1,2,3].each//v><i _call=m /><i _template=m _text=v></i></o>')
+  end
+
   def test_call
     assert_xhtml('<f>1</f>',
       '<e _call=m(1) /><f _template=m(v) _text=v></f>')
@@ -61,6 +66,4 @@ End
       HTree.expand_template("#{File.dirname __FILE__}/template.html", "aaa",
         'US-ASCII', ''))
   end
-
-
 end

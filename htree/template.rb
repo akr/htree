@@ -612,7 +612,36 @@ End
     when :empty
       nil
     when :content
-      TemplateNode.new(node.children.map {|n| compile_node(n, local_templates) })
+      subtemplates = []
+      children = []
+      node.children.each {|c|
+        children << extract_templates(c, subtemplates, false)
+      }
+      if subtemplates.empty?
+        TemplateNode.new(node.children.map {|n|
+          compile_node(n, local_templates)
+        })
+      else
+        local_templates = local_templates.dup
+        decl = ''
+        subtemplates.each {|sub_name_args, sub_node|
+          sub_name = sub_name_args[ID_PAT]
+          local_templates[sub_name] = sub_name
+          decl << "#{sub_name} = "
+        }
+        decl << "nil\n"
+        defs = []
+        subtemplates.each {|sub_name_args, sub_node|
+          defs << lambda {|out, context|
+            out.output_logic_line compile_local_template(sub_name_args, sub_node, local_templates)
+          }
+        }
+        TemplateNode.new(
+          lambda {|out, context| out.output_logic_line decl },
+          defs,
+          children.map {|n| compile_node(n, local_templates) }
+        )
+      end
     when :text
       _, expr = logic
       TemplateNode.new(lambda {|out, context| out.output_dynamic_text expr })
