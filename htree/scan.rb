@@ -57,36 +57,34 @@ module HTree
     #ProcIns = /<\?([^>]*)>/m
   end
 
-  def HTree.scan(str)
+  def HTree.scan(input)
     is_xml = false
-    cdata_content = false
-    text = nil
-    str.scan(/(#{Pat::XmlDecl})
-             |(#{Pat::DocType})
-             |(#{Pat::XmlProcIns})
-             |(#{Pat::StartTag})
-             |(#{Pat::EndTag})
-             |(#{Pat::EmptyTag})
-             |(#{Pat::Comment})
-             |(#{Pat::CDATA})
-             |[^<>]+|[<>]/ox) {
+    cdata_content = nil
+    text_start = 0
+    input.scan(/(#{Pat::XmlDecl})
+               |(#{Pat::DocType})
+               |(#{Pat::XmlProcIns})
+               |(#{Pat::StartTag})
+               |(#{Pat::EndTag})
+               |(#{Pat::EmptyTag})
+               |(#{Pat::Comment})
+               |(#{Pat::CDATA})/ox) {
+      match = $~
       if cdata_content
         str = $&
         if $5 && str[Pat::Name] == cdata_content
-          if text
-            yield [:text_cdata_content, text]
-            text = nil
+          text_end = match.begin(0)
+          if text_start < text_end
+            yield [:text_cdata_content, input[text_start...text_end]]
+            text_start = match.end(0)
           end
           yield [:etag, str]
           cdata_content = nil
-        else
-          text ||= ''
-          text << str
         end
-      elsif $+
-        if text
-          yield [:text_pcdata, text]
-          text = nil
+      else
+        text_end = match.begin(0)
+        if text_start < text_end
+          yield [:text_pcdata, input[text_start...text_end]]
         end
         if $1
           yield [:xmldecl, $&]
@@ -111,16 +109,15 @@ module HTree
         else
           raise Exception, "unknown match [bug]"
         end
-      else
-        text ||= ''
-        text << $&
+        text_start = match.end(0)
       end
     }
-    if text
+    text_end = input.length
+    if text_start < text_end
       if cdata_content
-        yield [:text_cdata_content, text]
+        yield [:text_cdata_content, input[text_start...text_end]]
       else
-        yield [:text_pcdata, text]
+        yield [:text_pcdata, input[text_start...text_end]]
       end
     end
   end

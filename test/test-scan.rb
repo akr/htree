@@ -64,4 +64,17 @@ class TestScan < Test::Unit::TestCase
     ], scan(s))
   end
 
+  def test_text
+    s = 'a<e>b<e>c<e>d'
+    assert_equal([
+      [:text_pcdata, 'a'],
+      [:stag, '<e>'],
+      [:text_pcdata, 'b'],
+      [:stag, '<e>'],
+      [:text_pcdata, 'c'],
+      [:stag, '<e>'],
+      [:text_pcdata, 'd'],
+    ], scan(s))
+  end
+
 end
