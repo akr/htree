@@ -299,7 +299,7 @@ class HTree::Location
       loc_list.each {|loc|
         if parent = loc.parent
           q.text '/'
-          q.fill_breakable ''
+          q.group { q.breakable '' }
           q.text parent.node.find_loc_step(loc.index)
         else
           q.text loc.node.node_test_string
