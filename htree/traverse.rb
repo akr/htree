@@ -192,13 +192,24 @@ module HTree
         end
       } 
 
-      traverse_element('{http://purl.org/dc/elements/1.1/}creator') {|e|
-        begin
-          author = e.extract_text.to_s.strip
-          return author if !author.empty?
-        rescue IndexError
+      if root.name == '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF'
+        if channel = find_element('{http://purl.org/rss/1.0/}channel')
+          channel.traverse_element('{http://purl.org/dc/elements/1.1/}creator') {|e|
+            begin
+              author = e.extract_text.to_s.strip
+              return author if !author.empty?
+            rescue IndexError
+            end
+          }
+          channel.traverse_element('{http://purl.org/dc/elements/1.1/}publisher') {|e|
+            begin
+              author = e.extract_text.to_s.strip
+              return author if !author.empty?
+            rescue IndexError
+            end
+          }
         end
-      }
+      end
 
       nil
     end
