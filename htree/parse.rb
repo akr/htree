@@ -176,12 +176,13 @@ module HTree
 
   class STag
     def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext)
-      if /\A(?:#{Pat::StartTag}|#{Pat::EmptyTag})\z/o !~ raw_string
-        raise HTree::Error, "cannot recognize as start tag: #{raw_string.inspect}"
+      tag_string = raw_string.sub(/#{Pat::EOL}\z/o, '')
+      if /\A(?:#{Pat::StartTag}|#{Pat::EmptyTag})\z/o !~ tag_string
+        raise HTree::Error, "cannot recognize as start tag: #{tag_string.inspect}"
       end
 
       attrs = []
-      case raw_string
+      case tag_string
       when /\A#{Pat::ValidStartTag_C}\z/o, /\A#{Pat::ValidEmptyTag_C}\z/o
         qname = $1
         $2.scan(Pat::ValidAttr_C) {
@@ -198,7 +199,7 @@ module HTree
           attrs << [$1, $2 || $3]
         end
       else
-        raise Exception, "[bug] cannot recognize as start tag: #{raw_string.inspect}"
+        raise Exception, "[bug] cannot recognize as start tag: #{tag_string.inspect}"
       end
 
       qname = qname.downcase unless case_sensitive
@@ -226,8 +227,9 @@ module HTree
 
   class ETag
     def ETag.parse(raw_string, case_sensitive=false)
-      unless /\A#{Pat::EndTag_C}\z/o =~ raw_string
-        raise HTree::Error, "cannot recognize as end tag: #{raw_string.inspect}"
+      tag_string = raw_string.sub(/\A#{Pat::EOL}/o, '')
+      unless /\A#{Pat::EndTag_C}\z/o =~ tag_string
+        raise HTree::Error, "cannot recognize as end tag: #{tag_string.inspect}"
       end
 
       qname = $1

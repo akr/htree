@@ -31,4 +31,10 @@ class TestParse < Test::Unit::TestCase
     assert_equal('x', t.target)
     assert_equal(nil, t.content)
   end
+
+  def test_eol_html
+    t1 = HTree::Elem.new('a', 'b')
+    t2 = HTree.parse("<a>\nb\n</a>").root
+    assert_equal(t1, t2)
+  end
 end
