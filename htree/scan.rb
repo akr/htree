@@ -109,7 +109,7 @@ module HTree
         elsif $8
           yield [:text_cdata_section, $&]
         else
-          raise "unknown match [bug]"
+          raise Exception, "unknown match [bug]"
         end
       else
         text ||= ''

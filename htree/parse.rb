@@ -170,14 +170,14 @@ module HTree
     when :text_cdata_section
       Text.parse_cdata_section(structure[1])
     else
-      raise "[bug] unknown structure: #{structure.inspect}"
+      raise Exception, "[bug] unknown structure: #{structure.inspect}"
     end
   end
 
   class STag
     def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext)
       if /\A(?:#{Pat::StartTag}|#{Pat::EmptyTag})\z/o !~ raw_string
-        raise "cannot recognize as start tag: #{raw_string.inspect}"
+        raise HTree::Error, "cannot recognize as start tag: #{raw_string.inspect}"
       end
 
       attrs = []
@@ -198,7 +198,7 @@ module HTree
           attrs << [$1, $2 || $3]
         end
       else
-        raise "[bug] cannot recognize as start tag: #{raw_string.inspect}"
+        raise Exception, "[bug] cannot recognize as start tag: #{raw_string.inspect}"
       end
 
       qname = qname.downcase unless case_sensitive
@@ -227,7 +227,7 @@ module HTree
   class ETag
     def ETag.parse(raw_string, case_sensitive=false)
       unless /\A#{Pat::EndTag_C}\z/o =~ raw_string
-        raise "cannot recognize as end tag: #{raw_string.inspect}"
+        raise HTree::Error, "cannot recognize as end tag: #{raw_string.inspect}"
       end
 
       qname = $1
@@ -271,7 +271,7 @@ module HTree
 
     def Text.parse_cdata_section(raw_string)
       unless /\A#{Pat::CDATA_C}\z/o =~ raw_string
-        raise "cannot recognize as CDATA section: #{raw_string.inspect}"
+        raise HTree::Error, "cannot recognize as CDATA section: #{raw_string.inspect}"
       end
 
       content = $1
@@ -285,7 +285,7 @@ module HTree
   class XMLDecl
     def XMLDecl.parse(raw_string)
       unless /\A#{Pat::XmlDecl_C}\z/o =~ raw_string
-        raise "cannot recognize as XML declaration: #{raw_string.inspect}"
+        raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
       end
 
       version = $1 || $2
@@ -308,7 +308,7 @@ module HTree
   class DocType
     def DocType.parse(raw_string, xmldecl_seen)
       unless /\A#{Pat::DocType_C}\z/o =~ raw_string
-        raise "cannot recognize as XML declaration: #{raw_string.inspect}"
+        raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
       end
 
       root_element_name = $1
@@ -326,7 +326,7 @@ module HTree
   class ProcIns
     def ProcIns.parse(raw_string)
       unless /\A#{Pat::XmlProcIns_C}\z/o =~ raw_string
-        raise "cannot recognize as processing instruction: #{raw_string.inspect}"
+        raise HTree::Error, "cannot recognize as processing instruction: #{raw_string.inspect}"
       end
 
       target = $1
@@ -341,7 +341,7 @@ module HTree
   class Comment
     def Comment.parse(raw_string)
       unless /\A#{Pat::Comment_C}\z/o =~ raw_string
-        raise "cannot recognize as comment: #{raw_string.inspect}"
+        raise HTree::Error, "cannot recognize as comment: #{raw_string.inspect}"
       end
 
       content = $1
