@@ -101,6 +101,14 @@ module HTree
     def qualified_name; @stag.qualified_name end
     def element_name; @stag.element_name end
 
+    def attributes
+      result = {}
+      @stag.each_attribute {|name, text|
+        result[name] = text
+      }
+      result
+    end
+
     def each_attribute(&block); @stag.each_attribute(&block) end
     def each_attr(&block); @stag.each_attr(&block) end
     def fetch_attribute(uname, *rest, &block); @stag.fetch_attribute(uname, *rest, &block) end
