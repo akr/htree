@@ -2,25 +2,42 @@
 #
 # == Template Syntax
 #
-# The template engine in htree uses special HTML attributes which begins with
-# a underscore for template directives.
+# The htree template engine converts HTML and some data to XHTML.
+# A template directive is described as special HTML attribute which name
+# begins with underscore.
+# The template directives are listed as follows.
 #
 # - <elem \_attr_<i>name</i>="<i>expr</i>">content</elem>
+# - <elem _text="<i>expr</i>">dummy-content</elem>
+# - <elem _if="<i>expr</i>" _else="<i>mod.name(args)</i>">then-content</elem>
+# - <elem _iter="<i>expr.meth(args)//vars</i>">content</elem>
+# - <elem _iter_content="<i>expr.meth(args)//vars</i>">content</elem>
+# - <elem _call="<i>mod.name(args)</i>">dummy-content</elem>
+# - <elem _template="<i>name(vars)</i>">body</elem>
+#
+# Detailed explanation is follows.
+#
+# - attribute substitution
+#   - <elem \_attr_<i>name</i>="<i>expr</i>">content</elem>
 #
 #   \_attr_<i>name</i> is used for a dynamic attribute.
-#
+# 
 #   It is expanded to <i>name</i>="content".
 #   The content is escaped form of a value of _expr_.
 #
-# - <elem _text="<i>expr</i>">dummy-content</elem>
+#   \_attr_<i>name</i> can be used multiple times in single element.
+#
+# - text substitution
+#   - <elem _text="<i>expr</i>">dummy-content</elem>
 #
 #   _text substitutes content of the element by the string
 #   evaluated from _expr_.
 #   If the element is span and there is no other attributes,
 #   no tags are produced.
 #
-# - <elem _if="<i>expr</i>">then-content</elem>
-# - <elem _if="<i>expr</i>" _else="<i>name(args)</i>">then-content</elem>
+# - conditional
+#   - <elem _if="<i>expr</i>">then-content</elem>
+#   - <elem _if="<i>expr</i>" _else="<i>name(args)</i>">then-content</elem>
 #
 #   _if is used for conditional.
 #
@@ -29,17 +46,67 @@
 #   Otherwise, it is replaced by other template specified by _else attribute.
 #   If _else attribute is not given, it just replaced by empty.
 #
-# - <elem _iter="<i>expr.meth(args)//vars</i>" >content</elem>
-# - <elem _iter_content="<i>expr.meth(args)//vars</i>" >content</elem>
+# - iteration
+#   - <elem _iter="<i>expr.meth(args)//vars</i>">content</elem>
+#   - <elem _iter_content="<i>expr.meth(args)//vars</i>">content</elem>
 #
 #   _iter and _iter_content is used for iteration.
+#   _iter iterates the element itself: <elem>content</elem><elem>content</elem>
+#   but _iter_content iterates the content: <elem>content content</elem>.
 #
-# - <elem _call="<i>name(args)</i>">dummy-content</elem>
-# - <elem _call="<i>mod.name(args)</i>">dummy-content</elem>
+#   <i>expr.meth(args)</i> specifies iterator method call.
+#   It is actually called with a block.
+#   The block have block parameters <i>vars</i>.
+#   <i>vars</i> must be variables separated by comma.
+#
+# - template call
+#   - <elem _call="<i>name(args)</i>">dummy-content</elem>
+#   - <elem _call="<i>mod.name(args)</i>">dummy-content</elem>
 #   
-#   _call is used to expand template function.
+#   _call is used to expand a template function.
+#   The template function is defined by _template.
 #
-# - <elem _template="<i>name(vars)</i>">body</elem>
+#   A local template can be called as follows:
+#
+#     HTree.expand_template{<<'End'}
+#     <a _template=ruby_talk(num)
+#        _attr_href='"http://ruby-talk.org/#{num}"'
+#        >[ruby-talk:<span _text=num>nnn</span>]</a>
+#     Ruby 1.8.0 is released at <span _call=ruby_talk(77946) />.
+#     Ruby 1.8.1 is released at <span _call=ruby_talk(88814) />.
+#     End
+#
+#   <i>mod</i> should be the result of HTree.compile_template.
+#
+#     M = HTree.compile_template(<<'End')
+#     <a _template=ruby_talk(num)
+#        _attr_href='"http://ruby-talk.org/#{num}"'
+#        >[ruby-talk:<span _text=num>nnn</span>]</a>
+#     End
+#     HTree.expand_template{<<'End'}
+#     <html>
+#     Ruby 1.8.0 is released at <span _call=M.ruby_talk(77946) />.
+#     Ruby 1.8.1 is released at <span _call=M.ruby_talk(88814) />.
+#     </html>
+#     End
+#
+#   The module can included.
+#   In such case, the template function can becalled without <i>mod.</i> prefix.
+#
+#     include HTree.compile_template(<<'End')
+#     <a _template=ruby_talk(num)
+#        _attr_href='"http://ruby-talk.org/#{num}"'
+#        >[ruby-talk:<span _text=num>nnn</span>]</a>
+#     End
+#     HTree.expand_template{<<'End'}
+#     <html>
+#     Ruby 1.8.0 is released at <span _call=ruby_talk(77946) />.
+#     Ruby 1.8.1 is released at <span _call=ruby_talk(88814) />.
+#     </html>
+#     End
+#
+# - template definition
+#   - <elem _template="<i>name(vars)</i>">body</elem>
 #
 #   _template defines a template function which is usable by _call.
 #
@@ -189,19 +256,20 @@ End
       node.subst_subnode(subst)
     when HTree::Elem
       ht_attrs, rest_attrs = node.attributes.partition {|name, text| template_attribute? name }
-      ht_attrs = ht_attrs.sort_by {|htname, text| htname.universal_name }
-      case ht_attrs.map {|htname, text| htname.universal_name }
-      when []
+      if ht_attrs.empty?
         subst = {}
         node.children.each_with_index {|n, i|
           subst[i] = extract_templates(n, templates, is_toplevel)
         }
         node.subst_subnode(subst)
-      when ['_template']
-        name_fargs = ht_attrs[0][1].to_s
-        templates << [name_fargs, node.subst_subnode('_template' => nil)]
-        nil
       else
+        ht_attrs.each {|htname, text|
+          if htname.universal_name == '_template'
+            name_fargs = text.to_s
+            templates << [name_fargs, node.subst_subnode('_template' => nil)]
+            return nil
+          end
+        }
         if is_toplevel
           raise HTree::Error, "unexpected template attributes in toplevel: #{ht_attrs.inspect}"
         else
@@ -255,7 +323,7 @@ End
 
     <<"End"
 #{name} = lambda {|#{args2.join(',')}|
-#{compile_template_body(outvar, contextvar, false, node)}\
+#{compile_template_body(outvar, contextvar, node, false, local_templates)}\
 }
 End
   end
@@ -505,8 +573,10 @@ End
           end
           if recv
             out.output_logic_line "(#{recv})._ht_#{meth}(#{as.join('')})"
-          else
+          elsif local_templates.include? meth
             out.output_logic_line "#{meth}.call(#{as.join('')})"
+          else
+            out.output_logic_line "_ht_#{meth}(#{as.join('')})"
           end
         }
       )
