@@ -17,7 +17,7 @@ module HTree
     def display_xml(out=$stdout, encoding=HTree::Encoder.internal_charset)
       encoder = HTree::Encoder.new(encoding)
       self.output(encoder, HTree::DefaultContext)
-      out << encoder.finish
+      out << encoder.finish_with_xmldecl
       out
     end
   end
