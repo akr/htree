@@ -3,6 +3,15 @@ require 'htree/tag'
 require 'htree/container'
 
 class TestToXML < Test::Unit::TestCase
+  def test_name
+    assert_equal('n', HTree::Name.new(false, 'u', 'n').to_xml)
+    assert_equal('p:n', HTree::Name.new('p', 'u', 'n').to_xml)
+    assert_raises(HTree::Name::Error) { HTree::Name.new(nil, 'u', 'n').to_xml }
+    assert_equal('n', HTree::Name.new(nil, nil, 'n').to_xml)
+    assert_equal('xmlns', HTree::Name.new('xmlns', nil, nil).to_xml)
+    assert_equal('xmlns:n', HTree::Name.new('xmlns', nil, 'n').to_xml)
+  end
+
   def test_stag_to_xml
     assert_equal('<name>',
       HTree::STag.new("name").to_xml)

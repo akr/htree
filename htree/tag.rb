@@ -96,6 +96,20 @@ n=                              nil     nil     n
         "xmlns"
       end
     end
+
+    def to_xml
+      if xmlns?
+        if @local_name
+          "xmlns:#{@local_name}"
+        else
+          "xmlns"
+        end
+      elsif qname = qualified_name
+        qname
+      else
+        raise Name::Error, "prefix not determined for #{universal_name}"
+      end
+    end
   end
 
   class STag
@@ -196,23 +210,23 @@ n=                              nil     nil     n
     #end
 
     def to_xml
-      result = "<#{@name.qualified_name || @name.universal_name}"
+      result = "<#{@name.to_xml}"
       @attributes.each {|aname, text|
-        result << " #{aname.qualified_name}=#{text.to_xml_attvalue}"
+        result << " #{aname.to_xml}=#{text.to_xml_attvalue}"
       }
       result << '>'
     end
 
     def to_emptytag_xml
-      result = "<#{@name.qualified_name || @name.universal_name}"
+      result = "<#{@name.to_xml}"
       @attributes.each {|aname, text|
-        result << " #{aname.qualified_name}=#{text.to_xml_attvalue}"
+        result << " #{aname.to_xml}=#{text.to_xml_attvalue}"
       }
       result << ' />'
     end
 
     def to_etag_xml
-      "</#{@name.qualified_name || @name.universal_name}>"
+      "</#{@name.to_xml}>"
     end
 
   end
