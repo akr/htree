@@ -122,6 +122,33 @@ module HTree
   end
   # :startdoc:
 
+  module Traverse
+    # +traverse_text+ traverses texts in the tree
+    def traverse_text(&block) # :yields: text
+      traverse_text_internal(&block)
+      nil
+    end
+  end
+
+  # :stopdoc:
+  module Container::Trav
+    def traverse_text_internal(&block)
+      each_child {|c| c.traverse_text_internal(&block) }
+    end
+  end
+
+  module Leaf::Trav
+    def traverse_text_internal
+    end
+  end
+
+  module Text::Trav
+    def traverse_text_internal
+      yield self
+    end
+  end
+  # :startdoc:
+
   module Container::Trav
     # +filter+ rebuilds the tree without some components.
     #
