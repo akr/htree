@@ -120,7 +120,8 @@
 #     End
 #
 #   The module can included.
-#   In such case, the template function can becalled without <i>mod.</i> prefix.
+#   In such case, the template function can be called without <i>mod.</i>
+#   prefix.
 #
 #     include HTree.compile_template(<<'End')
 #     <a _template=ruby_talk(num)
@@ -157,6 +158,53 @@
 # - HTree.compile_template(<i>template_string</i>) -> Module
 # - HTree{<i>template_string</i>} -> HTree::Doc
 # - HTree(<i>html_string</i>) -> HTree::Doc
+#
+# == Design Decision on Design/Logic Separation
+#
+# HTree template engine doesn't force you to separate design and logic.
+# Any logic (Ruby code) can be embedded in design (HTML).
+#
+# However the template engine cares the separation by logic refactorings.
+# The logic is easy to move between a template and an application.
+# For example, following tangled template
+#
+#   tmpl.html:
+#     <html>
+#       <head>
+#         <title _text="very-complex-ruby-code">dummy</title>
+#       </head>
+#       ...
+#     </html>
+#
+#   app.rb:
+#     HTree.expand_template('tmpl.html', obj)
+#
+# can be refactored as follows.
+#
+#   tmpl.html:
+#     <html>
+#       <head>
+#         <title _text="title">dummy</title>
+#       </head>
+#       ...
+#     </html>
+#
+#   app.rb:
+#     def obj.title
+#       very-complex-ruby-code
+#     end
+#     HTree.expand_template('tmpl.html', obj)
+# 
+# In general, any expression in a template can be refactored to an application
+# by extracting it as a method.
+# In JSP, this is difficult especially for a code fragment of an iteration.
+#
+# Also HTree encourages to separate business logic (Ruby code in an application)
+# and presentation logic (Ruby code in a template).
+# For example, presentation logic to color table rows stripe
+# can be embedded in a template.
+# It doesn't need to tangle an application. 
+#
 
 require 'htree/parse'
 require 'htree/gencode'
@@ -180,7 +228,7 @@ require 'htree/equality'
 # - HTree.expand_template{<i>template_string</i>}
 #
 # Ruby expressions in the template file specified by _template_pathname_ are
-# evaluated in the context of the optional second argument <i>obj</i>.
+# evaluated in the context of the optional second argument <i>obj</i> as follows.
 # I.e. the pseudo variable self in the expressions is bound to <i>obj</i>.
 #
 #   HTree.expand_template(template_pathname, obj)
@@ -189,6 +237,8 @@ require 'htree/equality'
 # in the context of the caller of HTree.expand_template.
 # (binding information is specified by the block.)
 # I.e. they can access local variables etc.
+# We recommend to specify template_string as a literal string without
+# interpolation because dynamically generated string may break lexical scope.
 #
 # HTree.expand_template has two more optional arguments:
 # <i>out</i>, <i>encoding</i>.
