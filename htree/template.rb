@@ -146,9 +146,9 @@
 # == Method Summary
 #
 # - HTree.expand_template(<i>pathname</i>) -> STDOUT
-# - HTree.expand_template(<i>pathname</i>, <i>arg</i>) -> STDOUT
-# - HTree.expand_template(<i>pathname</i>, <i>arg</i>, <i>encoding</i>) -> STDOUT
-# - HTree.expand_template(<i>pathname</i>, <i>arg</i>, <i>encoding</i>, <i>out</i>) -> <i>out</i>
+# - HTree.expand_template(<i>pathname</i>, <i>obj</i>) -> STDOUT
+# - HTree.expand_template(<i>pathname</i>, <i>obj</i>, <i>encoding</i>) -> STDOUT
+# - HTree.expand_template(<i>pathname</i>, <i>obj</i>, <i>encoding</i>, <i>out</i>) -> <i>out</i>
 #
 # - HTree.expand_template{<i>template_string</i>} -> STDOUT
 # - HTree.expand_template(<i>encoding</i>){<i>template_string</i>} -> STDOUT
