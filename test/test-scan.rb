@@ -141,4 +141,13 @@ class TestScan < Test::Unit::TestCase
     assert_equal([true, true], HTree.scan('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">') {})
   end
 
+  def test_complex_attr
+    assert_equal([[:emptytag, '<e a=">"/>']], scan('<e a=">"/>'))
+  end
+
+  def test_bare_slash
+    assert_equal([[:stag, '<n dir=/foo/bar/>']], scan('<n dir=/foo/bar/>'))
+    assert_equal([[:stag, '<n a=v/>']], scan('<n a=v/>'))
+  end
+
 end

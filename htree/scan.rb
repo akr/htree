@@ -14,6 +14,8 @@ module HTree
     CDATA_C = /<!\[CDATA\[(.*?)\]\]>/m
     CDATA = CDATA_C.disable_capture
 
+    QuotedAttr_C = /(#{Name})\s*=\s*(?:"([^"]*)"|'([^']*)')/
+    QuotedAttr = QuotedAttr_C.disable_capture
     ValidAttr_C = /(#{Name})\s*=\s*(?:"([^"]*)"|'([^']*)'|(#{NameChar}*))|(#{Nmtoken})/
     ValidAttr = ValidAttr_C.disable_capture
     InvalidAttr1_C = /(#{Name})\s*=\s*(?:'([^'<>]*)'|"([^"<>]*)"|([^\s<>"']*))|(#{Nmtoken})/
@@ -21,17 +23,21 @@ module HTree
     InvalidAttr1End_C =   /(#{Name})(?:\s*=\s*(?:'([^'<>]*)|"([^"<>]*)))/
     InvalidAttr1End = InvalidAttr1End_C.disable_capture
 
+    QuotedStartTag_C = /<(#{Name})((?:\s+#{QuotedAttr})*)\s*>/
+    QuotedStartTag = QuotedStartTag_C.disable_capture
     ValidStartTag_C = /<(#{Name})((?:\s+#{ValidAttr})*)\s*>/
     ValidStartTag = ValidStartTag_C.disable_capture
     InvalidStartTag_C = /<(#{Name})((?:(?:\b|\s+)#{InvalidAttr1})*)((?:\b|\s+)#{InvalidAttr1End})?\s*>/
     InvalidStartTag = InvalidStartTag_C.disable_capture
-    StartTag = /#{ValidStartTag}|#{InvalidStartTag}/
+    StartTag = /#{QuotedStartTag}|#{ValidStartTag}|#{InvalidStartTag}/
 
+    QuotedEmptyTag_C = %r{<(#{Name})((?:\s+#{QuotedAttr})*)\s*/>}
+    QuotedEmptyTag = QuotedEmptyTag_C.disable_capture
     ValidEmptyTag_C = %r{<(#{Name})((?:\s+#{ValidAttr})*)\s*/>}
     ValidEmptyTag = ValidEmptyTag_C.disable_capture
     InvalidEmptyTag_C = %r{<(#{Name})((?:(?:\b|\s+)#{InvalidAttr1})*)((?:\b|\s+)#{InvalidAttr1End})?\s*/>}
     InvalidEmptyTag = InvalidEmptyTag_C.disable_capture
-    EmptyTag = /#{ValidEmptyTag}|#{InvalidEmptyTag}/
+    EmptyTag = /#{QuotedEmptyTag}|#{ValidEmptyTag}|#{InvalidEmptyTag}/
 
     EndTag_C = %r{</(#{Name})\s*>}
     EndTag = EndTag_C.disable_capture
@@ -64,18 +70,31 @@ module HTree
     cdata_content = nil
     text_start = 0
     first_element = true
+    index_xmldecl = 1
+    index_doctype = 2
+    index_xmlprocins = 3
+    index_quotedstarttag = 4
+    index_quotedemptytag = 5
+    index_starttag = 6
+    index_endtag = 7
+    index_emptytag = 8
+    index_comment = 9
+    index_cdata = 10
     input.scan(/(#{Pat::XmlDecl})
                |(#{Pat::DocType})
                |(#{Pat::XmlProcIns})
+               |(#{Pat::QuotedStartTag})
+               |(#{Pat::QuotedEmptyTag})
                |(#{Pat::StartTag})
                |(#{Pat::EndTag})
                |(#{Pat::EmptyTag})
                |(#{Pat::Comment})
-               |(#{Pat::CDATA})/ox) {
+               |(#{Pat::CDATA})
+               /ox) {
       match = $~
       if cdata_content
         str = $&
-        if $5 && str[Pat::Name] == cdata_content
+        if match.begin(index_endtag) && str[Pat::Name] == cdata_content
           text_end = match.begin(0)
           if text_start < text_end
             yield [:text_cdata_content, HTree.frozen_string(input[text_start...text_end])]
@@ -91,10 +110,10 @@ module HTree
           yield [:text_pcdata, HTree.frozen_string(input[text_start...text_end])]
         end
         text_start = match.end(0)
-        if match.begin(1)
+        if match.begin(index_xmldecl)
           yield [:xmldecl, HTree.frozen_string(str)]
           is_xml = true
-        elsif match.begin(2)
+        elsif match.begin(index_doctype)
           Pat::DocType_C =~ str
           root_element_name = $1
           public_identifier = $2 || $3
@@ -102,9 +121,9 @@ module HTree
           is_html = true if /\Ahtml\z/i =~ root_element_name
           is_xml = true if public_identifier && %r{\A-//W3C//DTD XHTML } =~ public_identifier
           yield [:doctype, HTree.frozen_string(str)]
-        elsif match.begin(3)
+        elsif match.begin(index_xmlprocins)
           yield [:procins, HTree.frozen_string(str)]
-        elsif match.begin(4)
+        elsif match.begin(index_starttag) || match.begin(index_quotedstarttag)
           yield stag = [:stag, HTree.frozen_string(str)]
           tagname = str[Pat::Name]
           if first_element
@@ -118,15 +137,15 @@ module HTree
           if !is_xml && ElementContent[tagname] == :CDATA
             cdata_content = tagname
           end
-        elsif match.begin(5)
+        elsif match.begin(index_endtag)
           yield [:etag, HTree.frozen_string(str)]
-        elsif match.begin(6)
+        elsif match.begin(index_emptytag) || match.begin(index_quotedemptytag)
           yield [:emptytag, HTree.frozen_string(str)]
           first_element = false
           #is_xml = true
-        elsif match.begin(7)
+        elsif match.begin(index_comment)
           yield [:comment, HTree.frozen_string(str)]
-        elsif match.begin(8)
+        elsif match.begin(index_cdata)
           yield [:text_cdata_section, HTree.frozen_string(str)]
         else
           raise Exception, "unknown match [bug]"

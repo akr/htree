@@ -202,7 +202,7 @@ module HTree
     when :elem
       _, stag_rawstring, children, etag_rawstring = structure
       etag = etag_rawstring && ETag.parse(etag_rawstring, is_xml, is_html)
-      stag = STag.parse(stag_rawstring, is_xml, is_html, inherited_context)
+      stag = STag.parse(stag_rawstring, true, is_xml, is_html, inherited_context)
       if !children.empty? || etag
         Elem.new!(stag,
                   children.map {|c| build_node(c, is_xml, is_html, stag.context) },
@@ -211,7 +211,7 @@ module HTree
         Elem.new!(stag)
       end
     when :emptytag
-      Elem.new!(STag.parse(structure[1], is_xml, is_html, inherited_context))
+      Elem.new!(STag.parse(structure[1], false, is_xml, is_html, inherited_context))
     when :bogus_etag
       BogusETag.parse(structure[1], is_xml, is_html)
     when :xmldecl
@@ -231,15 +231,7 @@ module HTree
     end
   end
 
-  def STag.parse(raw_string, is_xml, is_html, inherited_context=DefaultContext)
-    if /\A#{Pat::StartTag}\z/o =~ raw_string
-      is_stag = true
-    elsif /\A#{Pat::EmptyTag}\z/o =~ raw_string
-      is_stag = false
-    else
-      raise HTree::Error, "cannot recognize as start tag or empty tag: #{raw_string.inspect}"
-    end
-
+  def STag.parse(raw_string, is_stag, is_xml, is_html, inherited_context=DefaultContext)
     attrs = []
     if (is_stag ? /\A#{Pat::ValidStartTag_C}\z/o : /\A#{Pat::ValidEmptyTag_C}\z/o) =~ raw_string
       qname = $1
@@ -257,7 +249,7 @@ module HTree
         attrs << [$1, $2 || $3]
       end
     else
-      raise Exception, "[bug] cannot recognize as start tag: #{raw_string.inspect}"
+      raise HTree::Error, "cannot recognize as start tag or empty tag: #{raw_string.inspect}"
     end
 
     qname = qname.downcase if !is_xml && is_html
