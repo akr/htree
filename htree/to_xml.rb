@@ -8,7 +8,7 @@ module HTree
     # to_xml encodes the node in XML.
     #
     # The optional argument, <i>encoding</i>,
-    # specifies output MIME character encoding.
+    # specifies output MIME charset (character encoding).
     # If it is not specified, Encoder.internal_charset is used.
     def to_xml(encoding=Encoder.internal_charset)
       encoder = HTree::Encoder.new(encoding)
