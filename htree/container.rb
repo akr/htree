@@ -27,7 +27,17 @@ module HTree
       alias new! new
     end
 
-    AcceptableChild = [HTree::Text, HTree::ProcIns, HTree::Comment, HTree::Elem, HTree::BogusETag]
+    AcceptableChild = [
+      HTree::Text,
+      HTree::ProcIns,
+      HTree::Comment,
+      HTree::Elem,
+      HTree::BogusETag,
+      # However XMLDecl and DocType shouldn't appered under Elem, 
+      # it is permitted for round-tripness.
+      HTree::XMLDecl,
+      HTree::DocType,
+    ]
     def Elem.new(name, *args)
       if args.empty?
         new!(STag.new(name))
