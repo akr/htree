@@ -6,6 +6,7 @@ require 'htree/leaf'
 require 'htree/container'
 require 'htree/raw_string'
 require 'htree/context'
+require 'iconv'
 
 module HTree
   # HTree.parse parses <i>input</i> and return a document tree.
@@ -38,6 +39,13 @@ module HTree
     parse_as(input, DefaultContext, true)
   end
 
+  RepresentableCharset = {
+    'UTF8' => ['utf-8'],
+    'EUC' => ['euc-jp', 'euc-kr'],
+    'SJIS' => ['shift_jis'],
+    'NONE' => ['iso-8859-1'],
+  }
+
   def HTree.parse_as(input, context, is_xml) # :nodoc:
     input_charset = nil
     if input.respond_to? :read # IO, StringIO
@@ -49,8 +57,17 @@ module HTree
         input_charset = f.charset if f.respond_to? :charset
       }
     end
-    if input_charset && input_charset != Encoder.internal_charset
-      input = Iconv.conv(Encoder.internal_charset, input_charset, input)
+    if input_charset
+      input_charset = input_charset.downcase
+      unless RepresentableCharset[$KCODE].include?(input_charset)
+        RepresentableCharset[$KCODE].each {|internal_charset|
+          begin
+            input = Iconv.conv(internal_charset, input_charset, input)
+            break
+          rescue Iconv::Failure
+          end
+        }
+      end
     end
 
     tokens = []
