@@ -8,15 +8,36 @@ require 'htree/raw_string'
 require 'htree/context'
 
 module HTree
+  # HTree.parse returns parses <i>input</i> and return a document tree.
+  # represented by HTree::Doc.
+  #
+  # <i>input</i> should be a String or
+  # an object which respond to read or open method.
+  # For example, IO, StringIO, Pathname, URI::HTTP and URI::FTP is acceptable.
+  # Note that last URIs need open-uri to open.
+  #
+  # If opened file or read content has charset method,
+  # HTree.parse decode it according to $KCODE before parsing.
+  # Otherwise HTree.parse assumes the character encoding of the content is
+  # same as $KCODE.
+  # Note that the charste method is provided by URI::HTTP with open-uri.
   def HTree.parse(input)
     parse_as(input, HTMLContext, false)
   end
 
+  # HTree.parse_xml returns parses <i>input</i> and return a tree.
+  #
+  # It behaves almost same as HTree.parse but it assumes <i>input</> is XML
+  # even if no XML declaration.
+  # The assumption causes following differences.
+  # * doesn't downcase element name.
+  # * The content of <script> and <style> element is PCDATA, not CDATA.
+  # * doesn't assume a default namespace http://www.w3.org/1999/xhtml.
   def HTree.parse_xml(input)
     parse_as(input, DefaultContext, true)
   end
 
-  def HTree.parse_as(input, context, is_xml)
+  def HTree.parse_as(input, context, is_xml) # :nodoc:
     input_charset = nil
     if input.respond_to? :read # IO, StringIO
       input = input.read
@@ -42,7 +63,7 @@ module HTree
     Doc.new(nodes)
   end
 
-  def HTree.parse_pairs(tokens, is_xml)
+  def HTree.parse_pairs(tokens, is_xml) # :nodoc:
     stack = [[nil, nil, []]]
     tokens.each {|token|
       case token[0]
@@ -85,7 +106,7 @@ module HTree
     stack[0][2]
   end
 
-  def HTree.fix_structure_list(structure_list, is_xml)
+  def HTree.fix_structure_list(structure_list, is_xml) # :nodoc:
     result = []
     rest = structure_list.dup
     until rest.empty?
@@ -101,7 +122,7 @@ module HTree
     result
   end
 
-  def HTree.fix_element(elem, excluded_tags, included_tags, is_xml)
+  def HTree.fix_element(elem, excluded_tags, included_tags, is_xml) # :nodoc:
     stag_raw_string = elem[1]
     children = elem[2]
     if etag_raw_string = elem[3]
@@ -153,7 +174,7 @@ module HTree
     end
   end
 
-  def HTree.build_node(structure, is_xml, inherited_context=DefaultContext)
+  def HTree.build_node(structure, is_xml, inherited_context=DefaultContext) # :nodoc:
     case structure[0]
     when :elem
       _, stag_rawstring, children, etag_rawstring = structure
@@ -190,7 +211,7 @@ module HTree
   end
 
   class STag
-    def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext)
+    def STag.parse(raw_string, case_sensitive=false, inherited_context=DefaultContext) # :nodoc:
       if /\A#{Pat::StartTag}\z/o =~ raw_string
         is_stag = true
       elsif /\A#{Pat::EmptyTag}\z/o =~ raw_string
@@ -243,7 +264,7 @@ module HTree
   end
 
   class ETag
-    def ETag.parse(raw_string, case_sensitive=false)
+    def ETag.parse(raw_string, case_sensitive=false) # :nodoc:
       unless /\A#{Pat::EndTag_C}\z/o =~ raw_string
         raise HTree::Error, "cannot recognize as end tag: #{raw_string.inspect}"
       end
@@ -258,7 +279,7 @@ module HTree
   end
 
   class Text
-    def Text.parse_pcdata(raw_string)
+    def Text.parse_pcdata(raw_string) # :nodoc:
       fixed = raw_string.gsub(/&(?:(?:#[0-9]+|#x[0-9a-fA-F]+|([A-Za-z][A-Za-z0-9]*));?)?/o) {|s|
         name = $1
         case s
@@ -281,13 +302,13 @@ module HTree
       result
     end
 
-    def Text.parse_cdata_content(raw_string)
+    def Text.parse_cdata_content(raw_string) # :nodoc:
       result = Text.new(raw_string)
       result.raw_string = raw_string
       result
     end
 
-    def Text.parse_cdata_section(raw_string)
+    def Text.parse_cdata_section(raw_string) # :nodoc:
       unless /\A#{Pat::CDATA_C}\z/o =~ raw_string
         raise HTree::Error, "cannot recognize as CDATA section: #{raw_string.inspect}"
       end
@@ -301,7 +322,7 @@ module HTree
   end
 
   class XMLDecl
-    def XMLDecl.parse(raw_string)
+    def XMLDecl.parse(raw_string) # :nodoc:
       unless /\A#{Pat::XmlDecl_C}\z/o =~ raw_string
         raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
       end
@@ -324,7 +345,7 @@ module HTree
   end
 
   class DocType
-    def DocType.parse(raw_string, is_xml)
+    def DocType.parse(raw_string, is_xml) # :nodoc:
       unless /\A#{Pat::DocType_C}\z/o =~ raw_string
         raise HTree::Error, "cannot recognize as XML declaration: #{raw_string.inspect}"
       end
@@ -342,7 +363,7 @@ module HTree
   end
 
   class ProcIns
-    def ProcIns.parse(raw_string)
+    def ProcIns.parse(raw_string) # :nodoc:
       unless /\A#{Pat::XmlProcIns_C}\z/o =~ raw_string
         raise HTree::Error, "cannot recognize as processing instruction: #{raw_string.inspect}"
       end
@@ -357,7 +378,7 @@ module HTree
   end
 
   class Comment
-    def Comment.parse(raw_string)
+    def Comment.parse(raw_string) # :nodoc:
       unless /\A#{Pat::Comment_C}\z/o =~ raw_string
         raise HTree::Error, "cannot recognize as comment: #{raw_string.inspect}"
       end
