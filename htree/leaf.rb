@@ -28,6 +28,7 @@ module HTree
       if @standalone != nil
         out << " standalone=\"#{@standalone ? 'yes' : 'no'}\""
       end
+      out << "?>"
       out
     end
   end
