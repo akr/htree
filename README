@@ -1,0 +1,20 @@
+= htree - HTML/XML tree library
+
+htree provides a tree data structre which represent HTML and XML data.
+
+== Feature
+
+* Unified HTML/XML parser
+* roundtripping unparser
+#* XHTML/XML generator
+#* converter to REXML document
+
+== Usage
+
+#Following two-line script convert HTML to XHTML.
+#
+#  require 'htree'
+#  puts HTree.parse(STDIN).to_xhtml
+
+== Author
+Tanaka Akira <akr@m17n.org>
