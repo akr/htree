@@ -10,6 +10,7 @@
 #
 # - <elem \_attr_<i>name</i>="<i>expr</i>">content</elem>
 # - <elem _text="<i>expr</i>">dummy-content</elem>
+# - <elem _text><i>expr</i></elem>
 # - <elem _if="<i>expr</i>" _else="<i>mod.name(args)</i>">then-content</elem>
 # - <elem _iter="<i>expr.meth(args)//vars</i>">content</elem>
 # - <elem _iter_content="<i>expr.meth(args)//vars</i>">content</elem>
@@ -38,10 +39,13 @@
 #
 # - text substitution
 #   - <elem _text="<i>expr</i>">dummy-content</elem>
+#   - <elem _text><i>expr</i></elem>
 #
 #   _text substitutes content of the element by the string
 #   evaluated from _expr_.
-#   Usually you don't need to care escaping: &, < and > are automatically escaped.
+#   _expr_ is described in the attribute value or the content of the element.
+#
+#   If a result of _expr_ have &, < and/or >, they are automatically escaped.
 #   If you need to output character references,
 #   the value of _expr_ should be an object which have a +rcdata+ method such as an HTree::Text.
 #   If the value has a +rcdata+ method,
@@ -602,8 +606,19 @@ End
       case ht_names
       when []
         generate_logic_node([:tag, [:content]], node, local_templates)
-      when ['_text'] # <n _text="expr" />
-        generate_logic_node(compile_dynamic_text(ignore_tag, ht_vals[0]), node, local_templates)
+      when ['_text'] # <n _text="expr" /> or <n _text>expr</n>
+        if ht_vals[0] != '_text' # xxx: attribute value is really omitted?
+          generate_logic_node(compile_dynamic_text(ignore_tag, ht_vals[0]), node, local_templates)
+        else
+          children = node.children
+          if children.length != 1
+            raise HTree::Error, "_text expression has #{children.length} nodes"
+          end
+          if !children[0].text?
+            raise HTree::Error, "_text expression is not text: #{children[0].class}"
+          end
+          generate_logic_node(compile_dynamic_text(ignore_tag, children[0].to_s), node, local_templates)
+        end
       when ['_if'] # <n _if="expr" >...</n>
         generate_logic_node(compile_if(ignore_tag, ht_vals[0], nil), node, local_templates)
       when ['_else', '_if'] # <n _if="expr" _else="expr.meth(args)" >...</n>

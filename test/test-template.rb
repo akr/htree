@@ -144,6 +144,11 @@ End
     assert_xhtml("&nbsp;", '<span _text="@t">d</span>')
   end
 
+  def test_content_text
+    assert_xhtml("<e\n>ab</e\n>", '<e _text>"a"+"b"</e>')
+    assert_xhtml("<e\n>2</e\n>", '<e _text>1+1</e>')
+  end
+
 end
 
 class MemFile
