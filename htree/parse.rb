@@ -190,6 +190,8 @@ module HTree
 
   def HTree.build_node(structure, is_xml, is_html, inherited_context=DefaultContext)
     case structure[0]
+    when :text_pcdata
+      Text.parse_pcdata(structure[1])
     when :elem
       _, stag_rawstring, children, etag_rawstring = structure
       etag = etag_rawstring && ETag.parse(etag_rawstring, is_xml, is_html)
@@ -213,8 +215,6 @@ module HTree
       ProcIns.parse(structure[1])
     when :comment
       Comment.parse(structure[1])
-    when :text_pcdata
-      Text.parse_pcdata(structure[1])
     when :text_cdata_content
       Text.parse_cdata_content(structure[1])
     when :text_cdata_section
