@@ -17,15 +17,15 @@ module HTree
     end
   end
 
+  module Leaf
+    def extract_text
+      Text.new('')
+    end
+  end
+
   class Text
     def extract_text
       self
-    end
-  end
-  
-  module Markup
-    def extract_text
-      Text.new('')
     end
   end
   # :startdoc:
