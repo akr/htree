@@ -48,7 +48,11 @@ module HTree
       rescue Iconv::IllegalSequence, Iconv::InvalidCharacter => e
         output_string string[0, string.length - e.failed.length], e.success
         unless @charpat =~ e.failed
-          raise ArgumentError, "cannot extract first character"
+          # xxx: shoule be configulable?
+          #raise ArgumentError, "cannot extract first character: #{e.failed.dump}"
+          string = e.failed[1, e.failed.length-1]
+          output_string '?'
+          retry
         end
         char = $&
         rest = $'
