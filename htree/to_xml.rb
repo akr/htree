@@ -52,7 +52,7 @@ module HTree
         end
       }
 
-      STag.new(@name, attributes, inherited_namespaces)
+      STag.new(@name, attributes, inherited)
     end
   end
 
