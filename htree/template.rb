@@ -1,21 +1,13 @@
 require 'htree/gencode'
 
-module HTree
-  module Template
-    def Template.compile(src)
-      code = Template.compile_code(src)
-      eval(code)
-    end
-
-    def Template.compile_code(src)
-      TemplateCompiler.new.compile(src)
-    end
-  end
-end
-
 def HTree.expand_template(encoding=HTree::Encoder.internal_charset, out=STDOUT, &block)
   template = block.call
   HTree::TemplateCompiler.new.expand_template(template, encoding, out, block)
+end
+
+def HTree.compile_template(template)
+  code = HTree::TemplateCompiler.new.compile_template(template)
+  eval(code)
 end
 
 def HTree(arg=nil, &block)
@@ -74,7 +66,7 @@ End
     out
   end
 
-  def compile(src)
+  def compile_template(src)
     srcdoc = HTree.parse(src)
     templates = []
     body = extract_templates(srcdoc, templates, true)
