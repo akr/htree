@@ -229,9 +229,11 @@ module HTree
   EmptyBindingObject = Object.new
 # :startdoc:
 end
+# :stopdoc:
 def (HTree::EmptyBindingObject).empty_binding
   binding
 end
+# :startdoc:
 
 require 'htree/parse'
 require 'htree/gencode'
