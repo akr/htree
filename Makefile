@@ -13,7 +13,7 @@ install:
 
 .PHONY: check test all install
 
-RB = htree.rb htree
+RB = htree.rb $(wildcard htree/*.rb)
 doc/index.html: $(RB)
 	rm -rf doc
 	rdoc $(RB)

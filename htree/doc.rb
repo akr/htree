@@ -62,11 +62,15 @@ module HTree
     end 
     attr_reader :children
 
-    def get_subnode(index)
+    def get_subnode_internal(index) # :nodoc:
       unless Integer === index
         raise TypeError, "invalid index: #{index.inspect}"
       end
-      @children[index]
+      if index < 0 || @children.length <= index
+        nil
+      else
+        @children[index]
+      end
     end
 
     #   doc.subst_subnode(pairs) -> doc
@@ -80,12 +84,11 @@ module HTree
     # [Array of above] specified HTree::Node and String is used in that order.
     # [nil] delete corresponding node.
     #
-    #   pp HTree('<a/><b/><c/>').subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})
+    #   d = HTree('<a/><b/><c/>')        
+    #   p d.subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})
+    #   p d.subst_subnode([[0,HTree('<x/>')], [2,HTree('<z/>')]])
     #   # =>
     #   #<HTree::Doc {emptyelem <x>} {emptyelem <b>} {emptyelem <z>}>
-    #
-    #   pp HTree('<a/><b/><c/>').subst_subnode([[0,HTree('<x/>')], [2,HTree('<z/>')]]) 
-    #   # =>
     #   #<HTree::Doc {emptyelem <x>} {emptyelem <b>} {emptyelem <z>}>
     #
     def subst_subnode(pairs)

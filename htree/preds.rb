@@ -1,7 +1,7 @@
 require 'htree/modules'
 
 module HTree
-  module Node
+  module Traverse
     def doc?() false end
     def elem?() false end
     def text?() false end
@@ -12,23 +12,12 @@ module HTree
     def bogusetag?() false end
   end
 
-  class Doc; def doc?() true end end
-  class Elem; def elem?() true end end
-  class Text; def text?() true end end
-  class XMLDecl; def xmldecl?() true end end
-  class DocType; def doctype?() true end end
-  class ProcIns; def procins?() true end end
-  class Comment; def comment?() true end end
-  class BogusETag; def bogusetag?() true end end
-
-  module Location
-    def doc?() @node.doc? end
-    def elem?() @node.elem? end
-    def text?() @node.text? end
-    def xmldecl?() @node.xmldecl? end
-    def doctype?() @node.doctype? end
-    def procins?() @node.procins? end
-    def comment?() @node.comment? end
-    def bogusetag?() @node.bogusetag? end
-  end
+  module Doc::Trav; def doc?() true end end
+  module Elem::Trav; def elem?() true end end
+  module Text::Trav; def text?() true end end
+  module XMLDecl::Trav; def xmldecl?() true end end
+  module DocType::Trav; def doctype?() true end end
+  module ProcIns::Trav; def procins?() true end end
+  module Comment::Trav; def comment?() true end end
+  module BogusETag::Trav; def bogusetag?() true end end
 end

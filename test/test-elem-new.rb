@@ -88,4 +88,14 @@ class TestElemNew < Test::Unit::TestCase
     assert_same(context, elem.instance_variable_get(:@stag).inherited_context)
     assert_raises(ArgumentError) { HTree::Elem.new('e', context, context) }
   end
+  
+  def test_hash_in_array
+    attrs = [{'a'=>'1'}, {'a'=>'2'}]
+    assert_raises(TypeError) { HTree::Elem.new('e', attrs) }
+    attrs.pop
+    assert_raises(TypeError) { HTree::Elem.new('e', attrs) }
+    attrs.pop
+    assert_equal([], attrs)
+    assert_equal(false, HTree::Elem.new('e', attrs).empty_element?)
+  end
 end

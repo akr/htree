@@ -13,6 +13,77 @@ module HTree
     def to_node
       self
     end
+
+    # +subst+ substitutes several subtrees at once.
+    #
+    #   t = HTree('<r><x/><y/><z/></r>')
+    #   l = t.make_loc
+    #   t2 = t.subst({
+    #     l.get_subnode(0, 'k') => 'v',
+    #     l.get_subnode(0, -1) => HTree('<a/>'),
+    #     l.get_subnode(0, 1) => nil,
+    #     l.get_subnode(0, 2, 0) => HTree('<b/>'),
+    #   })
+    #   pp t2
+    #   # =>
+    #   #<HTree::Doc
+    #    {elem <r k="v"> {emptyelem <a>} {emptyelem <x>} {elem <z> {emptyelem <b>}}}>
+    def subst(pairs)
+      pairs = pairs.map {|key, val|
+        key = key.index_list(self)
+        unless Array === val
+          val = [val]
+        end
+        [key, val]
+      }
+
+      pairs_empty_key, pairs_nonempty_key =
+        pairs.partition {|key, val| key.empty? }
+      if !pairs_empty_key.empty?
+        if !pairs_nonempty_key.empty?
+          raise ArgumentError, "cannot substitute a node under substituting tree."
+        end
+        result = []
+        pairs_empty_key.each {|key, val| result.concat val }
+        result.compact!
+        if result.length == 1
+          return result[0]
+        else
+          raise ArgumentError, "cannot substitute top node by multiple nodes: #{nodes.inspect}"
+        end
+      end
+      if pairs_nonempty_key.empty?
+        return self
+      end
+
+      subst_internal(pairs)
+    end
+
+    def subst_internal(pairs) # :nodoc:
+      subnode_pairs = {}
+      pairs.each {|key, val|
+        k = key.pop
+        (subnode_pairs[k] ||= []) << [key, val]
+      }
+      subnode_pairs = subnode_pairs.map {|k, subpairs|
+        s = get_subnode(k)
+        subpairs_empty_key, subpairs_nonempty_key =
+          subpairs.partition {|key, val| key.empty? }
+        if !subpairs_empty_key.empty?
+          if !subpairs_nonempty_key.empty?
+            raise ArgumentError, "cannot substitute a node under substituting tree."
+          end
+          r = []
+          subpairs_empty_key.each {|key, val| r.concat val }
+          [k, r.compact]
+        elsif subpairs_nonempty_key.empty?
+          [k, s]
+        else
+          [k, s.subst_internal(subpairs)]
+        end
+      }
+      subst_subnode(subnode_pairs)
+    end
   end
 
   # :stopdoc:
@@ -72,7 +143,7 @@ module HTree
   # :startdoc:
 end
 
-module HTree::Location
+class HTree::Location
   def initialize(parent, index, node) # :nodoc:
     if parent
       @parent = parent
@@ -86,7 +157,7 @@ module HTree::Location
       @index = nil
       @node = node
     end
-    if self.class != @node.class::Loc
+    if @node && self.class != @node.class::Loc
       raise ArgumentError, "invalid location class: #{self.class} should be #{node.class::Loc}"
     end
     @subloc = {}
@@ -102,7 +173,7 @@ module HTree::Location
   # +top+ returns the originator location.
   #
   #   t = HTree('<a><b><c><d>')
-  #   l = t.make_loc.get_subnode(0).get_subnode(0).get_subnode(0).get_subnode(0)
+  #   l = t.make_loc.get_subnode(0, 0, 0, 0)
   #   p l, l.top
   #   # =>
   #   #<HTree::Location: doc()/a/b/c/d>
@@ -115,20 +186,12 @@ module HTree::Location
     result
   end
 
-  # +get_subnode+ returns a location object which points to a subnode
-  # indexed by _index_. 
-  def get_subnode(index)
-    return @subloc[index] if @subloc.include? index
-    node = @node.get_subnode(index)
-    @subloc[index] = node.class::Loc.new(self, index, node)
-  end
-
   # +subst_itself+ substitutes the node pointed by the location.
   # It returns the location of substituted node.
   #
   #  t1 = HTree('<a><b><c><d>')
   #  p t1
-  #  l1 = t1.make_loc.get_subnode(0).get_subnode(0).get_subnode(0).get_subnode(0)
+  #  l1 = t1.make_loc.get_subnode(0, 0, 0, 0)
   #  p l1
   #  l2 = l1.subst_itself(HTree('<z/>'))
   #  p l2
@@ -142,16 +205,45 @@ module HTree::Location
   #
   def subst_itself(node)
     if @parent
-      @parent.subst_itself(@parent.to_node.subst_subnode({@index=>node})).get_subnode(@index)
+      new_index = @index
+      if !@node
+        if Integer === @index
+          if @index < 0
+            new_index = 0
+          elsif @parent.to_node.children.length < @index
+            new_index = @parent.to_node.children.length
+          end
+        end
+      end
+      @parent.subst_itself(@parent.to_node.subst_subnode({@index=>node})).get_subnode(new_index)
     else
       node.make_loc
     end
   end
 
+  # +subst+ substitutes several subtrees at once.
+  #
+  #   t = HTree('<r><x/><y/><z/></r>')
+  #   l = t.make_loc
+  #   l2 = l.subst({
+  #     l.root.get_subnode('k') => 'v',
+  #     l.root.get_subnode(-1) => HTree('<a/>'),
+  #     l.find_element('y') => nil,
+  #     l.find_element('z').get_subnode(0) => HTree('<b/>'),
+  #   })
+  #   pp l2, l2.to_node
+  #   # =>
+  #   #<HTree::Doc::Loc: doc()>
+  #   #<HTree::Doc
+  #    {elem <r k="v"> {emptyelem <a>} {emptyelem <x>} {elem <z> {emptyelem <b>}}}>
+  def subst(pairs)
+    subst_itself(@node.subst(pairs))
+  end
+
   # +loc_list+ returns an array containing from location's root to itself.
   #
   #   t = HTree('<a><b><c>')
-  #   l = t.make_loc.get_subnode(0).get_subnode(0).get_subnode(0)
+  #   l = t.make_loc.get_subnode(0, 0, 0)
   #   pp l, l.loc_list
   #   # =>
   #   #<HTree::Location: doc()/a/b/c>
@@ -173,7 +265,7 @@ module HTree::Location
   # +path+ returns the path of the location.
   #
   #   l = HTree.parse("<a><b>x</b><b/><a/>").make_loc
-  #   l = l.get_subnode(0).get_subnode(0).get_subnode(0)
+  #   l = l.get_subnode(0, 0, 0)
   #   p l.path # => "doc()/a/b[1]/text()"
   def path
     result = ''
@@ -187,9 +279,21 @@ module HTree::Location
     result
   end
 
+  def index_list(node) # :nodoc:
+    result = []
+    loc = self
+    while parent = loc.parent
+      return result if loc.to_node.equal? node
+      result << loc.index
+      loc = parent
+    end
+    return result if loc.to_node.equal? node
+    raise ArgumentError, "the location is not under the node: #{self.path}"
+  end
+
   # :stopdoc:
   def pretty_print(q)
-    q.group(1, '#<HTree::Location', '>') {
+    q.group(1, "#<#{self.class.name}", '>') {
       q.text ':'
       q.breakable
       loc_list.each {|loc|
@@ -208,11 +312,23 @@ module HTree::Location
 end
 
 module HTree::Container::Loc
+  # +get_subnode+ returns a location object which points to a subnode
+  # indexed by _index_. 
+  def get_subnode_internal(index) # :nodoc:
+    return @subloc[index] if @subloc.include? index
+    node = @node.get_subnode(index)
+    if node
+      @subloc[index] = node.class::Loc.new(self, index, node)
+    else
+      @subloc[index] = HTree::Location.new(self, index, node)
+    end
+  end
+
   # +subst_subnode+ returns the location which refers the substituted tree.
   #   loc.subst_subnode(pairs) -> loc
   #
   #   t = HTree('<a><b><c>')
-  #   l = t.make_loc.get_subnode(0).get_subnode(0)
+  #   l = t.make_loc.get_subnode(0, 0)
   #   l = l.subst_subnode({0=>HTree('<z/>')})
   #   pp t, l.top.to_node
   #   # =>

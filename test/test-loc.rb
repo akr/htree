@@ -21,13 +21,18 @@ class TestLoc < Test::Unit::TestCase
     t = HTree.parse('<?xml version="1.0"?><!DOCTYPE root><root>a<?x y?><!-- c --></boo>')
     l = t.make_loc
     assert_instance_of(HTree::Doc::Loc, l)
+    assert_instance_of(HTree::Location, l.get_subnode(-1))
     assert_instance_of(HTree::XMLDecl::Loc, l.get_subnode(0))
     assert_instance_of(HTree::DocType::Loc, l.get_subnode(1))
     assert_instance_of(HTree::Elem::Loc, l2 = l.get_subnode(2))
+    assert_instance_of(HTree::Location, l.get_subnode(3))
+    assert_instance_of(HTree::Location, l2.get_subnode(-1))
+    assert_instance_of(HTree::Location, l2.get_subnode('attr'))
     assert_instance_of(HTree::Text::Loc, l2.get_subnode(0))
     assert_instance_of(HTree::ProcIns::Loc, l2.get_subnode(1))
     assert_instance_of(HTree::Comment::Loc, l2.get_subnode(2))
     assert_instance_of(HTree::BogusETag::Loc, l2.get_subnode(3))
+    assert_instance_of(HTree::Location, l2.get_subnode(4))
     assert_same(l.get_subnode(0), l.get_subnode(0))
   end
 
@@ -46,8 +51,9 @@ class TestLoc < Test::Unit::TestCase
 
   def test_path
     l = HTree.parse('<a><b>x</b><b/><a/>').make_loc
-    l2 = l.get_subnode(0).get_subnode(0).get_subnode(0)
+    l2 = l.get_subnode(0, 0, 0)
     assert_equal('doc()', l.path)
     assert_equal('doc()/a/b[1]/text()', l2.path)
   end
+
 end

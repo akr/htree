@@ -115,7 +115,7 @@ module HTree
       @stag.each_attribute(&block)
     end
 
-    def get_subnode(index)
+    def get_subnode_internal(index) # :nodoc:
       case index
       when String
         name = Name.parse_attribute_name(index, DefaultContext)
@@ -123,7 +123,11 @@ module HTree
       when Name
         update_attribute_hash[index.universal_name]
       when Integer
-        @children[index]
+        if index < 0 || @children.length <= index
+          nil
+        else
+          @children[index]
+        end
       else
         raise TypeError, "invalid index: #{index.inspect}"
       end
@@ -143,12 +147,11 @@ module HTree
     # [Array of above] specified HTree::Node and String is used in that order.
     # [nil] delete corresponding node.
     #
-    #   pp HTree('<r><a/><b/><c/><r/>').root.subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})
+    #   e = HTree('<r><a/><b/><c/></r>').root
+    #   p e.subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})  
+    #   p e.subst_subnode([[0, HTree('<x/>')], [2,HTree('<z/>')]])
     #   # =>
-    #   {elem <r> {emptyelem <x>} {emptyelem <b>} {emptyelem <z>} {emptyelem <r>}}
-    #
-    #   pp HTree('<r><a/><b/><c/></r>').root.subst_subnode([[0,HTree('<x/>')], [2,HTree('<z/>')]])
-    #   # =>
+    #   {elem <r> {emptyelem <x>} {emptyelem <b>} {emptyelem <z>}}
     #   {elem <r> {emptyelem <x>} {emptyelem <b>} {emptyelem <z>}}
     #
     def subst_subnode(pairs)

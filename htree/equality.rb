@@ -200,5 +200,13 @@ module HTree
     alias usual_equal_object content
   end
 
+  class Location
+    def make_exact_equal_object
+      [@parent, @index, @node]
+    end
+
+    alias usual_equal_object make_exact_equal_object
+  end
+
   # :startdoc:
 end

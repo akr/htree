@@ -5,6 +5,16 @@ require 'htree/extract_text'
 require 'htree/preds'
 
 module HTree
+  module Traverse
+    def get_subnode(*indexes)
+      n = self
+      indexes.each {|index|
+        n = n.get_subnode_internal(index)
+      }
+      n
+    end
+  end
+
   module Container::Trav
     # +each_child+ iterates over each child.
     def each_child(&block) # :yields: child_node
