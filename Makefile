@@ -14,7 +14,7 @@ install:
 
 .PHONY: check test all install
 
-RB = htree.rb $(wildcard htree/*.rb)
+RB = htree.rb htree/modules.rb $(wildcard htree/[a-l]*.rb) $(wildcard htree/[n-z]*.rb)
 doc/index.html: $(RB)
 	rm -rf doc
 	rdoc $(RB)

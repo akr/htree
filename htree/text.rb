@@ -85,6 +85,11 @@ module HTree
     end
 
     # HTree::Text.concat returns a text which is concatenation of arguments.
+    #
+    # An argument should be one of follows.
+    # - String
+    # - HTree::Text
+    # - HTree::Location which points HTree::Text
     def Text.concat(*args)
       rcdata = ''
       args.each {|arg|

@@ -309,6 +309,8 @@ module HTree
     #   elem.fetch_attribute(name, default) -> text or default
     #   elem.fetch_attribute(name) {|uname| default } -> text or default
     #
+    # +fetch_attribute+ returns an attribute value as a text.
+    #
     # elem may be an instance of HTree::Elem or a location points to it.
     def fetch_attribute(uname, *rest, &block)
       if 1 < rest.length
@@ -333,6 +335,8 @@ module HTree
     #   elem.fetch_attr(name) -> string or raise IndexError
     #   elem.fetch_attr(name, default) -> string or default
     #   elem.fetch_attr(name) {|uname| default } -> string or default
+    #
+    # +fetch_attr+ returns an attribute value as a string.
     #
     # elem may be an instance of HTree::Elem or a location points to it.
     def fetch_attr(uname, *rest, &block)

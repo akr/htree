@@ -7,7 +7,7 @@ module HTree
     # :startdoc:
 
     # The optional argument `namespaces' should be a hash or nil.
-    # HTree:DefaultNamespaces is used if nil is specified.
+    # HTree::DefaultNamespaces is used if nil is specified.
     #
     # If it is a hash, its key should be nil or a string.
     # nil means default namespace.
@@ -26,7 +26,8 @@ module HTree
     end
     attr_reader :namespaces
 
-    # get a namespace URI corresponding to _prefix_.
+    # return a namespace URI corresponding to _prefix_.
+    # It returns nil if _prefix_ is not defined.
     def namespace_uri(prefix)
       @namespaces[prefix]
     end
