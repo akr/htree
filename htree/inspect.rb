@@ -88,4 +88,12 @@ module HTree
       }
     end
   end
+
+  class ETag
+    def pretty_print(pp)
+      pp.group(1, '<', '>') {
+        pp.text @qualified_name
+      }
+    end
+  end
 end
