@@ -52,4 +52,5 @@ module HTree
   end
 
   DefaultContext = Context.new
+  HTMLContext = DefaultContext.subst_namespaces(nil=>"http://www.w3.org/1999/xhtml")
 end

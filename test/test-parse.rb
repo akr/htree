@@ -39,4 +39,9 @@ class TestParse < Test::Unit::TestCase
     assert_equal(t1, t2)
     assert_equal(s, t2.raw_string)
   end
+
+  def test_parse_html
+    t1 = HTree.parse_html("<html>a</html>")
+    assert_equal("{http://www.w3.org/1999/xhtml}html", t1.root.name)
+  end
 end

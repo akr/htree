@@ -9,6 +9,14 @@ require 'htree/context'
 
 module HTree
   def HTree.parse(input)
+    parse_with_context(input, DefaultContext)
+  end
+
+  def HTree.parse_html(input)
+    parse_with_context(input, HTMLContext)
+  end
+
+  def HTree.parse_with_context(input, context)
     if input.respond_to? :read # IO, StringIO
       input = input.read
     elsif input.respond_to? :open # Pathname, URI with open-uri
@@ -23,7 +31,7 @@ module HTree
     }
     structure_list = parse_pairs(tokens, is_xml)
     structure_list = fix_structure_list(structure_list, is_xml)
-    nodes = structure_list.map {|s| build_node(s, is_xml) }
+    nodes = structure_list.map {|s| build_node(s, is_xml, context) }
     Doc.new(nodes)
   end
 
