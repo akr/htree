@@ -3,7 +3,7 @@ require 'htree/leaf'
 require 'htree/tag'
 require 'htree/raw_string'
 
-class HTree
+module HTree
   def hash
     if defined? @hash
       @hash
@@ -24,7 +24,7 @@ class HTree
     self == other
   end
 
-  class Container < HTree
+  class Container
     def do_hash
       result = 0
       @children.each {|n| result ^= n.hash } if @children
@@ -64,7 +64,7 @@ class HTree
 
   end
 
-  class Leaf < HTree
+  class Leaf
     def do_hash
       self.raw_string.hash
     end

@@ -1,7 +1,7 @@
 require 'htree/text'
 require 'htree/scan' # for Pat::Name
 
-class HTree
+module HTree
   class STag < Markup
     def initialize(name, attributes=[], inherited_namespaces={})
       @attributes = attributes.map {|aname, val|

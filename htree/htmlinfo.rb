@@ -1,5 +1,5 @@
 # The code below is auto-generated.  Don't edit manually.
-class HTree
+module HTree
   NamedCharacters =
 {"AElig"=>198, "Aacute"=>193, "Acirc"=>194, "Agrave"=>192, "Alpha"=>913,
  "Aring"=>197, "Atilde"=>195, "Auml"=>196, "Beta"=>914, "Ccedil"=>199,

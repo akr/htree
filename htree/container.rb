@@ -1,6 +1,6 @@
 require 'htree/nodehier'
 
-class HTree
+module HTree
   class Doc < Container
     def initialize(children=nil)
       @children = children

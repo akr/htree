@@ -1,7 +1,7 @@
 require 'htree/nodehier'
 require 'htree/htmlinfo'
 
-class HTree
+module HTree
   class Text < Leaf
     class << self
       alias new! new

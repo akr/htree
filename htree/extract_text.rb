@@ -1,8 +1,8 @@
 require 'htree/text'
 require 'htree/container'
 
-class HTree
-  class Container < HTree
+module HTree
+  class Container
     def extract_text
       if @children
         Text.concat(*@children.map {|n| n.extract_text })

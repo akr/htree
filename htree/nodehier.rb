@@ -1,5 +1,5 @@
-class HTree
-  class Leaf < HTree; end
+module HTree
+  class Leaf; include HTree; end
     class Text < Leaf; end
     class Markup < Leaf; end
       class STag < Markup; end
@@ -9,7 +9,7 @@ class HTree
       class DocType < Markup; end
       class ProcIns < Markup; end
       class Comment < Markup; end
-  class Container < HTree; end
+  class Container; include HTree; end
     class Doc < Container; end
     class Elem < Container; end
 

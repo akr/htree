@@ -1,6 +1,6 @@
 require 'htree/nodehier'
 
-class HTree
+module HTree
   class Doc < Container
     def raw_string
       @children ? @children.map {|n| n.raw_string }.join('') : ''
@@ -16,7 +16,7 @@ class HTree
     end
   end
 
-  class Leaf < HTree
+  class Leaf
     attr_writer :raw_string
 
     def raw_string
