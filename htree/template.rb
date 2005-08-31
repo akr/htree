@@ -11,6 +11,8 @@
 # - <elem \_attr_<i>name</i>="<i>expr</i>">content</elem>
 # - <elem _text="<i>expr</i>">dummy-content</elem>
 # - <elem _text><i>expr</i></elem>
+# - <elem _tree="<i>expr</i>">dummy-content</elem>
+# - <elem _tree><i>expr</i></elem>
 # - <elem _if="<i>expr</i>" _else="<i>mod.name(args)</i>">then-content</elem>
 # - <elem _iter="<i>expr.meth(args)//vars</i>">content</elem>
 # - <elem _iter_content="<i>expr.meth(args)//vars</i>">content</elem>
@@ -41,7 +43,7 @@
 #   - <elem _text="<i>expr</i>">dummy-content</elem>
 #   - <elem _text><i>expr</i></elem>
 #
-#   _text substitutes content of the element by the string
+#   _text substitutes the content of the element by the string
 #   evaluated from _expr_.
 #   _expr_ is described in the attribute value or the content of the element.
 #
@@ -55,6 +57,20 @@
 #   no tags are produced.
 #
 #        <elem _text="...">dummy-content</elem>
+#     -> <elem>...</elem>
+#
+# - tree substitution
+#   - <elem _tree="<i>expr</i>">dummy-content</elem>
+#   - <elem _tree><i>expr</i></elem>
+#
+#   _tree substitutes the content of the element by the htree object
+#   evaluated from _expr_.
+#   _expr_ is described in the attribute value or the content of the element.
+#
+#   If the element is span or div, and there is no other attributes,
+#   no tags are produced.
+#
+#        <elem _tree="...">dummy-content</elem>
 #     -> <elem>...</elem>
 #
 # - conditional
@@ -627,6 +643,20 @@ End
         else
           generate_logic_node(compile_dynamic_text(ignore_tag, expr), node, local_templates)
         end
+      when ['_tree'] # <n _tree="expr" /> or <n _tree>expr</n>
+        if ht_vals[0] != '_tree' # xxx: attribute value is really omitted?
+          expr = ht_vals[0]
+        else
+          children = node.children
+          if children.length != 1
+            raise HTree::Error, "_tree expression has #{children.length} nodes"
+          end
+          if !children[0].text?
+            raise HTree::Error, "_tree expression is not text: #{children[0].class}"
+          end
+          expr = children[0].to_s
+        end
+        generate_logic_node(compile_dynamic_tree(ignore_tag, expr), node, local_templates)
       when ['_if'] # <n _if="expr" >...</n>
         generate_logic_node(compile_if(ignore_tag, ht_vals[0], nil), node, local_templates)
       when ['_else', '_if'] # <n _if="expr" _else="expr.meth(args)" >...</n>
@@ -662,6 +692,13 @@ End
   def compile_dynamic_text(ignore_tag, expr)
     check_syntax(expr)
     logic = [:text, expr]
+    logic = [:tag, logic] unless ignore_tag
+    logic
+  end
+
+  def compile_dynamic_tree(ignore_tag, expr)
+    check_syntax(expr)
+    logic = [:tree, expr]
     logic = [:tag, logic] unless ignore_tag
     logic
   end
@@ -759,6 +796,7 @@ End
     #         | [:iter, call, fargs, logic]
     #         | [:tag, logic]
     #         | [:text, expr]
+    #         | [:tree, expr]
     #         | [:call, expr, meth, args]
     #         | [:content]
     #         | [:empty]
@@ -799,6 +837,9 @@ End
     when :text
       _, expr = logic
       TemplateNode.new(lambda {|out, context| out.output_dynamic_text expr })
+    when :tree
+      _, expr = logic
+      TemplateNode.new(lambda {|out, context| out.output_dynamic_tree expr, make_context_expr(out, context) })
     when :tag
       _, rest_logic = logic
       if rest_logic == [:content] && node.empty_element?
@@ -835,19 +876,7 @@ End
       _, recv, meth, args = logic
       TemplateNode.new(
         lambda {|out, context|
-          as = [out.outvar, ", "]
-          ns = context.namespaces.reject {|k, v| HTree::Context::DefaultNamespaces[k] == v }
-          if ns.empty?
-            as << out.contextvar
-          else
-            as << "#{out.contextvar}.subst_namespaces("
-            sep = ''
-            ns.each {|k, v|
-              as << sep << (k ? k.dump : "nil") << '=>' << v.dump
-              sep = ', '
-            }
-            as << ")"
-          end
+          as = [out.outvar, ", ", make_context_expr(out, context)]
           unless args.empty?
             as << ", " << args
           end
@@ -865,10 +894,31 @@ End
     end
   end
 
+  def make_context_expr(out, context)
+    ns = context.namespaces.reject {|k, v| HTree::Context::DefaultNamespaces[k] == v }
+    if ns.empty?
+      result = out.contextvar
+    else
+      result = "#{out.contextvar}.subst_namespaces("
+      sep = ''
+      ns.each {|k, v|
+        result << sep << (k ? k.dump : "nil") << '=>' << v.dump
+        sep = ', '
+      }
+      result << ")"
+    end
+    result
+  end
+
   class HTree::GenCode
     def output_dynamic_text(expr)
       flush_buffer
       @code << "#{@outvar}.output_dynamic_text((#{expr}))\n"
+    end
+
+    def output_dynamic_tree(expr, context_expr)
+      flush_buffer
+      @code << "(#{expr}).output(#{@outvar}, #{context_expr})\n"
     end
 
     def output_dynamic_attvalue(expr)

@@ -52,7 +52,6 @@ module HTree
 
   class Doc
     def output(out, context)
-      context = DefaultContext # discard outer context
       xmldecl = false
       doctypedecl = false
       @children.each {|n|

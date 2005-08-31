@@ -23,6 +23,11 @@ class TestTemplate < Test::Unit::TestCase
     assert_xhtml("abc", %q{a<span _text="'b'"/>c})
   end
 
+  def test_tree
+    assert_xhtml("<e\n><z\n>x</z\n></e\n>", '<e _tree="HTree(&quot;<z>x</z>&quot;)">d</e>')
+    assert_xhtml("<n:e xmlns:n=\"a\"\n><n:z\n>x</n:z\n></n:e\n>", '<n:e xmlns:n=a _tree="HTree(&quot;<n:z xmlns:n=a>x</n:z>&quot;)">d</n:e>')
+  end
+
   def test_attr
     assert_xhtml("<e x=\"1\"\n>d</e\n>", '<e _attr_x=1>d</e>')
     assert_xhtml("<span x=\"1\"\n>d</span\n>", '<span _attr_x=1>d</span>')
