@@ -462,6 +462,7 @@ class HTree::TemplateCompiler
 #{compile_body(outvar, contextvar, template, false)}\
 #{outvar}.finish_with_xmldecl
 End
+#puts code; STDOUT.flush
     result = eval(code, binding)
     out << result
     out
