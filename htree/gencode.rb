@@ -23,9 +23,103 @@ module HTree
       @buffer = ''
       @internal_encoding = internal_encoding
       @code = ''
+      @html_output = nil
     end
     attr_reader :outvar, :contextvar
 
+    def html_output?
+      @html_output
+    end
+
+    def html_output=(flag)
+      @html_output = flag
+    end
+
+    class CDATABuffer
+      def initialize
+        @buf = ''
+      end
+
+      def html_output?
+        true
+      end
+
+      def not_valid_for_html_cdata(*args)
+        raise ArgumentError, "CDATA content only accept texts."
+      end
+      alias output_slash_if_xml not_valid_for_html_cdata
+      alias output_cdata_content not_valid_for_html_cdata
+      alias output_dynamic_attvalue not_valid_for_html_cdata
+
+      def output_string(string)
+        @buf << string
+      end
+
+      def output_text(string)
+        @buf << string
+      end
+
+      ChRef = {
+        '&' => '&amp;',
+        '<' => '&lt;',
+        '>' => '&gt;',
+        '"' => '&quot;',
+      }
+
+      def output_dynamic_text(string)
+        if string.respond_to? :rcdata
+          @buf << string.rcdata.gsub(/[<>]/) { ChRef[$&] }
+        else
+          @buf << string.to_s.gsub(/[&<>]/) { ChRef[$&] }
+        end
+      end
+
+      def result
+        if %r{[<>]} =~ @buf
+          raise ArgumentError, "cdata contains non-text : #{@buf.inspect}"
+        end
+        str = HTree::Text.parse_pcdata(@buf).to_s
+        if %r{</} =~ str
+          raise ArgumentError, "cdata contains '</' : #{str.inspect}"
+        end
+        str
+      end
+    end
+
+    def output_cdata_content(content, context)
+      tmp_outvar = @outvar + '_tmp'
+      output_logic_line "#{@outvar} = #{@outvar}.output_cdata_content_do(#{@outvar},"
+      output_logic_line "lambda { #{@outvar} = HTree::GenCode::CDATABuffer.new },"
+      output_logic_line "lambda {"
+      content.each {|n| n.output(self, context) }
+      output_logic_line "},"
+      output_logic_line "lambda {|#{tmp_outvar}| #{tmp_outvar}.output_string(#{@outvar}.result) })"
+    end
+
+    def output_slash_if_xml
+      output_logic_line "#{@outvar}.output_slash_if_xml"
+    end
+
+    def output_dynamic_text(expr)
+      flush_buffer
+      @code << "#{@outvar}.output_dynamic_text((#{expr}))\n"
+    end
+
+    def output_dynamic_tree(expr, context_expr)
+      flush_buffer
+      @code << "(#{expr}).output(#{@outvar}, #{context_expr})\n"
+    end
+
+    def output_dynamic_attvalue(expr)
+      flush_buffer
+      @code << "#{@outvar}.output_dynamic_attvalue((#{expr}))\n"
+    end
+
+    def output_logic_line(line)
+      flush_buffer
+      @code << line << "\n"
+    end
+                       
     def output_string(str)
       return if str.empty?
       if @state != :string

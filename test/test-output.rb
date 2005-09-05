@@ -1,5 +1,5 @@
 require 'test/unit'
-require 'htree/output'
+require 'htree'
 
 class TestOutput < Test::Unit::TestCase
   def gen(t, meth=:output, *rest)
@@ -109,4 +109,26 @@ class TestOutput < Test::Unit::TestCase
     assert_equal('<!--xxx-->', gen(t))
   end
 
+end
+
+class TestHTMLOutput < Test::Unit::TestCase
+  def test_top_xmlns
+    assert_equal("<html\n>aaa</html\n>", HTree("<html>aaa").display_html(""))
+  end
+
+  def test_script
+    assert_equal("<html\n><script\n>a < b</script\n></html\n>",
+      HTree("<html><script>a < b").display_html(""))
+  end
+
+  def test_script_invalid_content
+    assert_raise(ArgumentError) {
+      HTree("<html><script>a </ b").display_html("")
+    }
+  end
+
+  def test_br
+    assert_equal("<html\n>a<br\n>b<br\n>c</html\n>",
+      HTree("<html>a<br>b<br>c").display_html(""))
+  end
 end

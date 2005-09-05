@@ -27,9 +27,54 @@ module HTree
       @subcharset_list.each {|subcharset|
         @subcharset_ic[subcharset] = Iconv.new(subcharset, @internal_encoding)
       }
+      @html_output = false
     end
 
     # :stopdoc:
+    def html_output?
+      @html_output
+    end
+
+    def html_output=(flag)
+      @html_output = flag
+    end
+
+    def output_cdata_content_do(out, pre, body, post)
+      if @html_output
+        pre.call
+        body.call
+        post.call(out)
+      else
+        body.call
+      end
+      return out
+    end
+
+    def output_slash_if_xml
+      if !@html_output
+        output_string('/')
+      end
+    end
+
+    def output_cdata_content(content, context)
+      if @html_output
+        # xxx: should raise an error for non-text node?
+        texts = content.grep(HTree::Text)
+        text = HTree::Text.concat(*texts)
+        text.output_cdata(self)
+      else
+        content.each {|n| n.output(self, context) }
+      end
+    end
+
+    def output_cdata_for_html(*args)
+      str = args.join('')
+      if %r{</} =~ str
+        raise ArgumentError, "cdata contains '</' : #{str.inspect}"
+      end
+      output_string str
+    end
+
     def output_string(internal_str, external_str=@ic.iconv(internal_str))
       @buf << external_str
       @subcharset_ic.reject! {|subcharset, ic|
@@ -48,7 +93,7 @@ module HTree
       rescue Iconv::IllegalSequence, Iconv::InvalidCharacter => e
         output_string string[0, string.length - e.failed.length], e.success
         unless @charpat =~ e.failed
-          # xxx: shoule be configulable?
+          # xxx: should be configulable?
           #raise ArgumentError, "cannot extract first character: #{e.failed.dump}"
           string = e.failed[1, e.failed.length-1]
           output_string '?'
@@ -60,7 +105,7 @@ module HTree
           ucode = Iconv.conv("UTF-8", @internal_encoding, char).unpack("U")[0]
           char = "&##{ucode};"
         rescue Iconv::IllegalSequence, Iconv::InvalidCharacter
-          # xxx: shoule be configulable?
+          # xxx: should be configulable?
           char = '?'
         end
         output_string char

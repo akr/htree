@@ -342,12 +342,21 @@ module HTree
   end
 
   module Doc::Trav
+    # +root+ searches root element.
+    # If there is no element on top level, it raise HTree::Error.
+    # If there is two or more elements on top level, it raise HTree::Error.
     def root
       es = []
       children.each {|c| es << c if c.elem? }
       raise HTree::Error, "no element" if es.empty?
       raise HTree::Error, "multiple top elements" if 1 < es.length
       es[0]
+    end
+
+    # +has_xmldecl?+ returns true if there is an XML declaration on top level.
+    def has_xmldecl?
+      children.each {|c| return true if c.xmldecl? }
+      false
     end
   end
 

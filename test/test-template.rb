@@ -9,7 +9,7 @@ class TestTemplate < Test::Unit::TestCase
     prefix = '<?xml version="1.0" encoding="US-ASCII"?>' +
              "<html xmlns=\"http://www.w3.org/1999/xhtml\"\n>"
     suffix = "</html\n>"
-    result = HTree.expand_template(''){"<html>#{template}</html>"}
+    result = HTree.expand_template(''){"<?xml version=\"1.0\"?><html>#{template}</html>"}
     assert_match(/\A#{Regexp.quote prefix}/, result)
     assert_match(/#{Regexp.quote suffix}\z/, result)
     result = result[prefix.length..(-suffix.length-1)]
@@ -224,5 +224,26 @@ class TestTemplateScope < Test::Unit::TestCase
     assert_equal("mod_const", obj.__send__(:test_const).extract_text.to_s)
     assert_equal("mod_cvar", obj.__send__(:test_cvar).extract_text.to_s)
     assert_equal("obj_ivar", obj.__send__(:test_ivar).extract_text.to_s)
+  end
+end
+
+class TestCDATA < Test::Unit::TestCase
+  def test_html_script
+    v = "x<y"
+    assert_equal("<html><script>x<y</script></html>",
+      HTree.expand_template('') {"<html><script _text=\"v\">ab</script>"}.gsub(/\n/, ''))
+  end
+
+  def test_xml_script
+    v = "x<y"
+    assert_equal("<?xml version=\"1.0\" encoding=\"US-ASCII\"?><html xmlns=\"http://www.w3.org/1999/xhtml\"><script>x&lt;y</script></html>",
+      HTree.expand_template('') {"<?xml version=\"1.0\"?><html><script _text=\"v\">ab</script>"}.gsub(/\n/, ''))
+  end
+
+  def test_html_script_invalid_content
+    v = "x</y"
+    assert_raise(ArgumentError) {
+      HTree.expand_template('') {"<html><script _text=\"v\">ab</script>"}
+    }
   end
 end

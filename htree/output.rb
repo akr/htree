@@ -14,7 +14,7 @@ module HTree
       '"' => '&quot;',
     }
 
-    def output(out, context)
+    def output(out, context=nil)
       out.output_text @rcdata.gsub(/[<>]/) {|s| ChRef[s] }
     end
 
@@ -26,6 +26,14 @@ module HTree
       out.output_string '"'
       out.output_text to_attvalue_content
       out.output_string '"'
+    end
+
+    def output_cdata(out)
+      str = self.to_s
+      if %r{</} =~ str
+        raise ArgumentError, "CDATA cannot contain '</': #{str.inspect}"
+      end
+      out.output_string(str)
     end
   end
 
@@ -70,7 +78,11 @@ module HTree
 
   class Elem
     def output(out, context)
-      if @empty
+      if %r{\A\{http://www.w3.org/1999/xhtml\}(script|style)} =~ @stag.element_name.universal_name
+        children_context = @stag.output_stag(out, context)
+        out.output_cdata_content(@children, children_context)
+        @stag.output_etag(out, context)
+      elsif @empty
         @stag.output_emptytag(out, context)
       else
         children_context = @stag.output_stag(out, context)
@@ -94,7 +106,9 @@ module HTree
       out.output_string '<'
       @name.output(out, context)
       children_context = output_attributes(out, context)
-      out.output_string "\n/>"
+      out.output_string "\n"
+      out.output_slash_if_xml
+      out.output_string ">"
       children_context
     end
 

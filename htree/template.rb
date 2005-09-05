@@ -1,9 +1,28 @@
 # = Template Engine
 #
-# == Template Syntax
+# The htree template engine converts HTML and some data to HTML or XML.
 #
-# The htree template engine converts HTML and some data to XHTML.
-# A template directive is described as special HTML attribute which name
+# == Template Method Summary
+#
+# - HTree.expand_template(<i>template_pathname</i>) -> $stdout
+# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>) -> $stdout
+# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>, <i>out</i>) -> <i>out</i>
+# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>, <i>out</i>, <i>encoding</i>) -> <i>out</i>
+#
+# - HTree.expand_template{<i>template_string</i>} -> $stdout
+# - HTree.expand_template(<i>out</i>) {<i>template_string</i>} -> <i>out</i>
+# - HTree.expand_template(<i>out</i>, <i>encoding</i>) {<i>template_string</i>} -> <i>out</i>
+#
+# - HTree.compile_template(<i>template_string</i>) -> Module
+# - HTree{<i>template_string</i>} -> HTree::Doc
+#
+# Note that the following method, HTree(), is not a template method.
+#
+# - HTree(<i>html_string</i>) -> HTree::Doc
+#
+# == Template Directives.
+#
+# A template directive is described as a special HTML attribute which name
 # begins with underscore.
 #
 # The template directives are listed as follows.
@@ -193,20 +212,19 @@
 # 
 #   <span _text="'a'"/><span _text="' '"> </span><span _text="'b'"/> -> "a b"
 # 
-# == Method Summary
+# == HTML and XML
 #
-# - HTree.expand_template(<i>template_pathname</i>) -> $stdout
-# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>) -> $stdout
-# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>, <i>out</i>) -> <i>out</i>
-# - HTree.expand_template(<i>template_pathname</i>, <i>obj</i>, <i>out</i>, <i>encoding</i>) -> <i>out</i>
+# The htree template engine outputs HTML or XML.
 #
-# - HTree.expand_template{<i>template_string</i>} -> $stdout
-# - HTree.expand_template(<i>out</i>) {<i>template_string</i>} -> <i>out</i>
-# - HTree.expand_template(<i>out</i>, <i>encoding</i>) {<i>template_string</i>} -> <i>out</i>
+# If a template has no XML declaration and the top element is HTML,
+# the result is HTML.
+# Otherwise the result is XML.
 #
-# - HTree.compile_template(<i>template_string</i>) -> Module
-# - HTree{<i>template_string</i>} -> HTree::Doc
-# - HTree(<i>html_string</i>) -> HTree::Doc
+# They differs as follows.
+#
+# - XML declaration is (re-)generated for XML.
+# - empty elements ends with a slash for XML.
+# - script and style element is escaped for XML.
 #
 # == Design Decision on Design/Logic Separation
 #
@@ -364,7 +382,7 @@ def HTree(html_string=nil, &block)
   if block_given?
     raise ArgumentError, "both argument and block given." if html_string
     template = block.call
-    HTree.parse(HTree::TemplateCompiler.new.expand_fragment_template(template, '', HTree::Encoder.internal_charset, block))
+    HTree.parse(HTree::TemplateCompiler.new.expand_template(template, '', HTree::Encoder.internal_charset, block))
   else
     HTree.parse(html_string)
   end
@@ -452,32 +470,26 @@ class HTree::TemplateCompiler
     end
   end
 
-  def expand_template(template, out, encoding, binding)
-    template = parse_template(template)
-    outvar = gensym('out')
-    contextvar = gensym('top_context')
-    code = <<"End"
-#{outvar} = HTree::Encoder.new(#{encoding.dump})
-#{contextvar} = HTree::DefaultContext
-#{compile_body(outvar, contextvar, template, false)}\
-#{outvar}.finish_with_xmldecl
-End
-#puts code; STDOUT.flush
-    result = eval(code, binding)
-    out << result
-    out
+  def template_is_html(template)
+    template.each_child {|c|
+      return false if c.xmldecl?
+      return true if c.elem? && c.element_name.namespace_uri == 'http://www.w3.org/1999/xhtml'
+    }
+    false
   end
 
-  def expand_fragment_template(template, out, encoding, binding)
+  def expand_template(template, out, encoding, binding)
     template = parse_template(template)
+    is_html = template_is_html(template)
     outvar = gensym('out')
     contextvar = gensym('top_context')
-    code = <<"End"
-#{outvar} = HTree::Encoder.new(#{encoding.dump})
-#{contextvar} = HTree::DefaultContext
-#{compile_body(outvar, contextvar, template, false)}\
-#{outvar}.finish
-End
+    code = ''
+    code << "#{outvar} = HTree::Encoder.new(#{encoding.dump})\n"
+    code << "#{outvar}.html_output = true\n" if is_html
+    code << "#{contextvar} = #{is_html ? "HTree::HTMLContext" : "HTree::DefaultContext"}\n"
+    code << compile_body(outvar, contextvar, template, false)
+    code << "#{outvar}.#{is_html ? "finish" : "finish_with_xmldecl"}\n"
+#puts code; STDOUT.flush
     result = eval(code, binding)
     out << result
     out
@@ -909,28 +921,6 @@ End
       result << ")"
     end
     result
-  end
-
-  class HTree::GenCode
-    def output_dynamic_text(expr)
-      flush_buffer
-      @code << "#{@outvar}.output_dynamic_text((#{expr}))\n"
-    end
-
-    def output_dynamic_tree(expr, context_expr)
-      flush_buffer
-      @code << "(#{expr}).output(#{@outvar}, #{context_expr})\n"
-    end
-
-    def output_dynamic_attvalue(expr)
-      flush_buffer
-      @code << "#{@outvar}.output_dynamic_attvalue((#{expr}))\n"
-    end
-
-    def output_logic_line(line)
-      flush_buffer
-      @code << line << "\n"
-    end
   end
 
   class TemplateNode
