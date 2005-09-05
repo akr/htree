@@ -329,6 +329,8 @@ require 'htree/traverse'
 # <i>out</i> specifies output target.
 # It should have <tt><<</tt> method: IO and String for example.
 # If it is not specified, $stdout is used.
+# If it has a method <tt>charset=</tt>, it is called to set the minimal charset
+# of the result before <tt><<</tt> is called.
 # 
 # <i>encoding</i> specifies output character encoding.
 # If it is not specified, internal encoding is used.
@@ -488,9 +490,10 @@ class HTree::TemplateCompiler
     code << "#{outvar}.html_output = true\n" if is_html
     code << "#{contextvar} = #{is_html ? "HTree::HTMLContext" : "HTree::DefaultContext"}\n"
     code << compile_body(outvar, contextvar, template, false)
-    code << "#{outvar}.#{is_html ? "finish" : "finish_with_xmldecl"}\n"
+    code << "[#{outvar}.#{is_html ? "finish" : "finish_with_xmldecl"}, #{outvar}.minimal_charset]\n"
 #puts code; STDOUT.flush
-    result = eval(code, binding)
+    result, minimal_charset = eval(code, binding)
+    out.charset = minimal_charset if out.respond_to? :charset=
     out << result
     out
   end

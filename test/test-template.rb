@@ -247,3 +247,33 @@ class TestCDATA < Test::Unit::TestCase
     }
   end
 end
+
+class TestCharset < Test::Unit::TestCase
+  class CharsetString < String
+    attr_accessor :charset
+  end
+
+  def with_kcode(kcode)
+    old_kcode = $KCODE
+    begin
+      $KCODE = kcode
+      yield
+    ensure
+      $KCODE = old_kcode
+    end
+  end
+
+  def test_us_ascii
+    with_kcode('E') {
+      out = HTree.expand_template(CharsetString.new) { "<html>abc" }
+      assert_equal(out.charset, 'US-ASCII')
+    }
+  end
+
+  def test_euc_jp
+    with_kcode('E') {
+      out = HTree.expand_template(CharsetString.new) { "<html>\xa1\xa1" }
+      assert_equal(out.charset, 'EUC-JP')
+    }
+  end
+end
