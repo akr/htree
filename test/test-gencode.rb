@@ -18,7 +18,7 @@ class TestGenCode < Test::Unit::TestCase
   end
 
   def test_xmlns_chref
-    t = HTree.parse_xml('<p:n xmlns:p="a&amp;<>&quot;b">').children[0]
+    t = HTree.parse_xml('<p:n xmlns:p="a&amp;<>&quot;b"/>').children[0]
     code = t.generate_xml_output_code
     assert_equal("<p:n xmlns:p=\"a&amp;&lt;&gt;&quot;b\"\n/>", run_code(code, HTree::DefaultContext))
   end

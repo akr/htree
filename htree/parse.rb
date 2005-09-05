@@ -75,7 +75,7 @@ module HTree
     is_xml, is_html = HTree.scan(input, is_xml) {|token|
       tokens << token
     }
-    context = is_html ? HTMLContext: DefaultContext
+    context = is_html ? HTMLContext : DefaultContext
     structure_list = parse_pairs(tokens, is_xml, is_html)
     structure_list = fix_structure_list(structure_list, is_xml, is_html)
     nodes = structure_list.map {|s| build_node(s, is_xml, is_html, context) }
@@ -203,7 +203,9 @@ module HTree
       _, stag_rawstring, children, etag_rawstring = structure
       etag = etag_rawstring && ETag.parse(etag_rawstring, is_xml, is_html)
       stag = STag.parse(stag_rawstring, true, is_xml, is_html, inherited_context)
-      if !children.empty? || etag
+      if !children.empty? || etag ||
+         stag.element_name.namespace_uri != 'http://www.w3.org/1999/xhtml' ||
+         HTree::ElementContent[stag.element_name.local_name] != :EMPTY
         Elem.new!(stag,
                   children.map {|c| build_node(c, is_xml, is_html, stag.context) },
                   etag)

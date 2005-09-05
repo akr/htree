@@ -176,6 +176,7 @@ module HTree
   class DocType
     # don't output anything.
     def output(out, context)
+      #output_prolog_doctypedecl(out, context)
     end
 
     def generate_content # :nodoc:

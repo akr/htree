@@ -97,4 +97,10 @@ class TestParse < Test::Unit::TestCase
       HTree.parse('<script></script>'))
   end
 
+  def test_html_emptyelem
+    t = HTree.parse('<html>')
+    assert_equal(HTree::Doc.new(HTree::Elem.new('{http://www.w3.org/1999/xhtml}html')), t)
+    assert(!t.children[0].empty_element?)
+  end
+
 end
