@@ -93,8 +93,7 @@ class TestOutput < Test::Unit::TestCase
     t = HTree::DocType.new('html',
       '-//W3C//DTD HTML 4.01//EN',
       'http://www.w3.org/TR/html4/strict.dtd')
-    assert_equal('', gen(t))
-    assert_equal('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">', gen(t, :output_prolog_doctypedecl))
+    assert_equal('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">', gen(t))
   end
 
   def test_procins

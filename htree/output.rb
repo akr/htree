@@ -61,14 +61,10 @@ module HTree
   class Doc
     def output(out, context)
       xmldecl = false
-      doctypedecl = false
       @children.each {|n|
         if n.respond_to? :output_prolog_xmldecl
           n.output_prolog_xmldecl(out, context) unless xmldecl # xxx: encoding?
           xmldecl = true
-        elsif n.respond_to? :output_prolog_doctypedecl
-          n.output_prolog_doctypedecl(out, context) unless doctypedecl
-          doctypedecl = true
         else
           n.output(out, context)
         end
@@ -174,9 +170,8 @@ module HTree
   end
 
   class DocType
-    # don't output anything.
     def output(out, context)
-      #output_prolog_doctypedecl(out, context)
+      out.output_string "<!DOCTYPE #{@root_element_name} #{generate_content}>"
     end
 
     def generate_content # :nodoc:
@@ -196,10 +191,6 @@ module HTree
         end
       end
       result
-    end
-
-    def output_prolog_doctypedecl(out, context)
-      out.output_string "<!DOCTYPE #{@root_element_name} #{generate_content}>"
     end
   end
 
