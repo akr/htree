@@ -8,7 +8,7 @@ htree provides a tree data structure which represent HTML and XML data.
 * byte-to-byte round-tripping unparser
 * XML namespace support
 * Dedicated class for escaped string.  This ease sanitization.
-* XHTML/XML generator
+* HTML/XHTML/XML generator
 * template engine
 * recursive template expansion
 * converter to REXML document
