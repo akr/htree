@@ -290,7 +290,7 @@ require 'htree/equality'
 require 'htree/traverse'
 
 # call-seq:
-#   HTree.expand_template(template_pathname, obj=nil, out=$stdout, encoding=internal_encoding) -> out
+#   HTree.expand_template(template_pathname, obj=Object.new, out=$stdout, encoding=internal_encoding) -> out
 #   HTree.expand_template(out=$stdout, encoding=internal_encoding) { template_string } -> out
 #
 # <code>HTree.expand_template</code> expands a template.
@@ -343,8 +343,10 @@ def HTree.expand_template(*args, &block)
     template = block.call
     binding = block
   else
-    pathname = args.shift
-    obj = args.shift
+    pathname = args.fetch(0) { raise ArgumentError, "pathname not given" }
+    args.shift
+    obj = args.fetch(0) { Object.new }
+    args.shift
     if pathname.respond_to? :read
       template = pathname.read.untaint
       if template.respond_to? :charset
