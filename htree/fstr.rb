@@ -20,8 +20,7 @@ module HTree
       if s = h[str]
         s
       else
-        h[str] = str unless str.frozen?
-        str = str.dup.freeze
+        str = str.dup.freeze unless str.frozen?
         h[str] = str
       end
     else
