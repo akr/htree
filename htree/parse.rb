@@ -40,7 +40,7 @@ module HTree
   # HTree.parse_xml parses <i>input</i> as XML and
   # return a document tree represented by HTree::Doc.
   #
-  # It behaves almost same as HTree.parse but it assumes <i>input</> is XML
+  # It behaves almost same as HTree.parse but it assumes <i>input</i> is XML
   # even if no XML declaration.
   # The assumption causes following differences.
   # * doesn't downcase element name.
