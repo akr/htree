@@ -281,11 +281,14 @@ module HTree
     #
     # - <title>...</title> in HTML
     # - <title>...</title> in RSS
+    # - <title>...</title> in Atom
     def title
       e = find_element('title',
         '{http://www.w3.org/1999/xhtml}title',
         '{http://purl.org/rss/1.0/}title',
-        '{http://my.netscape.com/rdf/simple/0.9/}title')
+        '{http://my.netscape.com/rdf/simple/0.9/}title',
+        '{http://www.w3.org/2005/Atom}title',
+        '{http://purl.org/atom/ns#}title')
       e && e.extract_text
     end
 
@@ -298,6 +301,7 @@ module HTree
     # - <link rev="made" title="author-name"> in HTML
     # - <dc:creator>author-name</dc:creator> in RSS
     # - <dc:publisher>author-name</dc:publisher> in RSS
+    # - <author><name>author-name</name></author> in Atom
     def author
       traverse_element('meta',
         '{http://www.w3.org/1999/xhtml}meta') {|e|
@@ -335,6 +339,20 @@ module HTree
           end
         }
       end
+
+      ['http://www.w3.org/2005/Atom', 'http://purl.org/atom/ns#'].each {|xmlns|
+        if root.name == "{#{xmlns}}feed"
+          if feed_author = find_element("{#{xmlns}}author")
+            feed_author.traverse_element("{#{xmlns}}name") {|e|
+              begin
+                author = e.extract_text.strip
+                return author if !author.empty?
+              rescue IndexError
+              end
+            }
+          end
+        end
+      }
 
       nil
     end
