@@ -341,17 +341,20 @@ module HTree
       end
 
       ['http://www.w3.org/2005/Atom', 'http://purl.org/atom/ns#'].each {|xmlns|
-        if root.name == "{#{xmlns}}feed"
-          if feed_author = find_element("{#{xmlns}}author")
-            feed_author.traverse_element("{#{xmlns}}name") {|e|
-              begin
-                author = e.extract_text.strip
-                return author if !author.empty?
-              rescue IndexError
-              end
-            }
+        each_child {|top|
+          next unless top.elem?
+          if top.name == "{#{xmlns}}feed"
+            if feed_author = find_element("{#{xmlns}}author")
+              feed_author.traverse_element("{#{xmlns}}name") {|e|
+                begin
+                  author = e.extract_text.strip
+                  return author if !author.empty?
+                rescue IndexError
+                end
+              }
+            end
           end
-        end
+        }
       }
 
       nil
