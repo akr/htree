@@ -1,10 +1,9 @@
 RUBY=ruby
-RD2HTML=rd2 -r rd/rd2html-lib.rb
 
-all: README.html doc/index.html
+all: README rdoc/index.html
 
-README.html: README.rd
-	$(RD2HTML) --html-title='htree - HTML/XML tree library' -o README README.rd
+README: misc/README.erb
+	erb misc/README.erb > README
 
 check test:
 	$(RUBY) -I. test-all.rb
@@ -15,7 +14,7 @@ install:
 .PHONY: check test all install
 
 RB = htree.rb htree/modules.rb $(wildcard htree/[a-l]*.rb) $(wildcard htree/[n-z]*.rb)
-doc/index.html: $(RB)
+rdoc/index.html: $(RB)
 	rm -rf doc
-	rdoc $(RB)
+	rdoc --op rdoc $(RB)
 
