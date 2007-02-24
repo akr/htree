@@ -246,6 +246,13 @@ class TestCDATA < Test::Unit::TestCase
       HTree.expand_template('') {"<html><script _text=\"v\">ab</script>"}
     }
   end
+
+  def test_stylexxx
+    v = "x<y"
+    assert_equal("<html><stylexxx>x&lt;y</stylexxx></html>",
+      HTree.expand_template('') {"<html><stylexxx _text=\"v\">ab</stylexxx>"}.gsub(/\n/, ''))
+  end
+
 end
 
 class TestCharset < Test::Unit::TestCase

@@ -74,7 +74,7 @@ module HTree
 
   class Elem
     def output(out, context)
-      if %r{\A\{http://www.w3.org/1999/xhtml\}(script|style)} =~ @stag.element_name.universal_name
+      if %r{\A\{http://www.w3.org/1999/xhtml\}(script|style)\z} =~ @stag.element_name.universal_name
         children_context = @stag.output_stag(out, context)
         out.output_cdata_content(@children, children_context)
         @stag.output_etag(out, context)
