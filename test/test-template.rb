@@ -93,6 +93,11 @@ End
   def test_ignorable
     assert_xhtml("<div\n>a</div\n>", '<div>a</div>')
     assert_xhtml("<span\n>a</span\n>", '<span>a</span>')
+    assert_xhtml("1", '<span _text="1">a</span>')
+  end
+
+  def test_not_ignorable
+    assert_xhtml("<p\n>1</p\n>", '<p _text="\'1\'">a</p>')
   end
 
   def test_template_in_attr

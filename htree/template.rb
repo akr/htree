@@ -653,7 +653,7 @@ End
           end
           expr = children[0].to_s
         end
-        if /\A\s*'((?:[^'\\]|\\[\0-\377])*)'\s*\z/ =~ expr
+        if ignore_tag && /\A\s*'((?:[^'\\]|\\[\0-\377])*)'\s*\z/ =~ expr
           # if expr is just a constant string literal, use it as a literal text.
           # This saves dynamic evaluation of <span _text="' '"/> 
           # xxx: handle "..." as well if it has no #{}.
