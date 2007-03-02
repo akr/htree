@@ -361,7 +361,7 @@ def HTree.expand_template(*args, &block)
           Thread.current[:htree_expand_template_obj].instance_eval { binding }
         EE
       End
-      HTree::EmptyBindingObject.empty_binding)
+      HTree::EmptyBindingObject.empty_binding, "(eval:#{__FILE__}:#{__LINE__})")
     Thread.current[:htree_expand_template_obj] = nil
   end
 
@@ -420,7 +420,7 @@ def HTree.compile_template(template_string)
   mod = eval(<<-'End',
       eval(Thread.current[:htree_compile_template_code])
     End
-    HTree::EmptyBindingObject.empty_binding)
+    HTree::EmptyBindingObject.empty_binding, "(eval:#{__FILE__}:#{__LINE__})")
   Thread.current[:htree_compile_template_code] = nil
   mod
 end
@@ -494,7 +494,7 @@ class HTree::TemplateCompiler
     code << compile_body(outvar, contextvar, template, false)
     code << "[#{outvar}.#{is_html ? "finish" : "finish_with_xmldecl"}, #{outvar}.minimal_charset]\n"
 #puts code; STDOUT.flush
-    result, minimal_charset = eval(code, binding)
+    result, minimal_charset = eval(code, binding, "(eval:#{__FILE__}:#{__LINE__})")
     out.charset = minimal_charset if out.respond_to? :charset=
     out << result
     out
