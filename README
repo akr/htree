@@ -1,9 +1,4 @@
 = htree - HTML/XML tree library
-<%
-  def version
-    File.read("VERSION").chomp
-  end
-%>
 
 htree provides a tree data structure which represent HTML and XML data.
 
@@ -20,7 +15,7 @@ htree provides a tree data structure which represent HTML and XML data.
 
 == Home Page
 
-((<URL:http://www.a-k-r.org/htree/>))
+http://www.a-k-r.org/htree/
 
 == Requirements
 
@@ -28,11 +23,11 @@ htree provides a tree data structure which represent HTML and XML data.
 
 == Download
 
-* latest release: ((<htree-<%=version%>.tar.gz|URL:htree-<%=version%>.tar.gz>))
+* latest release: http://www.a-k-r.org/htree/htree-0.6.tar.gz
 
 * development version in CVS repository:
 
-  ((<URL:http://cvs.m17n.org/viewcvs/ruby/htree/>)) or checkout with:
+  http://cvs.m17n.org/viewcvs/ruby/htree/ or checkout with:
 
     % cvs -d :pserver:anonymous@cvs.m17n.org:/cvs/ruby co htree
 
@@ -42,7 +37,8 @@ htree provides a tree data structure which represent HTML and XML data.
 
 == Reference Manual
 
-((<URL:rdoc/index.html>))
+See rdoc/index.html or
+http://www.a-k-r.org/htree/rdoc/
 
 == Usage
 
