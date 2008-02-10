@@ -653,11 +653,11 @@ End
           end
           expr = children[0].to_s
         end
-        if ignore_tag && /\A\s*'((?:[^'\\]|\\[\0-\377])*)'\s*\z/ =~ expr
+        if ignore_tag && /\A\s*'((?:[^'\\]|\\.)*)'\s*\z/m =~ expr
           # if expr is just a constant string literal, use it as a literal text.
           # This saves dynamic evaluation of <span _text="' '"/> 
           # xxx: handle "..." as well if it has no #{}.
-          HTree::Text.new($1.gsub(/\\([\0-\377])/, '\1'))
+          HTree::Text.new($1.gsub(/\\(.)/m, '\1'))
         else
           generate_logic_node(compile_dynamic_text(ignore_tag, expr), node, local_templates)
         end
