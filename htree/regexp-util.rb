@@ -8,7 +8,12 @@ class Regexp
         re << s
       end
     }
-    Regexp.new(re, self.options, self.kcode)
+    if re.respond_to? :force_encoding
+      re.force_encoding(self.encoding)
+      Regexp.new(re, self.options)
+    else
+      Regexp.new(re, self.options, self.kcode)
+    end
   end
 end
 

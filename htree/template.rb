@@ -341,7 +341,7 @@ require 'htree/traverse'
 def HTree.expand_template(*args, &block)
   if block
     template = block.call
-    binding = block
+    binding = block.binding
   else
     pathname = args.fetch(0) { raise ArgumentError, "pathname not given" }
     args.shift
@@ -386,7 +386,7 @@ def HTree(html_string=nil, &block)
   if block_given?
     raise ArgumentError, "both argument and block given." if html_string
     template = block.call
-    HTree.parse(HTree::TemplateCompiler.new.expand_template(template, '', HTree::Encoder.internal_charset, block))
+    HTree.parse(HTree::TemplateCompiler.new.expand_template(template, '', HTree::Encoder.internal_charset, block.binding))
   else
     HTree.parse(html_string)
   end

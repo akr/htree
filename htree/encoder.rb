@@ -12,7 +12,11 @@ module HTree
     # This mapping ignores EUC-KR and various single byte charset other than ISO-8859-1 at least.
     # This should be fixed when Ruby is m17nized.
     def Encoder.internal_charset
-      KcodeCharset[$KCODE]
+      if Object.const_defined? :Encoding
+        Encoding.default_external.name
+      else
+        KcodeCharset[$KCODE]
+      end
     end
 
     def initialize(output_encoding, internal_encoding=HTree::Encoder.internal_charset)
@@ -21,7 +25,6 @@ module HTree
       @output_encoding = output_encoding
       @ic = Iconv.new(output_encoding, @internal_encoding)
       @charpat = FirstCharPattern[internal_encoding]
-
       @subcharset_list = SubCharset[output_encoding] || []
       @subcharset_ic = {}
       @subcharset_list.each {|subcharset|
@@ -91,8 +94,9 @@ module HTree
       begin
         output_string string, @ic.iconv(string)
       rescue Iconv::IllegalSequence, Iconv::InvalidCharacter => e
-        output_string string[0, string.length - e.failed.length], e.success
-        unless @charpat =~ e.failed
+        success = e.success
+        output_string string[0, string.length - e.failed.length], success
+        unless /\A./m =~ e.failed
           # xxx: should be configulable?
           #raise ArgumentError, "cannot extract first character: #{e.failed.dump}"
           string = e.failed[1, e.failed.length-1]
