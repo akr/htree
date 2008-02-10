@@ -68,7 +68,8 @@ module HTree
   def HTree.scan(input, is_xml=false)
     is_html = false
     cdata_content = nil
-    text_start = 0
+    cdata_content_string = nil
+    pcdata = ''
     first_element = true
     index_xmldecl = 1
     index_doctype = 2
@@ -80,40 +81,42 @@ module HTree
     index_emptytag = 8
     index_comment = 9
     index_cdata = 10
-    input.scan(/(#{Pat::XmlDecl})
-               |(#{Pat::DocType})
-               |(#{Pat::XmlProcIns})
-               |(#{Pat::QuotedStartTag})
-               |(#{Pat::QuotedEmptyTag})
-               |(#{Pat::StartTag})
-               |(#{Pat::EndTag})
-               |(#{Pat::EmptyTag})
-               |(#{Pat::Comment})
-               |(#{Pat::CDATA})
-               /ox) {
+    index_otherchar = 11
+    pat = /(#{Pat::XmlDecl})
+          |(#{Pat::DocType})
+          |(#{Pat::XmlProcIns})
+          |(#{Pat::QuotedStartTag})
+          |(#{Pat::QuotedEmptyTag})
+          |(#{Pat::StartTag})
+          |(#{Pat::EndTag})
+          |(#{Pat::EmptyTag})
+          |(#{Pat::Comment})
+          |(#{Pat::CDATA})
+          |\G(.)
+          /oxm
+    input.scan(pat) {
       match = $~
       if cdata_content
         str = $&
-        if match.begin(index_endtag) && str[Pat::Name] == cdata_content
-          text_end = match.begin(0)
-          if text_start < text_end
-            yield [:text_cdata_content, HTree.frozen_string(input[text_start...text_end])]
+        if match[index_endtag] && str[Pat::Name] == cdata_content
+          unless cdata_content_string.empty?
+            yield [:text_cdata_content, HTree.frozen_string(cdata_content_string)]
           end
           yield [:etag, HTree.frozen_string(str)]
-          text_start = match.end(0)
           cdata_content = nil
+        else
+          cdata_content_string << str
         end
       else
         str = match[0]
-        text_end = match.begin(0)
-        if text_start < text_end
-          yield [:text_pcdata, HTree.frozen_string(input[text_start...text_end])]
+        if !match[index_otherchar] && !pcdata.empty?
+          yield [:text_pcdata, HTree.frozen_string(pcdata)]
+          pcdata = ''
         end
-        text_start = match.end(0)
-        if match.begin(index_xmldecl)
+        if match[index_xmldecl]
           yield [:xmldecl, HTree.frozen_string(str)]
           is_xml = true
-        elsif match.begin(index_doctype)
+        elsif match[index_doctype]
           Pat::DocType_C =~ str
           root_element_name = $1
           public_identifier = $2 || $3
@@ -121,9 +124,9 @@ module HTree
           is_html = true if /\Ahtml\z/i =~ root_element_name
           is_xml = true if public_identifier && %r{\A-//W3C//DTD XHTML } =~ public_identifier
           yield [:doctype, HTree.frozen_string(str)]
-        elsif match.begin(index_xmlprocins)
+        elsif match[index_xmlprocins]
           yield [:procins, HTree.frozen_string(str)]
-        elsif match.begin(index_starttag) || match.begin(index_quotedstarttag)
+        elsif match[index_starttag] || match[index_quotedstarttag]
           yield stag = [:stag, HTree.frozen_string(str)]
           tagname = str[Pat::Name]
           if first_element
@@ -136,28 +139,32 @@ module HTree
           end
           if !is_xml && ElementContent[tagname] == :CDATA
             cdata_content = tagname
+            cdata_content_string = ''
           end
-        elsif match.begin(index_endtag)
+        elsif match[index_endtag]
           yield [:etag, HTree.frozen_string(str)]
-        elsif match.begin(index_emptytag) || match.begin(index_quotedemptytag)
+        elsif match[index_emptytag] || match[index_quotedemptytag]
           yield [:emptytag, HTree.frozen_string(str)]
           first_element = false
           #is_xml = true
-        elsif match.begin(index_comment)
+        elsif match[index_comment]
           yield [:comment, HTree.frozen_string(str)]
-        elsif match.begin(index_cdata)
+        elsif match[index_cdata]
           yield [:text_cdata_section, HTree.frozen_string(str)]
+        elsif match[index_otherchar]
+          pcdata << str
         else
           raise Exception, "unknown match [bug]"
         end
       end
     }
-    text_end = input.length
-    if text_start < text_end
-      if cdata_content
-        yield [:text_cdata_content, HTree.frozen_string(input[text_start...text_end])]
-      else
-        yield [:text_pcdata, HTree.frozen_string(input[text_start...text_end])]
+    if cdata_content
+      unless cdata_content_string.empty?
+        yield [:text_cdata_content, HTree.frozen_string(cdata_content_string)]
+      end
+    else
+      unless pcdata.empty?
+        yield [:text_pcdata, HTree.frozen_string(pcdata)]
       end
     end
     return is_xml, is_html
