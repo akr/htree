@@ -71,45 +71,57 @@ module HTree
     cdata_content_string = nil
     pcdata = ''
     first_element = true
-    index_xmldecl = 1
-    index_doctype = 2
-    index_xmlprocins = 3
-    index_quotedstarttag = 4
-    index_quotedemptytag = 5
-    index_starttag = 6
-    index_endtag = 7
-    index_emptytag = 8
-    index_comment = 9
-    index_cdata = 10
-    index_otherchar = 11
-    pat = /(#{Pat::XmlDecl})
-          |(#{Pat::DocType})
-          |(#{Pat::XmlProcIns})
-          |(#{Pat::QuotedStartTag})
-          |(#{Pat::QuotedEmptyTag})
-          |(#{Pat::StartTag})
-          |(#{Pat::EndTag})
-          |(#{Pat::EmptyTag})
-          |(#{Pat::Comment})
-          |(#{Pat::CDATA})
-          |\G(.)
+    index_otherstring = 1
+    index_str = 2
+    index_xmldecl = 3
+    index_doctype = 4
+    index_xmlprocins = 5
+    index_quotedstarttag = 6
+    index_quotedemptytag = 7
+    index_starttag = 8
+    index_endtag = 9
+    index_emptytag = 10
+    index_comment = 11
+    index_cdata = 12
+    index_end = 13
+    pat = /\G(.*?)((#{Pat::XmlDecl})
+                  |(#{Pat::DocType})
+                  |(#{Pat::XmlProcIns})
+                  |(#{Pat::QuotedStartTag})
+                  |(#{Pat::QuotedEmptyTag})
+                  |(#{Pat::StartTag})
+                  |(#{Pat::EndTag})
+                  |(#{Pat::EmptyTag})
+                  |(#{Pat::Comment})
+                  |(#{Pat::CDATA})
+                  |(\z))
           /oxm
     input.scan(pat) {
       match = $~
       if cdata_content
-        str = $&
+        cdata_content_string << match[index_otherstring]
+        str = match[index_str]
         if match[index_endtag] && str[Pat::Name] == cdata_content
           unless cdata_content_string.empty?
             yield [:text_cdata_content, HTree.frozen_string(cdata_content_string)]
           end
           yield [:etag, HTree.frozen_string(str)]
           cdata_content = nil
+          cdata_content_string = nil
+        elsif match[index_end]
+          cdata_content_string << str
+          unless cdata_content_string.empty?
+            yield [:text_cdata_content, HTree.frozen_string(cdata_content_string)]
+          end
+          cdata_content = nil
+          cdata_content_string = nil
         else
           cdata_content_string << str
         end
       else
-        str = match[0]
-        if !match[index_otherchar] && !pcdata.empty?
+        pcdata << match[index_otherstring]
+        str = match[index_str]
+        if !pcdata.empty?
           yield [:text_pcdata, HTree.frozen_string(pcdata)]
           pcdata = ''
         end
@@ -151,22 +163,13 @@ module HTree
           yield [:comment, HTree.frozen_string(str)]
         elsif match[index_cdata]
           yield [:text_cdata_section, HTree.frozen_string(str)]
-        elsif match[index_otherchar]
-          pcdata << str
+        elsif match[index_end]
+          # pass
         else
           raise Exception, "unknown match [bug]"
         end
       end
     }
-    if cdata_content
-      unless cdata_content_string.empty?
-        yield [:text_cdata_content, HTree.frozen_string(cdata_content_string)]
-      end
-    else
-      unless pcdata.empty?
-        yield [:text_pcdata, HTree.frozen_string(pcdata)]
-      end
-    end
     return is_xml, is_html
   end
   # :startdoc:
