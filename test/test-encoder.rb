@@ -4,6 +4,10 @@ require 'htree/encoder'
 class TestEncoder < Test::Unit::TestCase
   EUC_JISX0212_CH = "\217\260\241" # cannot encode with Shift_JIS.
   EUC_JISX0208_CH = "\260\241"
+  if EUC_JISX0212_CH.respond_to? :force_encoding
+    EUC_JISX0212_CH.force_encoding("EUC-JP")
+    EUC_JISX0208_CH.force_encoding("EUC-JP")
+  end
 
   def test_minimal_charset
     out = HTree::Encoder.new('Shift_JIS', 'EUC-JP')

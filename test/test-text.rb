@@ -17,18 +17,26 @@ class TestText < Test::Unit::TestCase
 =end
 
   def kcode(kc)
-    old = $KCODE
-    begin
-      $KCODE = kc
-      yield
-    ensure
-      $KCODE = old
+    if "".respond_to? :force_encoding
+      if HTree::Encoder.internal_charset.start_with?(kc.upcase)
+        yield
+      end
+    else
+      old = $KCODE
+      begin
+        $KCODE = kc
+        yield
+      ensure
+        $KCODE = old
+      end
     end
   end
 
   def test_normalize
     kcode('EUC') {
-      assert_equal("<ABC&#38;&#38;&#160;\xa6\xc1",
+      expected = "<ABC&#38;&#38;&#160;\xa6\xc1"
+      expected.force_encoding("euc-jp") if expected.respond_to? :force_encoding
+      assert_equal(expected,
         HTree::Text.new_internal("&lt;&#65;&#x42;C&amp;&#38;&nbsp;&alpha;").normalized_rcdata)
     }
   end

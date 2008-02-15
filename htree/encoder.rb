@@ -79,6 +79,7 @@ module HTree
     end
 
     def output_string(internal_str, external_str=@ic.iconv(internal_str))
+      @buf.force_encoding(external_str.encoding) if @buf.empty? && @buf.respond_to?(:force_encoding) # xxx: should be fixed Ruby itself
       @buf << external_str
       @subcharset_ic.reject! {|subcharset, ic|
         begin

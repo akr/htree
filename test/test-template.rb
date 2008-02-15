@@ -260,18 +260,22 @@ class TestCDATA < Test::Unit::TestCase
 
 end
 
-class TestCharset < Test::Unit::TestCase
+class TestCharset2 < Test::Unit::TestCase
   class CharsetString < String
     attr_accessor :charset
   end
 
   def with_kcode(kcode)
-    old_kcode = $KCODE
-    begin
-      $KCODE = kcode
+    if "".respond_to? :force_encoding
       yield
-    ensure
-      $KCODE = old_kcode
+    else
+      old = $KCODE
+      begin
+        $KCODE = kcode
+        yield
+      ensure
+        $KCODE = old
+      end
     end
   end
 
