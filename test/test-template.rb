@@ -267,7 +267,9 @@ class TestCharset2 < Test::Unit::TestCase
 
   def with_kcode(kcode)
     if "".respond_to? :force_encoding
-      yield
+      if HTree::Encoder.internal_charset.start_with?(kcode.upcase)
+        yield
+      end
     else
       old = $KCODE
       begin
@@ -292,6 +294,14 @@ class TestCharset2 < Test::Unit::TestCase
       assert_equal(out.charset, 'EUC-JP')
     }
   end
+
+  def test_utf_8
+    with_kcode('U') {
+      out = HTree.expand_template(CharsetString.new) { "<html>\xc2\xa1" }
+      assert_equal(out.charset, 'UTF-8')
+    }
+  end
+
 end
 
 class TestTemplateDOCTYPE < Test::Unit::TestCase
