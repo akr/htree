@@ -25,11 +25,7 @@ http://www.a-k-r.org/htree/
 
 * latest release: http://www.a-k-r.org/htree/htree-0.7.tar.gz
 
-* development version in CVS repository:
-
-  http://cvs.m17n.org/viewcvs/ruby/htree/ or checkout with:
-
-    % cvs -d :pserver:anonymous@cvs.m17n.org:/cvs/ruby co htree
+* development version: https://github.com/akr/htree
 
 == Install
 
