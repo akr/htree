@@ -1,5 +1,5 @@
 $VERBOSE = true
 
-Dir.glob('test/test-*.rb') {|filename|
+Dir.glob('./test/test-*.rb') {|filename|
   load filename
 }
