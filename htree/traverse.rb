@@ -159,7 +159,6 @@ module HTree
     #
     # Note that +each_hyperlink+ yields HTML href attribute of BASE element.
     def each_hyperlink # :yields: text
-      links = []
       each_hyperlink_attribute {|elem, attr, hyperlink|
         yield hyperlink
       }

@@ -507,7 +507,7 @@ class HTree::TemplateCompiler
   def compile_template(src)
     srcdoc = parse_template(src)
     templates = []
-    body = extract_templates(srcdoc, templates, true)
+    extract_templates(srcdoc, templates, true)
     methods = []
     templates.each {|name_args, node|
       methods << compile_global_template(name_args, node)
@@ -536,7 +536,7 @@ End
       }
       node.subst_subnode(subst)
     when HTree::Elem
-      ht_attrs, rest_attrs = node.attributes.partition {|name, text| template_attribute? name }
+      ht_attrs, = node.attributes.partition {|name, text| template_attribute? name }
       if ht_attrs.empty?
         subst = {}
         node.children.each_with_index {|n, i|

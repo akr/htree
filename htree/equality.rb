@@ -122,7 +122,7 @@ module HTree
     def make_exact_equal_object
       [@raw_string,
        @name,
-       @attributes.sort {|(n1,t1), (n2, t2)|
+       @attributes.sort {|(n1, _), (n2, _)|
          Util.cmp_with_nil(n1.namespace_prefix, n2.namespace_prefix).nonzero? ||
          Util.cmp_with_nil(n1.namespace_uri, n2.namespace_uri).nonzero? ||
          Util.cmp_with_nil(n1.local_name, n2.local_name)
@@ -133,7 +133,7 @@ module HTree
 
     def make_usual_equal_object
       [@name,
-       @attributes.find_all {|n,t| !n.xmlns? }.sort {|(n1,t1), (n2, t2)|
+       @attributes.find_all {|n,t| !n.xmlns? }.sort {|(n1, _), (n2, _)|
          Util.cmp_with_nil(n1.namespace_prefix, n2.namespace_prefix).nonzero? ||
          Util.cmp_with_nil(n1.namespace_uri, n2.namespace_uri).nonzero? ||
          Util.cmp_with_nil(n1.local_name, n2.local_name)

@@ -125,7 +125,7 @@ module HTree
     }
     elem = nil
     while 1 < stack.length
-      stagname, stag_raw_string, children = stack.pop
+      _, stag_raw_string, children = stack.pop
       stack.last[2] << [:elem, stag_raw_string, children]
     end
     stack[0][2]

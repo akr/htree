@@ -132,7 +132,7 @@ module HTree
           Pat::DocType_C =~ str
           root_element_name = $1
           public_identifier = $2 || $3
-          system_identifier = $4 || $5
+          #system_identifier = $4 || $5
           is_html = true if /\Ahtml\z/i =~ root_element_name
           is_xml = true if public_identifier && %r{\A-//W3C//DTD XHTML } =~ public_identifier
           yield [:doctype, HTree.frozen_string(str)]
