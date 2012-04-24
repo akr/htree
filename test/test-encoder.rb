@@ -18,10 +18,11 @@ class TestEncoder < Test::Unit::TestCase
     assert_equal("US-ASCII", out.minimal_charset)
     out.output_text("b")
     assert_equal("US-ASCII", out.minimal_charset)
-    assert_equal("a&#19970;b", out.finish)
+    assert_match(/\Aa&#19970;b\z|\Aa&#x4E02;b\z/, out.finish)
   end
 
   def test_minimal_charset_2
+    return if defined?(Encoding) # Ruby 1.9 doesn't support ISO-2022-JP-2 conversion.
     out = HTree::Encoder.new('ISO-2022-JP-2', 'EUC-JP')
     assert_equal("US-ASCII", out.minimal_charset)
     out.output_text("a")
@@ -40,14 +41,18 @@ class TestEncoder < Test::Unit::TestCase
     assert_equal("UTF-16BE", out.minimal_charset)
     out.output_text("a")
     assert_equal("UTF-16BE", out.minimal_charset)
-    assert_equal("\000a", out.finish)
+    expected = "\000a"
+    expected.force_encoding("UTF-16BE") if expected.respond_to? :force_encoding
+    assert_equal(expected, out.finish)
   end
 
   def test_close
     out = HTree::Encoder.new('ISO-2022-JP', 'EUC-JP')
     out.output_string(EUC_JISX0208_CH)
     assert_equal("ISO-2022-JP", out.minimal_charset)
-    assert_equal("\e$B0!\e(B", out.finish)
+    expected = "\e$B0!\e(B"
+    expected.force_encoding("ISO-2022-JP") if expected.respond_to? :force_encoding
+    assert_equal(expected, out.finish)
   end
 
 end

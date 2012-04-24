@@ -350,7 +350,11 @@ def HTree.expand_template(*args, &block)
     if pathname.respond_to? :read
       template = pathname.read.untaint
       if template.respond_to? :charset
-        template = Iconv.conv(HTree::Encoder.internal_charset, template.charset, template)
+        if template.respond_to? :encode
+          template = template.encode(HTree::Encoder.internal_charset, template.charset)
+        else
+          template = Iconv.conv(HTree::Encoder.internal_charset, template.charset, template)
+        end
       end
     else
       template = File.read(pathname).untaint

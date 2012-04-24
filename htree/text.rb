@@ -3,7 +3,10 @@ require 'htree/raw_string'
 require 'htree/htmlinfo'
 require 'htree/encoder'
 require 'htree/fstr'
-require 'iconv'
+
+if !"".respond_to?(:encode)
+  require 'iconv'
+end
 
 module HTree
   class Text
@@ -52,10 +55,15 @@ module HTree
         elsif u <= 0x7f
           [u].pack("C")
         else
-          begin
-            Iconv.conv(Encoder.internal_charset, 'UTF-8', [u].pack("U"))
-          rescue Iconv::Failure
-            "&##{u};"
+          us = [u].pack("U")
+          if us.respond_to? :encode
+            us.encode(Encoder.internal_charset, :xml=>:text)
+          else
+            begin
+              Iconv.conv(Encoder.internal_charset, 'UTF-8', us)
+            rescue Iconv::Failure
+              "&##{u};"
+            end
           end
         end
       }

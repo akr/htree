@@ -68,7 +68,11 @@ module HTree
       }
     end
     if input_charset && input_charset != Encoder.internal_charset
-      input = Iconv.conv(Encoder.internal_charset, input_charset, input)
+      if input.respond_to? :encode
+        input = input.encode(Encoder.internal_charset, input_charset)
+      else
+        input = Iconv.conv(Encoder.internal_charset, input_charset, input)
+      end
     end
 
     tokens = []
