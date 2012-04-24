@@ -8,7 +8,7 @@ module HTree
       @encoding = encoding
     end
 
-    def primitive_convert(src, dst, opts=nil)
+    def primitive_convert(src, dst, destination_buffer=nil, destination_byteoffset=nil, destination_bytesize=nil, opts=nil)
       dst << src
       src.clear
       :source_buffer_empty
@@ -145,11 +145,18 @@ module HTree
     end
 
     def output_text(string)
+      if string.respond_to? :encode
+        if string.encoding != Encoding::US_ASCII &&
+           string.encoding.to_s != @internal_encoding
+          string = string.encode(@internal_encoding)
+        end
+        string = string.dup.force_encoding("ASCII-8BIT")
+      end
       while true
         if @ic.respond_to? :convert
           if string
             src = string.dup
-            res = @ic.primitive_convert(src, dst="", :partial_input => true)
+            res = @ic.primitive_convert(src, dst="", nil, nil, :partial_input => true)
           else
             res = @ic.primitive_convert(nil, dst="")
           end
@@ -159,7 +166,7 @@ module HTree
             failed = src
             _, _, _, error_bytes, _ = @ic.primitive_errinfo
             preconv_bytesize = string.bytesize - failed.bytesize - error_bytes.bytesize
-            output_string string.byteslice(0, preconv_bytesize), success
+            output_string string[0, preconv_bytesize], success
             string = @ic.putback + failed
             output_string '?'
             next
@@ -168,7 +175,7 @@ module HTree
             failed = src
             _, enc1, _, error_bytes, _ = @ic.primitive_errinfo
             preconv_bytesize = string.bytesize - failed.bytesize - error_bytes.bytesize
-            output_string string.byteslice(0, preconv_bytesize), success
+            output_string string[0, preconv_bytesize], success
             string = @ic.putback + failed
             output_string error_bytes.encode('US-ASCII', enc1, :xml=>:text)
             next

@@ -290,14 +290,22 @@ class TestCharset2 < Test::Unit::TestCase
 
   def test_euc_jp
     with_kcode('E') {
-      out = HTree.expand_template(CharsetString.new) { "<html>\xa1\xa1" }
+      out = HTree.expand_template(CharsetString.new) {
+        str = "<html>\xa1\xa1"
+        str.force_encoding("EUC-JP") if str.respond_to? :force_encoding
+        str
+      }
       assert_equal(out.charset, 'EUC-JP')
     }
   end
 
   def test_utf_8
     with_kcode('U') {
-      out = HTree.expand_template(CharsetString.new) { "<html>\xc2\xa1" }
+      out = HTree.expand_template(CharsetString.new) {
+        str = "<html>\xc2\xa1"
+        str.force_encoding("UTF-8") if str.respond_to? :force_encoding
+        str
+      }
       assert_equal(out.charset, 'UTF-8')
     }
   end
