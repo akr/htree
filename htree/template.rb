@@ -279,7 +279,8 @@ module HTree
 # :startdoc:
 end
 # :stopdoc:
-def (HTree::EmptyBindingObject).empty_binding
+htree_emptybindingobject = HTree::EmptyBindingObject
+def htree_emptybindingobject.empty_binding
   binding
 end
 # :startdoc:
