@@ -150,7 +150,7 @@ module HTree
            string.encoding.to_s != @internal_encoding
           string = string.encode(@internal_encoding)
         end
-        string = string.dup.force_encoding("ASCII-8BIT")
+        #string = string.dup.force_encoding("ASCII-8BIT")
       end
       while true
         if @ic.respond_to? :convert
