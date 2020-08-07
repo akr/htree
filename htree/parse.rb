@@ -55,15 +55,12 @@ module HTree
 
   def HTree.parse_as(input, is_xml)
     input_charset = nil
-    if input.tainted? && 1 <= $SAFE
-      raise SecurityError, "input tainted"
-    end
     if input.respond_to? :read # IO, StringIO
-      input = input.read.untaint
+      input = input.read
       input_charset = input.charset if input.respond_to? :charset
     elsif input.respond_to? :open # Pathname, URI with open-uri
       input.open {|f|
-        input = f.read.untaint
+        input = f.read
         input_charset = f.charset if f.respond_to? :charset
       }
     end

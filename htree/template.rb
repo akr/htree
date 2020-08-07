@@ -349,7 +349,7 @@ def HTree.expand_template(*args, &block)
     obj = args.fetch(0) { Object.new }
     args.shift
     if pathname.respond_to? :read
-      template = pathname.read.untaint
+      template = pathname.read
       if template.respond_to? :charset
         if template.respond_to? :encode
           template = template.encode(HTree::Encoder.internal_charset, template.charset)
@@ -358,7 +358,7 @@ def HTree.expand_template(*args, &block)
         end
       end
     else
-      template = File.read(pathname).untaint
+      template = File.read(pathname)
     end
     Thread.current[:htree_expand_template_obj] = obj
     binding = eval(<<-'End',
@@ -700,7 +700,7 @@ End
 
   def valid_syntax?(code)
     begin
-      eval("BEGIN {return true}\n#{code.untaint}")
+      eval("BEGIN {return true}\n#{code}")
     rescue SyntaxError
       raise SyntaxError, "invalid code: #{code}"
     end
