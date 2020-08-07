@@ -60,7 +60,7 @@ module HTree
         unacceptable = unacceptable.map {|uc| uc.inspect }.join(', ')
         raise TypeError, "Unacceptable document child: #{unacceptable}"
       end
-    end 
+    end
 
     def get_subnode_internal(index) # :nodoc:
       unless Integer === index
@@ -84,7 +84,7 @@ module HTree
     # [Array of above] specified HTree::Node and String is used in that order.
     # [nil] delete corresponding node.
     #
-    #   d = HTree('<a/><b/><c/>')        
+    #   d = HTree('<a/><b/><c/>')
     #   p d.subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})
     #   p d.subst_subnode([[0,HTree('<x/>')], [2,HTree('<z/>')]])
     #   # =>
@@ -145,5 +145,5 @@ module HTree
       children = [children_left, children, children_right].flatten.compact
       Doc.new(children)
     end
-  end 
+  end
 end

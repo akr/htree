@@ -119,7 +119,7 @@ module HTree
       flush_buffer
       @code << line << "\n"
     end
-                       
+
     def output_string(str)
       return if str.empty?
       if @state != :string
@@ -135,7 +135,7 @@ module HTree
         # Assumption: external charset can represent white spaces and
         # ASCII printable.
         output_string(str)
-        return 
+        return
       end
       if @state != :text
         flush_buffer

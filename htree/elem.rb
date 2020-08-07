@@ -145,7 +145,7 @@ module HTree
     # [nil] delete corresponding node.
     #
     #   e = HTree('<r><a/><b/><c/></r>').root
-    #   p e.subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})  
+    #   p e.subst_subnode({0=>HTree('<x/>'), 2=>HTree('<z/>')})
     #   p e.subst_subnode([[0, HTree('<x/>')], [2,HTree('<z/>')]])
     #   # =>
     #   {elem <r> {emptyelem <x>} {emptyelem <b>} {emptyelem <z>}}
@@ -235,7 +235,7 @@ module HTree
           @stag.element_name,
           @stag.context,
           *attrs)
-      else 
+      else
         Elem.new(
           @stag.element_name,
           @stag.context,
@@ -243,7 +243,7 @@ module HTree
           *attrs)
       end
     end
-  end 
+  end
 
   module Elem::Trav
     private

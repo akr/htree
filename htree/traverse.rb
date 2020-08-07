@@ -38,7 +38,7 @@ module HTree
     end
 
     # +find_element+ searches an element which universal name is specified by
-    # the arguments. 
+    # the arguments.
     # It returns nil if not found.
     def find_element(*names)
       traverse_element(*names) {|e| return e }
@@ -50,10 +50,10 @@ module HTree
     #
     # If _names_ are empty, it yields all elements.
     # If non-empty _names_ are given, it should be list of universal names.
-    # 
+    #
     # A nested element is yielded in depth first order as follows.
     #
-    #   t = HTree('<a id=0><b><a id=1 /></b><c id=2 /></a>') 
+    #   t = HTree('<a id=0><b><a id=1 /></b><c id=2 /></a>')
     #   t.traverse_element("a", "c") {|e| p e}
     #   # =>
     #   {elem <a id="0"> {elem <b> {emptyelem <a id="1">} </b>} {emptyelem <c id="2">} </a>}
@@ -65,7 +65,7 @@ module HTree
     #   t = HTree(<<'End')
     #   <html>
     #   <meta name="robots" content="index,nofollow">
-    #   <meta name="author" content="Who am I?">    
+    #   <meta name="author" content="Who am I?">
     #   </html>
     #   End
     #   t.traverse_element("{http://www.w3.org/1999/xhtml}meta") {|e| p e}
@@ -320,7 +320,7 @@ module HTree
           return author if !author.empty?
         rescue IndexError
         end
-      } 
+      }
 
       if channel = find_element('{http://purl.org/rss/1.0/}channel')
         channel.traverse_element('{http://purl.org/dc/elements/1.1/}creator') {|e|
@@ -481,13 +481,13 @@ module HTree
     def get_attribute(uname)
       uname = uname.universal_name if uname.respond_to? :universal_name
       update_attribute_hash[uname]
-    end 
+    end
 
     def get_attr(uname)
       if text = update_attribute_hash[uname]
         text.to_s
       else
-        nil 
+        nil
       end
     end
 

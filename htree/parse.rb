@@ -24,7 +24,7 @@ module HTree
   # If it is guessed as HTML, the default namespace in the result is set to http://www.w3.org/1999/xhtml
   # regardless of <i>input</i> has XML namespace declaration or not nor even it is pre-XML HTML.
   #
-  # If it is guessed as HTML and not XML, all element and attribute names are downcaseed. 
+  # If it is guessed as HTML and not XML, all element and attribute names are downcaseed.
   #
   # If opened file or read content has charset method,
   # HTree.parse decode it according to $KCODE before parsing.
@@ -313,7 +313,7 @@ module HTree
         "#{s};"
       when '&'
         '&amp;'
-      else 
+      else
         if NamedCharactersPattern =~ name
           "&#{name};"
         else

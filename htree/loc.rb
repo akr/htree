@@ -313,7 +313,7 @@ end
 
 module HTree::Container::Loc
   # +get_subnode+ returns a location object which points to a subnode
-  # indexed by _index_. 
+  # indexed by _index_.
   def get_subnode_internal(index) # :nodoc:
     return @subloc[index] if @subloc.include? index
     node = @node.get_subnode(index)

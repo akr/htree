@@ -72,7 +72,7 @@ n=                              nil     ''      'n'
           raise HTree::Error, "Name object for xmlns:* must not have namespace URI: #{@namespace_uri.inspect}"
         end
       else
-        unless String === @namespace_uri 
+        unless String === @namespace_uri
           raise HTree::Error, "invalid namespace URI: #{@namespace_uri.inspect}"
         end
       end

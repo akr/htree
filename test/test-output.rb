@@ -72,12 +72,12 @@ class TestOutput < Test::Unit::TestCase
       gen(HTree::STag.new("name"), :output_emptytag))
     assert_equal("</name\n>",
       gen(HTree::STag.new("name"), :output_etag))
-      
+
     assert_equal("<name a=\"b\"\n/>",
       gen(HTree::STag.new("name", [["a", "b"]]), :output_emptytag))
     assert_equal("<name a=\"&lt;&quot;\'&gt;\"\n/>",
       gen(HTree::STag.new("name", [['a', '<"\'>']]), :output_emptytag))
-      
+
     assert_equal("<ppp:nnn xmlns=\"uuu&quot;b\"\n/>",
       gen(HTree::STag.new("ppp:nnn", [["xmlns", "uuu\"b"]]), :output_emptytag))
   end
