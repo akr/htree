@@ -120,7 +120,6 @@ module HTree
         stack.last[2] << token
       end
     }
-    elem = nil
     while 1 < stack.length
       _, stag_raw_string, children = stack.pop
       stack.last[2] << [:elem, stag_raw_string, children]
